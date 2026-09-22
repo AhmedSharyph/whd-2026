@@ -100,12 +100,17 @@
             overflow: hidden;
             margin-bottom: 14px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            touch-action: none;
         }
 
         canvas {
             width: 100%;
             height: 100%;
             display: block;
+            cursor: grab;
+        }
+        canvas:active {
+            cursor: grabbing;
         }
 
         .controls {
@@ -130,7 +135,7 @@
             border-radius: 12px;
             cursor: pointer;
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             color: var(--deep-red);
             text-align: center;
             transition: all 0.2s;
@@ -255,12 +260,12 @@
         <!-- Controls -->
         <div class="controls">
             <label class="file-upload-btn" id="uploadLabelBtn">
-                📸 Select Photo or Selfie
-                <input type="file" id="imageUpload" accept="image/*">
+                📸 Shoot Selfie / Photo or Pick Gallery
+                <input type="file" id="imageUpload" accept="image/*" capture="user">
             </label>
 
-            <label class="field-label" for="zoomRange">Adjust Media Zoom</label>
-            <input type="range" id="zoomRange" min="0.5" max="2.5" step="0.05" value="1">
+            <label class="field-label" for="zoomRange">Adjust Media Zoom & Drag Inside Circle</label>
+            <input type="range" id="zoomRange" min="0.5" max="3.0" step="0.05" value="1">
 
             <label class="field-label" for="userName">Your Name or Team (Optional)</label>
             <input type="text" id="userName" placeholder="e.g. Community Health Team" maxlength="28">
@@ -279,7 +284,7 @@
     <script>
         const canvas = document.getElementById('creatorCanvas');
         const ctx = canvas.getContext('2d');
-        const imageUpload = document.getElementById('imageUpload');
+        let imageUpload = document.getElementById('imageUpload');
         const uploadLabelBtn = document.getElementById('uploadLabelBtn');
         const zoomRange = document.getElementById('zoomRange');
         const userNameInput = document.getElementById('userName');
@@ -291,16 +296,56 @@
         let userImage = null;
         let userVideo = null;
         let photoScale = 1;
+        let photoOffsetX = 0;
+        let photoOffsetY = 0;
         let currentMode = 'image';
         let animationId = null;
-        let scrollOffset = 0;
+        let recordingStartTime = 0;
+        let lastRecordedVideoBlob = null;
+
+        // Drag panning support
+        let isDragging = false;
+        let startX = 0, startY = 0;
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX - photoOffsetX;
+            startY = e.clientY - photoOffsetY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            photoOffsetX = e.clientX - startX;
+            photoOffsetY = e.clientY - startY;
+            if (currentMode === 'image') drawCanvas(0);
+        });
+
+        window.addEventListener('mouseup', () => { isDragging = false; });
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                startX = e.touches[0].clientX - photoOffsetX;
+                startY = e.touches[0].clientY - startY;
+            }
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (isDragging && e.touches.length === 1) {
+                photoOffsetX = e.touches[0].clientX - startX;
+                photoOffsetY = e.touches[0].clientY - startY;
+                if (currentMode === 'image') drawCanvas(0);
+            }
+        });
+
+        canvas.addEventListener('touchend', () => { isDragging = false; });
 
         // Load Hospital Logo
         const hospitalLogo = new Image();
         hospitalLogo.src = 'shah_logo.png';
         hospitalLogo.onload = () => { if (currentMode === 'image') drawCanvas(0); };
 
-        // --- Mascot System (All 6 Mascot Images) ---
+        // --- Mascot System ---
         const mascotSources = [
             'mascot_heart_1.png',
             'mascot_heart_2.png',
@@ -312,7 +357,7 @@
         
         let loadedMascots = [];
         let currentMascotIndex = 0;
-        let mascotSide = 'right'; // 'right' or 'left' bottom corner
+        let mascotSide = 'right';
 
         mascotSources.forEach((src, idx) => {
             const img = new Image();
@@ -334,8 +379,7 @@
         }
         randomizeMascot();
 
-        // Fixed Slogan & Rotating Related Heartbeat Slogans
-        const fixedBannerSlogan = "DON'T MISS A BEAT";
+        const curvedSloganText = "DON'T MISS A BEAT";
         const rotatingHeartbeatSlogans = [
             "ACT EARLY, PROTECT YOUR LIFE",
             "KNOW YOUR RISK FACTORS TODAY",
@@ -345,12 +389,16 @@
         ];
         let currentRotatingSlogan = rotatingHeartbeatSlogans[0];
 
-        // Handle Media File Selection
-        imageUpload.addEventListener('change', handleFileSelect);
+        function setupFileInputListener() {
+            imageUpload = document.getElementById('imageUpload');
+            imageUpload.addEventListener('change', handleFileSelect);
+        }
 
         function handleFileSelect(e) {
             const file = e.target.files[0];
             if (file) {
+                photoOffsetX = 0;
+                photoOffsetY = 0;
                 if (file.type.startsWith('video/')) {
                     userImage = null;
                     userVideo = document.createElement('video');
@@ -377,6 +425,8 @@
             }
         }
 
+        setupFileInputListener();
+
         zoomRange.addEventListener('input', (e) => {
             photoScale = parseFloat(e.target.value);
             if (currentMode === 'image') drawCanvas(0);
@@ -394,15 +444,14 @@
             } while (nextIndex === currentIndex);
             currentRotatingSlogan = rotatingHeartbeatSlogans[nextIndex];
             
-            // Randomize mascot and side on shuffle
             randomizeMascot();
-
             if (currentMode === 'image') drawCanvas(0);
         });
 
         function switchMode(mode) {
             currentMode = mode;
             if (animationId) cancelAnimationFrame(animationId);
+            lastRecordedVideoBlob = null;
 
             document.getElementById('modeImageBtn').classList.toggle('active', mode === 'image');
             document.getElementById('modeVideoBtn').classList.toggle('active', mode === 'video');
@@ -412,30 +461,28 @@
                 actionDownloadBtn.textContent = '💾 Save Image';
                 actionShareBtn.textContent = '📤 Share Card';
                 
-                imageUpload.setAttribute('accept', 'image/*');
-                uploadLabelBtn.innerHTML = '📸 Select Photo or Selfie <input type="file" id="imageUpload" accept="image/*">';
-                
+                uploadLabelBtn.innerHTML = '📸 Shoot Selfie / Photo or Pick Gallery <input type="file" id="imageUpload" accept="image/*" capture="user">';
                 drawCanvas(0);
             } else {
                 videoStatus.style.display = 'block';
-                videoStatus.textContent = '🎥 Video Clip Mode Active (Marquee ECG & Audio Tone)';
-                actionDownloadBtn.textContent = '📥 Export 10s Video';
-                actionShareBtn.textContent = '📤 Share Video';
+                videoStatus.textContent = '🎥 Video Clip Mode Active (Continuous 10s ECG & Audio)';
+                actionDownloadBtn.textContent = '📥 Export & Save Video';
+                actionShareBtn.textContent = '📤 Share Video Clip';
                 
-                imageUpload.setAttribute('accept', 'video/*');
-                uploadLabelBtn.innerHTML = '🎬 Select Video Clip from Gallery / Camera <input type="file" id="imageUpload" accept="video/*">';
+                uploadLabelBtn.innerHTML = '🎬 Shoot Video Clip or Pick Gallery <input type="file" id="imageUpload" accept="video/*" capture="environment">';
                 
+                recordingStartTime = performance.now();
                 startVideoPreviewLoop();
             }
             
-            document.getElementById('imageUpload').addEventListener('change', handleFileSelect);
+            setupFileInputListener();
         }
 
-        // --- Core Canvas Renderer with 6-Mascot & Backlit Glow System ---
-        function drawCanvas(offset = 0) {
+        // --- Core Canvas Renderer with Continuous 10s ECG Waveform ---
+        function drawCanvas(elapsedTime = 0) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 1. Glass-feeling Multi-stop Radial Gradient Background
+            // 1. Background Gradient
             const bgGrad = ctx.createRadialGradient(500, 500, 100, 500, 500, 800);
             bgGrad.addColorStop(0, '#f93154');
             bgGrad.addColorStop(0.6, '#d90429');
@@ -444,11 +491,10 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // 2. Maximized Central Circular Photo/Video Frame
-            const circleRadius = 340;
+            const circleRadius = 370;
             const circleX = 500;
-            const circleY = 530;
+            const circleY = 515;
 
-            // Draw User Media filling circle
             ctx.save();
             ctx.beginPath();
             ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
@@ -456,26 +502,26 @@
 
             if (userVideo && userVideo.readyState >= 2) {
                 const vSize = Math.min(userVideo.videoWidth, userVideo.videoHeight) * photoScale;
-                const vx = (userVideo.videoWidth - vSize) / 2;
-                const vy = (userVideo.videoHeight - vSize) / 2;
+                const vx = (userVideo.videoWidth - vSize) / 2 + photoOffsetX;
+                const vy = (userVideo.videoHeight - vSize) / 2 + photoOffsetY;
                 ctx.drawImage(userVideo, vx, vy, vSize, vSize, circleX - circleRadius, circleY - circleRadius, circleRadius * 2, circleRadius * 2);
             } else if (userImage) {
                 const baseSize = (circleRadius * 2) * photoScale;
-                const x = circleX - (baseSize / 2);
-                const y = circleY - (baseSize / 2);
+                const x = circleX - (baseSize / 2) + photoOffsetX;
+                const y = circleY - (baseSize / 2) + photoOffsetY;
                 ctx.drawImage(userImage, x, y, baseSize, baseSize);
             } else {
                 ctx.fillStyle = '#ffffff';
                 ctx.fill();
                 ctx.fillStyle = '#d90429';
-                ctx.font = 'bold 30px sans-serif';
+                ctx.font = 'bold 32px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText(currentMode === 'video' ? 'Select video clip' : 'Tap below to', circleX, circleY - 15);
-                ctx.fillText(currentMode === 'video' ? 'from gallery' : 'upload media', circleX, circleY + 30);
+                ctx.fillText('Tap below to', circleX, circleY - 18);
+                ctx.fillText('upload media / selfie', circleX, circleY + 25);
             }
             ctx.restore();
 
-            // Semi-transparent overlay gradient
+            // Overlay gradient
             ctx.save();
             ctx.beginPath();
             ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
@@ -488,52 +534,50 @@
             ctx.fill();
             ctx.restore();
 
-            // Glass-styled Circle Border Frame
+            // Circle Border
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
             ctx.lineWidth = 14;
             ctx.beginPath();
             ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
             ctx.stroke();
 
-            // 3. Draw Marquee-style Scrolling ECG Heartbeat Line
-            drawMarqueeEcgLine(offset);
+            // 3. Draw Normal, Continuous 10-Second ECG Heartbeat Line
+            drawContinuousNormalEcg(elapsedTime);
 
-            // 4. Random Mascot with Transparent Backlit Highlight Glow (Bottom Right or Bottom Left)
+            // 4. Random Mascot with Backlit Glow
             const activeMascot = loadedMascots[currentMascotIndex];
             if (activeMascot && activeMascot.complete && activeMascot.naturalHeight !== 0) {
-                const mHeight = 210;
+                const mHeight = 270;
                 const mWidth = (activeMascot.width / activeMascot.height) * mHeight;
-                const mX = mascotSide === 'right' ? (canvas.width - mWidth - 55) : 55;
-                const mY = 640;
+                const mX = mascotSide === 'right' ? (canvas.width - mWidth - 25) : 25;
+                const mY = 970 - mHeight;
 
-                // Transparent backlit highlight aura
                 ctx.save();
-                const backLight = ctx.createRadialGradient(mX + mWidth/2, mY + mHeight/2, 20, mX + mWidth/2, mY + mHeight/2, 130);
-                backLight.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-                backLight.addColorStop(0.4, 'rgba(255, 120, 140, 0.5)');
+                const backLight = ctx.createRadialGradient(mX + mWidth/2, mY + mHeight/2, 20, mX + mWidth/2, mY + mHeight/2, 140);
+                backLight.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
+                backLight.addColorStop(0.4, 'rgba(255, 120, 140, 0.55)');
                 backLight.addColorStop(1, 'rgba(255, 255, 255, 0)');
                 ctx.fillStyle = backLight;
                 ctx.beginPath();
-                ctx.arc(mX + mWidth/2, mY + mHeight/2, 120, 0, Math.PI * 2);
+                ctx.arc(mX + mWidth/2, mY + mHeight/2, 135, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.restore();
 
-                // Draw Mascot
                 ctx.drawImage(activeMascot, mX, mY, mWidth, mHeight);
             }
 
-            // 5. Header: Logo on Left, Title & Slogan starting right after
-            const headerY = 40;
-            let logoWidthRightEdge = 160;
+            // 5. Header: Logo & Title
+            const headerY = 25;
+            let logoWidthRightEdge = 175;
 
             if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
-                const targetLogoHeight = 85;
+                const targetLogoHeight = 75;
                 const logoWidth = (hospitalLogo.width / hospitalLogo.height) * targetLogoHeight;
                 const pillPaddingX = 14;
                 const pillPaddingY = 8;
                 const pillWidth = logoWidth + pillPaddingX * 2;
                 const pillHeight = targetLogoHeight + pillPaddingY * 2;
-                const pillX = 40;
+                const pillX = 35;
                 const pillY = headerY;
 
                 ctx.save();
@@ -546,92 +590,160 @@
                 ctx.restore();
 
                 ctx.drawImage(hospitalLogo, pillX + pillPaddingX, pillY + pillPaddingY, logoWidth, targetLogoHeight);
-                logoWidthRightEdge = pillX + pillWidth + 20;
+                logoWidthRightEdge = pillX + pillWidth + 18;
             }
 
             const textStartX = logoWidthRightEdge;
             ctx.textAlign = 'left';
             
-            // Title: WORLD HEART DAY 2026
             ctx.fillStyle = '#ffffff';
-            ctx.font = '900 34px sans-serif';
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-            ctx.shadowBlur = 10;
-            ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 42);
-
-            // Slogan: DON'T MISS A BEAT
-            ctx.font = '900 24px sans-serif';
-            ctx.fillStyle = '#ffe3e3';
-            ctx.fillText(fixedBannerSlogan, textStartX, headerY + 80);
+            ctx.font = '900 42px sans-serif';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+            ctx.shadowBlur = 12;
+            ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 52);
             ctx.shadowBlur = 0;
 
-            // 6. Custom Name or Team (if entered)
+            // 6. Curved Slogan around top arc
+            drawCurvedText(ctx, curvedSloganText, circleX, circleY, circleRadius + 22, -Math.PI * 0.78, -Math.PI * 0.22);
+
+            // 7. Custom Name
             const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
             if (nameText) {
                 ctx.textAlign = 'center';
                 ctx.fillStyle = '#fff0f3';
-                ctx.font = 'bold 22px sans-serif';
-                ctx.fillText(nameText, canvas.width / 2, 490, 600);
+                ctx.font = '900 28px sans-serif';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+                ctx.shadowBlur = 8;
+                ctx.fillText(nameText, canvas.width / 2, 470, 650);
+                ctx.shadowBlur = 0;
             }
 
-            // 7. Rotating Random Slogan positioned right at the bottom of the circle
+            // 8. Rotating Slogan
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 28px sans-serif';
+            ctx.font = '900 36px sans-serif';
             ctx.textAlign = 'center';
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-            ctx.shadowBlur = 10;
-            wrapText(ctx, currentRotatingSlogan, canvas.width / 2, 850, 750, 36);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+            ctx.shadowBlur = 12;
+            wrapText(ctx, currentRotatingSlogan, canvas.width / 2, 835, 780, 42);
 
-            // 8. Fixed Hashtags below the random slogan
+            // 9. Hashtags
             ctx.fillStyle = '#ffe3e3';
-            ctx.font = 'bold 22px sans-serif';
-            ctx.fillText("#DontMissABeat   #UseHeart", canvas.width / 2, 910);
+            ctx.font = '900 28px sans-serif';
+            ctx.fillText("#DontMissABeat   #UseHeart", canvas.width / 2, 912);
             ctx.shadowBlur = 0;
 
-            // 9. Developer Credit at the Very Bottom in Thin Small Font
+            // 10. Developer Credit
             ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
             ctx.font = '300 15px sans-serif';
             ctx.fillText("Developed by: Ahmed Shareef for Shaviyani Atoll Hospital", canvas.width / 2, 970);
         }
 
-        // Draw Marquee-style Continuous Scrolling ECG Line
-        function drawMarqueeEcgLine(offset = 0) {
+        // --- Complete Continuous Normal 10-Second ECG Waveform Generator ---
+        function drawContinuousNormalEcg(elapsedTime) {
             ctx.save();
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 6;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
-            ctx.shadowBlur = 12;
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.95)';
+            ctx.shadowBlur = 14;
             ctx.beginPath();
-            
-            const ecgY = 675;
-            const repeatWidth = 500;
-            
-            for (let x = -repeatWidth + (offset % repeatWidth); x < canvas.width + repeatWidth; x += repeatWidth) {
-                ctx.moveTo(x, ecgY);
-                ctx.lineTo(x + 100, ecgY);
-                ctx.lineTo(x + 120, ecgY - 15);
-                ctx.lineTo(x + 140, ecgY);
-                ctx.lineTo(x + 155, ecgY + 25);
-                ctx.lineTo(x + 180, ecgY - 210);
-                ctx.lineTo(x + 205, ecgY + 70);
-                ctx.lineTo(x + 230, ecgY);
-                ctx.lineTo(x + 265, ecgY - 45);
-                ctx.lineTo(x + repeatWidth, ecgY);
+
+            const ecgY = 665;
+            const totalDuration = 10000; // 10 seconds total duration
+            const progress = currentMode === 'video' ? Math.min(1, elapsedTime / totalDuration) : 1.0;
+            const maxVisibleX = canvas.width * progress;
+
+            // Mathematical single normal heartbeat template function (P-QRS-T complex)
+            function getEcgOffset(t) {
+                // normalize t within a beat cycle (e.g., 80 beats per minute -> 750ms per cycle)
+                const cycleTime = 750;
+                const localT = t % cycleTime;
+                
+                // Baseline
+                let val = 0;
+                
+                // P wave (Atrial depolarization) around 150ms
+                if (localT > 100 && localT < 220) {
+                    val -= 12 * Math.sin(((localT - 100) / 120) * Math.PI);
+                }
+                // Q wave
+                else if (localT >= 260 && localT < 290) {
+                    val += 18;
+                }
+                // R wave (Main ventricular spike) sharp upward
+                else if (localT >= 290 && localT < 340) {
+                    val -= 195 * Math.sin(((localT - 290) / 50) * Math.PI);
+                }
+                // S wave
+                else if (localT >= 340 && localT < 380) {
+                    val += 45 * Math.sin(((localT - 340) / 40) * Math.PI);
+                }
+                // T wave (Ventricular repolarization) around 500ms
+                else if (localT >= 460 && localT < 640) {
+                    val -= 28 * Math.sin(((localT - 460) / 180) * Math.PI);
+                }
+                return val;
             }
-            
+
+            // Draw smooth continuous line across the canvas width
+            let started = false;
+            // In video mode, we scroll or sweep smoothly across the 10s span
+            const timeShift = currentMode === 'video' ? elapsedTime : (performance.now() * 0.4);
+
+            for (let x = 0; x <= (currentMode === 'video' ? maxVisibleX : canvas.width); x += 3) {
+                // Map screen x position to time t
+                const t = x * 2.2 + timeShift;
+                const y = ecgY + getEcgOffset(t);
+
+                if (!started) {
+                    ctx.moveTo(x, y);
+                    started = true;
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+
             ctx.stroke();
             ctx.restore();
         }
 
-        // --- Video Preview & Marquee Scroll Animation Loop ---
+        // Helper for curved text
+        function drawCurvedText(context, str, centerX, centerY, radius, startAngle, endAngle) {
+            context.save();
+            context.font = '900 29px sans-serif';
+            context.fillStyle = '#ffe3e3';
+            context.shadowColor = 'rgba(0, 0, 0, 0.8)';
+            context.shadowBlur = 10;
+            
+            let currentAngle = startAngle;
+            for (let i = 0; i < str.length; i++) {
+                const char = str[i];
+                const charWidth = context.measureText(char).width;
+                const angleSpan = charWidth / radius;
+                
+                context.save();
+                context.translate(centerX, centerY);
+                context.rotate(currentAngle + angleSpan / 2);
+                context.translate(0, -radius);
+                context.fillText(char, 0, 0);
+                context.restore();
+                
+                currentAngle += angleSpan;
+            }
+            context.restore();
+        }
+
         function startVideoPreviewLoop() {
             function loop(timestamp) {
                 if (currentMode !== 'video') return;
-                scrollOffset = (timestamp * 0.3) % 500;
-                drawCanvas(scrollOffset);
-                animationId = requestAnimationFrame(loop);
+                const elapsed = timestamp - recordingStartTime;
+                drawCanvas(elapsed);
+                if (elapsed < 10000) {
+                    animationId = requestAnimationFrame(loop);
+                } else {
+                    videoStatus.textContent = '✅ 10s Continuous ECG Video Preview Finished!';
+                }
             }
             animationId = requestAnimationFrame(loop);
         }
@@ -666,9 +778,15 @@
                     return;
                 }
 
+                if (lastRecordedVideoBlob) {
+                    downloadVideoBlob(lastRecordedVideoBlob);
+                    return;
+                }
+
                 videoStatus.style.display = 'block';
-                videoStatus.textContent = '🎥 Recording 10s video clip with marquee ECG & audio... Please wait.';
+                videoStatus.textContent = '🎥 Recording exact 10s continuous normal ECG video clip... Please wait.';
                 
+                recordingStartTime = performance.now();
                 const stream = canvas.captureStream(30);
                 
                 try {
@@ -681,13 +799,13 @@
                         const gain = audioCtx.createGain();
                         osc.type = 'sine';
                         osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-                        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
                         osc.connect(gain);
                         gain.connect(dest);
                         osc.start();
-                        osc.stop(audioCtx.currentTime + 0.15);
-                    }, 800);
+                        osc.stop(audioCtx.currentTime + 0.12);
+                    }, 750); // Beep matches normal heart rate rhythm
 
                     const combinedStream = new MediaStream([
                         ...stream.getVideoTracks(),
@@ -700,16 +818,14 @@
                     recorder.ondataavailable = e => chunks.push(e.data);
                     recorder.onstop = () => {
                         clearInterval(interval);
-                        const blob = new Blob(chunks, { type: 'video/webm' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'world-heart-day-2026.webm';
-                        a.click();
-                        videoStatus.textContent = '✅ 10s Marquee Video Clip saved successfully!';
+                        lastRecordedVideoBlob = new Blob(chunks, { type: 'video/webm' });
+                        downloadVideoBlob(lastRecordedVideoBlob);
+                        videoStatus.textContent = '✅ 10s Normal ECG Video Clip saved successfully!';
                     };
 
                     recorder.start();
+                    startVideoPreviewLoop();
+
                     setTimeout(() => {
                         recorder.stop();
                     }, 10000);
@@ -722,19 +838,50 @@
             }
         });
 
-        actionShareBtn.addEventListener('click', async () => {
-            const dataUrl = canvas.toDataURL('image/png');
-            const blob = await (await fetch(dataUrl)).blob();
-            const file = new File([blob], 'world-heart-day-2026.png', { type: 'image/png' });
+        function downloadVideoBlob(blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'world-heart-day-2026-clip.webm';
+            a.click();
+        }
 
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    title: 'World Heart Day 2026',
-                    text: `${fixedBannerSlogan} - ${currentRotatingSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
-                    files: [file]
-                });
+        actionShareBtn.addEventListener('click', async () => {
+            if (currentMode === 'image') {
+                const dataUrl = canvas.toDataURL('image/png');
+                const blob = await (await fetch(dataUrl)).blob();
+                const file = new File([blob], 'world-heart-day-2026.png', { type: 'image/png' });
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: 'World Heart Day 2026',
+                        text: `${curvedSloganText} - ${currentRotatingSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
+                        files: [file]
+                    });
+                } else {
+                    alert("Direct sharing is restricted in this browser view. Please use 'Save Image' instead!");
+                }
             } else {
-                alert("Direct sharing is restricted in this browser view. Please use 'Save Image' instead!");
+                if (!lastRecordedVideoBlob) {
+                    alert("Please click 'Export & Save Video' first so the 10s video clip can be recorded for sharing!");
+                    return;
+                }
+
+                const videoFile = new File([lastRecordedVideoBlob], 'world-heart-day-2026-clip.webm', { type: 'video/webm' });
+
+                if (navigator.canShare && navigator.canShare({ files: [videoFile] })) {
+                    try {
+                        await navigator.share({
+                            title: 'World Heart Day 2026 Video Clip',
+                            text: `${curvedSloganText} - ${currentRotatingSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
+                            files: [videoFile]
+                        });
+                    } catch (err) {
+                        console.log('Share canceled or failed', err);
+                    }
+                } else {
+                    alert("Direct video sharing is not supported on this browser/device. Your video was saved to your downloads folder!");
+                }
             }
         });
 
