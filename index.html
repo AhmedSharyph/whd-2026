@@ -272,7 +272,7 @@
 
             <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Slogan & Mascot</button>
             
-            <div id="videoStatus">Recording 10s Video Clip... Please wait.</div>
+            <div id="videoStatus">Recording 10s MP4 Video Clip... Please wait.</div>
 
             <div class="btn-group">
                 <button class="btn btn-download" id="actionDownloadBtn">💾 Save Image</button>
@@ -407,7 +407,6 @@
                     userVideo.muted = true;
                     userVideo.playsInline = true;
                     userVideo.crossOrigin = "anonymous";
-                    
                     userVideo.play().catch(err => console.log("Auto-play prevented:", err));
                     
                     userVideo.onloadeddata = () => {
@@ -464,16 +463,14 @@
                 actionDownloadBtn.textContent = '💾 Save Image';
                 actionShareBtn.textContent = '📤 Share Card';
                 
-                // Allow selecting photos or capturing via camera
                 uploadLabelBtn.innerHTML = '📸 Shoot Photo or Select from Gallery <input type="file" id="imageUpload" accept="image/*">';
                 drawCanvas(0);
             } else {
                 videoStatus.style.display = 'block';
-                videoStatus.textContent = '🎥 Video Clip Mode Active (Continuous 10s ECG & Audio)';
-                actionDownloadBtn.textContent = '📥 Export & Save Video';
-                actionShareBtn.textContent = '📤 Share Video Clip';
+                videoStatus.textContent = '🎥 10s MP4 Video Mode Active (Continuous ECG & Audio)';
+                actionDownloadBtn.textContent = '📥 Export MP4 Video';
+                actionShareBtn.textContent = '📤 Share MP4 Video';
                 
-                // Fixed: Explicitly accepts video files and allows gallery selection or live video recording
                 uploadLabelBtn.innerHTML = '🎬 Record Video or Select from Gallery <input type="file" id="imageUpload" accept="video/*">';
                 
                 recordingStartTime = performance.now();
@@ -708,7 +705,7 @@
                 if (elapsed < 10000) {
                     animationId = requestAnimationFrame(loop);
                 } else {
-                    videoStatus.textContent = '✅ 10s Continuous ECG Video Preview Finished!';
+                    videoStatus.textContent = '✅ 10s Continuous ECG MP4 Preview Finished!';
                 }
             }
             animationId = requestAnimationFrame(loop);
@@ -731,7 +728,7 @@
             context.fillText(line, x, currentY);
         }
 
-        // --- Export & Share Handlers ---
+        // --- Export & Share Handlers (MP4 Format Only) ---
         actionDownloadBtn.addEventListener('click', async () => {
             if (currentMode === 'image') {
                 const link = document.createElement('a');
@@ -750,7 +747,7 @@
                 }
 
                 videoStatus.style.display = 'block';
-                videoStatus.textContent = '🎥 Recording exact 10s continuous normal ECG video clip... Please wait.';
+                videoStatus.textContent = '🎥 Recording exact 10s continuous normal ECG MP4 video... Please wait.';
                 
                 recordingStartTime = performance.now();
                 const stream = canvas.captureStream(30);
@@ -778,15 +775,24 @@
                         ...dest.stream.getAudioTracks()
                     ]);
 
-                    const recorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm' });
+                    // Determine optimal MP4 supported MIME type configuration
+                    let mime = 'video/mp4;codecs=avc1.42E01E,mp4a.40.2';
+                    if (!MediaRecorder.isTypeSupported(mime)) {
+                        mime = 'video/mp4';
+                        if (!MediaRecorder.isTypeSupported(mime)) {
+                            mime = 'video/webm;codecs=h264,opus'; // Fallback container wrapper for compatibility
+                        }
+                    }
+
+                    const recorder = new MediaRecorder(combinedStream, { mimeType: mime });
                     let chunks = [];
 
                     recorder.ondataavailable = e => chunks.push(e.data);
                     recorder.onstop = () => {
                         clearInterval(interval);
-                        lastRecordedVideoBlob = new Blob(chunks, { type: 'video/webm' });
+                        lastRecordedVideoBlob = new Blob(chunks, { type: 'video/mp4' });
                         downloadVideoBlob(lastRecordedVideoBlob);
-                        videoStatus.textContent = '✅ 10s Normal ECG Video Clip saved successfully!';
+                        videoStatus.textContent = '✅ 10s Normal ECG Video saved successfully in MP4 format!';
                     };
 
                     recorder.start();
@@ -798,7 +804,7 @@
 
                 } catch (err) {
                     console.error(err);
-                    alert("Video export error: " + err.message);
+                    alert("MP4 Video export error: " + err.message);
                     videoStatus.style.display = 'none';
                 }
             }
@@ -808,7 +814,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'world-heart-day-2026-clip.webm';
+            a.download = 'world-heart-day-2026-clip.mp4';
             a.click();
         }
 
@@ -829,11 +835,11 @@
                 }
             } else {
                 if (!lastRecordedVideoBlob) {
-                    alert("Please click 'Export & Save Video' first so the 10s video clip can be recorded for sharing!");
+                    alert("Please click 'Export MP4 Video' first so the 10s video clip can be recorded for sharing!");
                     return;
                 }
 
-                const videoFile = new File([lastRecordedVideoBlob], 'world-heart-day-2026-clip.webm', { type: 'video/webm' });
+                const videoFile = new File([lastRecordedVideoBlob], 'world-heart-day-2026-clip.mp4', { type: 'video/mp4' });
 
                 if (navigator.canShare && navigator.canShare({ files: [videoFile] })) {
                     try {
@@ -846,7 +852,7 @@
                         console.log('Share canceled or failed', err);
                     }
                 } else {
-                    alert("Direct video sharing is not supported on this browser/device. Your video was saved to your downloads folder!");
+                    alert("Direct video sharing is not supported on this browser/device. Your MP4 video was saved to your downloads folder!");
                 }
             }
         });
