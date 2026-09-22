@@ -28,7 +28,7 @@
       width: 100%;
       overflow: hidden;
       touch-action: manipulation;
-      background: #f5f5f7; /* neutral fallback — no red outer area */
+      background: #f5f5f7;
     }
 
     body {
@@ -50,7 +50,7 @@
       -moz-osx-font-smoothing: grayscale;
       overscroll-behavior: none;
       -webkit-overflow-scrolling: touch;
-      background: #ffffff; /* no gradient — clean fit */
+      background: #ffffff;
     }
 
     /* ===== APP SHELL (fills device exactly) ===== */
@@ -61,8 +61,13 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      position: relative;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: #ffffff;
+      border-radius: 0;
     }
 
     /* ===== SCROLLABLE CONTENT ===== */
@@ -215,7 +220,7 @@
       user-select: none;
     }
 
-    /* ===== RANGE SLIDER (mobile-optimized) ===== */
+    /* ===== RANGE SLIDER ===== */
     .range-wrapper {
       width: 100%;
       padding: 0 2px;
@@ -412,12 +417,7 @@
       }
     }
 
-    /* ===== HIDE DESKTOP NOTICE ===== */
-    .desktop-note {
-      display: none;
-    }
-
-    /* ===== DISABLE TEXT SELECTION GLOBALLY ===== */
+    /* ===== DISABLE TEXT SELECTION ===== */
     .app, .app * {
       -webkit-user-select: none;
       -moz-user-select: none;
@@ -425,7 +425,6 @@
       user-select: none;
     }
 
-    /* Allow input selection */
     input[type="text"] {
       -webkit-user-select: text;
       -moz-user-select: text;
@@ -446,16 +445,6 @@
 
     .scroll-area > * {
       animation: fadeIn 0.3s ease both;
-    }
-
-    /* ===== FULL DEVICE COVERAGE ===== */
-    .app {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border-radius: 0;
     }
   </style>
 </head>
@@ -616,7 +605,7 @@
         "USE HEART TO CONNECT & CARE"
       ];
 
-      // ===== DRAW SCHEDULER (throttle) =====
+      // ===== DRAW SCHEDULER =====
       let drawScheduled = false;
       function scheduleDraw() {
         if (drawScheduled) return;
@@ -904,11 +893,12 @@
           userVideo = document.createElement('video');
           userVideo.src = URL.createObjectURL(file);
           userVideo.loop = true;
-          userVideo.muted = true;
+          userVideo.muted = false; // ← keep original audio
           userVideo.playsInline = true;
           userVideo.setAttribute('playsinline', '');
           userVideo.setAttribute('webkit-playsinline', '');
           userVideo.crossOrigin = 'anonymous';
+          userVideo.volume = 1.0;
           userVideo.play().catch(() => {});
           userVideo.onloadeddata = () => scheduleDraw();
           userImage = null;
@@ -953,7 +943,7 @@
 
       canvas.addEventListener('touchcancel', () => { isDragging = false; });
 
-      // Mouse fallback (desktop testing)
+      // Mouse fallback
       canvas.addEventListener('mousedown', (e) => {
         isDragging = true;
         startX = e.clientX - photoOffsetX;
@@ -1009,7 +999,7 @@
           scheduleDraw();
         } else {
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 10s MP4 Video Mode · ECG + audio';
+          videoStatus.textContent = '🎥 10s Video · Original audio preserved';
           actionDownloadBtn.textContent = '📥 Export MP4';
           actionShareBtn.textContent = '📤 Share MP4';
           uploadBtnText.textContent = '🎬 Record / Select Video';
@@ -1055,33 +1045,38 @@
           }
 
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 Recording 10s MP4 video... Please wait.';
+          videoStatus.textContent = '🎥 Recording 10s video with original audio... Please wait.';
 
           recordingStartTime = performance.now();
-          const stream = canvas.captureStream(30);
+          const canvasStream = canvas.captureStream(30);
 
           try {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const dest = audioCtx.createMediaStreamDestination();
+            // Attempt to capture the user video's audio track
+            let combinedStream;
+            let audioCtx = null;
 
-            const interval = setInterval(() => {
-              if (audioCtx.state === 'suspended') audioCtx.resume();
-              const osc = audioCtx.createOscillator();
-              const gain = audioCtx.createGain();
-              osc.type = 'sine';
-              osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-              gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
-              gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
-              osc.connect(gain);
-              gain.connect(dest);
-              osc.start();
-              osc.stop(audioCtx.currentTime + 0.12);
-            }, 750);
-
-            const combinedStream = new MediaStream([
-              ...stream.getVideoTracks(),
-              ...dest.stream.getAudioTracks()
-            ]);
+            if (userVideo && userVideo.srcObject instanceof MediaStream) {
+              // Rare case — but if video element already has a stream
+              combinedStream = new MediaStream([
+                ...canvasStream.getVideoTracks(),
+                ...userVideo.srcObject.getAudioTracks()
+              ]);
+            } else if (userVideo) {
+              // Route the video element's audio into the MediaStream
+              audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+              const source = audioCtx.createMediaElementSource(userVideo);
+              const dest = audioCtx.createMediaStreamDestination();
+              source.connect(dest);
+              // Also connect to speakers so user can hear during recording
+              source.connect(audioCtx.destination);
+              combinedStream = new MediaStream([
+                ...canvasStream.getVideoTracks(),
+                ...dest.stream.getAudioTracks()
+              ]);
+            } else {
+              // No video — video-only stream
+              combinedStream = new MediaStream([...canvasStream.getVideoTracks()]);
+            }
 
             let mime = 'video/mp4;codecs=avc1.42E01E,mp4a.40.2';
             if (!MediaRecorder.isTypeSupported(mime)) {
@@ -1096,10 +1091,10 @@
 
             recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
             recorder.onstop = () => {
-              clearInterval(interval);
+              if (audioCtx) audioCtx.close().catch(() => {});
               lastRecordedVideoBlob = new Blob(chunks, { type: 'video/mp4' });
               downloadVideoBlob(lastRecordedVideoBlob);
-              videoStatus.textContent = '✅ 10s video saved as MP4!';
+              videoStatus.textContent = '✅ 10s video saved with original audio!';
             };
 
             recorder.start();
@@ -1111,7 +1106,7 @@
 
           } catch (err) {
             console.error(err);
-            alert('MP4 Video export error: ' + err.message);
+            alert('Video export error: ' + err.message + '\n\nNote: Audio capture works best when a video with sound is uploaded.');
             videoStatus.classList.remove('visible');
           }
         }
