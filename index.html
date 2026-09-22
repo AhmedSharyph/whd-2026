@@ -370,7 +370,7 @@
                 videoStatus.style.display = 'none';
                 actionDownloadBtn.textContent = '💾 Save Image';
                 actionShareBtn.textContent = '📤 Share Card';
-                drawCanvas(0); // static offset in image mode
+                drawCanvas(0);
             } else {
                 videoStatus.style.display = 'block';
                 videoStatus.textContent = '🎥 Video Mode Active (Marquee ECG & Audio Tone)';
@@ -380,7 +380,7 @@
             }
         }
 
-        // --- Core Canvas Renderer ---
+        // --- Core Canvas Renderer with Left-Aligned Logo & Side-by-Side Header ---
         function drawCanvas(offset = 0) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -395,7 +395,7 @@
             // 2. Maximized Central Circular Photo/Video Frame
             const circleRadius = 340;
             const circleX = 500;
-            const circleY = 510;
+            const circleY = 530;
 
             // Draw User Media (Video or Photo) filling the circle first
             ctx.save();
@@ -447,16 +447,20 @@
             // 3. Draw Marquee-style Scrolling ECG Heartbeat Line
             drawMarqueeEcgLine(offset);
 
-            // 4. Centered Logo on Top inside a clean Frosted White Glass Pill Badge
+            // 4. Header: Logo on Left, Title & Slogan on Right (Side-by-side with matched height)
+            const headerY = 50;
+            const headerHeight = 110; // Total height matching title + slogan block
+
+            // Draw Frosted White Glass Pill Badge for the Left Logo
             if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
-                const logoHeight = 55;
-                const logoWidth = (hospitalLogo.width / hospitalLogo.height) * logoHeight;
-                const pillPaddingX = 20;
-                const pillPaddingY = 10;
+                const targetLogoHeight = headerHeight - 10;
+                const logoWidth = (hospitalLogo.width / hospitalLogo.height) * targetLogoHeight;
+                const pillPaddingX = 14;
+                const pillPaddingY = 8;
                 const pillWidth = logoWidth + pillPaddingX * 2;
-                const pillHeight = logoHeight + pillPaddingY * 2;
-                const pillX = (canvas.width - pillWidth) / 2;
-                const pillY = 22;
+                const pillHeight = targetLogoHeight + pillPaddingY * 2;
+                const pillX = 40; // Left aligned
+                const pillY = headerY - 5;
 
                 ctx.save();
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
@@ -467,46 +471,50 @@
                 ctx.fill();
                 ctx.restore();
 
-                ctx.drawImage(hospitalLogo, pillX + pillPaddingX, pillY + pillPaddingY, logoWidth, logoHeight);
+                ctx.drawImage(hospitalLogo, pillX + pillPaddingX, pillY + pillPaddingY, logoWidth, targetLogoHeight);
             }
 
-            // 5. Title Full Width: "WORLD HEART DAY 2026"
+            // Aligned Title & Slogan to the right of the logo
+            const textStartX = 230;
+            ctx.textAlign = 'left';
+            
+            // Title: WORLD HEART DAY 2026
             ctx.fillStyle = '#ffffff';
-            ctx.font = '900 44px sans-serif';
-            ctx.textAlign = 'center';
+            ctx.font = '900 38px sans-serif';
             ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-            ctx.shadowBlur = 12;
-            ctx.fillText('WORLD HEART DAY 2026', canvas.width / 2, 125);
+            ctx.shadowBlur = 10;
+            ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 40);
 
-            // 6. Wider Sub-Banner Slogan: "DON'T MISS A BEAT"
-            ctx.font = '900 34px sans-serif';
+            // Slogan: DON'T MISS A BEAT
+            ctx.font = '900 28px sans-serif';
             ctx.fillStyle = '#ffe3e3';
-            ctx.fillText(fixedBannerSlogan, canvas.width / 2, 172);
-
-            // 7. Custom Name or Team (if entered)
-            const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
-            if (nameText) {
-                ctx.fillStyle = '#fff0f3';
-                ctx.font = 'bold 22px sans-serif';
-                ctx.fillText(nameText, canvas.width / 2, 480, 600);
-            }
+            ctx.fillText(fixedBannerSlogan, textStartX, headerY + 82);
             ctx.shadowBlur = 0;
 
-            // 8. Rotating Random Slogan positioned right at the bottom of the circle
+            // 5. Custom Name or Team (if entered)
+            const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
+            if (nameText) {
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#fff0f3';
+                ctx.font = 'bold 22px sans-serif';
+                ctx.fillText(nameText, canvas.width / 2, 490, 600);
+            }
+
+            // 6. Rotating Random Slogan positioned right at the bottom of the circle
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 28px sans-serif';
             ctx.textAlign = 'center';
             ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
             ctx.shadowBlur = 10;
-            wrapText(ctx, currentRotatingSlogan, canvas.width / 2, 835, 750, 36);
+            wrapText(ctx, currentRotatingSlogan, canvas.width / 2, 850, 750, 36);
 
-            // 9. Fixed Hashtags below the random slogan
+            // 7. Fixed Hashtags below the random slogan
             ctx.fillStyle = '#ffe3e3';
             ctx.font = 'bold 22px sans-serif';
-            ctx.fillText("#DontMissABeat   #UseHeart", canvas.width / 2, 895);
+            ctx.fillText("#DontMissABeat   #UseHeart", canvas.width / 2, 910);
             ctx.shadowBlur = 0;
 
-            // 10. Developer Credit at the Very Bottom in Thin Small Font
+            // 8. Developer Credit at the Very Bottom in Thin Small Font
             ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
             ctx.font = '300 15px sans-serif';
             ctx.fillText("Developed by: Ahmed Shareef for Shaviyani Atoll Hospital", canvas.width / 2, 970);
@@ -523,17 +531,16 @@
             ctx.shadowBlur = 12;
             ctx.beginPath();
             
-            const ecgY = 660;
-            const repeatWidth = 500; // width of one heartbeat pattern cycle
+            const ecgY = 675;
+            const repeatWidth = 500;
             
-            // Draw repeating heartbeat segments across the screen with scrolling offset
             for (let x = -repeatWidth + (offset % repeatWidth); x < canvas.width + repeatWidth; x += repeatWidth) {
                 ctx.moveTo(x, ecgY);
                 ctx.lineTo(x + 100, ecgY);
                 ctx.lineTo(x + 120, ecgY - 15);
                 ctx.lineTo(x + 140, ecgY);
                 ctx.lineTo(x + 155, ecgY + 25);
-                ctx.lineTo(x + 180, ecgY - 210); // R peak spike
+                ctx.lineTo(x + 180, ecgY - 210);
                 ctx.lineTo(x + 205, ecgY + 70);
                 ctx.lineTo(x + 230, ecgY);
                 ctx.lineTo(x + 265, ecgY - 45);
@@ -548,9 +555,7 @@
         function startVideoPreviewLoop() {
             function loop(timestamp) {
                 if (currentMode !== 'video') return;
-                
-                scrollOffset = (timestamp * 0.3) % 500; // smooth scrolling marquee speed
-
+                scrollOffset = (timestamp * 0.3) % 500;
                 drawCanvas(scrollOffset);
                 animationId = requestAnimationFrame(loop);
             }
