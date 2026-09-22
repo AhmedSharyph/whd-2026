@@ -478,7 +478,7 @@
             setupFileInputListener();
         }
 
-        // --- Core Canvas Renderer with Upper Curved Slogan ---
+        // --- Core Canvas Renderer ---
         function drawCanvas(elapsedTime = 0) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -604,8 +604,8 @@
             ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 48);
             ctx.shadowBlur = 0;
 
-            // 6. UPPER CURVED SLOGAN: "DON'T MISS A BEAT" arched cleanly above the top of the circle/heartbeat line
-            drawCurvedText(ctx, curvedSloganText, circleX, circleY, circleRadius + 32, -Math.PI * 0.75, -Math.PI * 0.25);
+            // 6. EXPANDED & UPWARD-CURVED SLOGAN: Positioned just below the main title, gently arched to match the circle's curvature
+            drawCurvedText(ctx, curvedSloganText, canvas.width / 2, 185, 390, -Math.PI * 0.28, Math.PI * 0.28);
 
             // 7. Custom Name
             const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
@@ -639,15 +639,18 @@
             ctx.fillText("Developed by: Ahmed Shareef for Shaviyani Atoll Hospital", canvas.width / 2, 970);
         }
 
-        // Helper to draw curved text along the upper circular path
+        // Helper to draw text curved across an upward-facing arch matching the circle
         function drawCurvedText(context, str, centerX, centerY, radius, startAngle, endAngle) {
             context.save();
-            context.font = '900 32px sans-serif';
+            context.font = '900 31px sans-serif';
             context.fillStyle = '#ffe3e3';
             context.shadowColor = 'rgba(0, 0, 0, 0.9)';
             context.shadowBlur = 12;
             
-            let currentAngle = startAngle;
+            const totalAngle = endAngle - startAngle;
+            // Center the text block along the top arch
+            let currentAngle = -totalAngle / 2;
+            
             for (let i = 0; i < str.length; i++) {
                 const char = str[i];
                 const charWidth = context.measureText(char).width;
