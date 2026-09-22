@@ -12,10 +12,9 @@
 
     <style>
         :root {
-            --primary-red: #c1121f;
-            --dark-red: #780000;
-            --accent-pink: #fdf0ed;
-            --bg-color: #f7f9fa;
+            --primary-red: #d90429;
+            --dark-red: #8d0801;
+            --bg-color: #f8f9fa;
         }
 
         body {
@@ -37,7 +36,7 @@
             max-width: 400px;
             padding: 16px;
             border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(193, 18, 31, 0.12);
+            box-shadow: 0 10px 25px rgba(217, 4, 41, 0.12);
             box-sizing: border-box;
             text-align: center;
         }
@@ -89,7 +88,7 @@
         }
 
         .file-upload-btn {
-            background: var(--accent-pink);
+            background: #ffe3e3;
             border: 2px dashed var(--primary-red);
             padding: 10px;
             border-radius: 10px;
@@ -102,7 +101,7 @@
         }
 
         .file-upload-btn:active {
-            background: #f8d7da;
+            background: #ffc9c9;
         }
 
         input[type="file"] {
@@ -208,7 +207,21 @@
         let userImage = null;
         let photoScale = 1;
 
-        // Official 2026 Rotating Campaign Slogans
+        // 1. Load Frame Background Image
+        const frameBg = new Image();
+        frameBg.src = 'frame-bg.png';
+        frameBg.onload = () => drawCanvas();
+        frameBg.onerror = () => {
+            console.warn('frame-bg.png not found. Falling back to solid red background.');
+            drawCanvas();
+        };
+
+        // 2. Load Hospital Logo
+        const hospitalLogo = new Image();
+        hospitalLogo.src = 'shah_logo.png';
+        hospitalLogo.onload = () => drawCanvas();
+
+        // Official Rotating Campaign Slogans
         const campaignThemes = [
             "Don't Miss a Beat: See the Hidden Signs",
             "Protect Your Heart: Act Early & Live Well",
@@ -218,7 +231,7 @@
         ];
         let currentSlogan = campaignThemes[0];
 
-        // Load Default State
+        // Handle Photo Upload
         imageUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -249,81 +262,78 @@
             drawCanvas();
         });
 
-        // Helper: Draw Heart Path Geometry
-        function getHeartPath() {
-            const path = new Path2D();
-            path.moveTo(500, 310);
-            path.bezierCurveTo(410, 190, 250, 210, 250, 370);
-            path.bezierCurveTo(250, 530, 500, 710, 500, 710);
-            path.bezierCurveTo(500, 710, 750, 530, 750, 370);
-            path.bezierCurveTo(750, 210, 590, 190, 500, 310);
-            path.closePath();
-            return path;
-        }
-
         // Core Canvas Renderer
         function drawCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 1. Background Fill (Clean White)
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Layer 1: Draw Frame Background Image (or solid red fallback if image is missing)
+            if (frameBg.complete && frameBg.naturalHeight !== 0) {
+                ctx.drawImage(frameBg, 0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.fillStyle = '#d90429';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
 
-            // 2. Render User Photo inside Heart Mask
+            // Layer 2: Define Photo Box Dimensions (Transparent cutout area where photo sits)
+            const boxX = 120;
+            const boxY = 120;
+            const boxSize = 540;
+            const radius = 24;
+
+            // Save state for clipping the user image inside the rounded box
             ctx.save();
-            const heartPath = getHeartPath();
-            ctx.clip(heartPath);
+            ctx.beginPath();
+            ctx.roundRect(boxX, boxY, boxSize, boxSize, radius);
+            ctx.clip();
 
             if (userImage) {
-                const baseSize = Math.max(canvas.width, canvas.height) * photoScale;
-                const x = (canvas.width - baseSize) / 2;
-                const y = (canvas.height - baseSize) / 2 + 30; // slight offset for heart centering
+                const baseSize = boxSize * photoScale;
+                const x = boxX + (boxSize - baseSize) / 2;
+                const y = boxY + (boxSize - baseSize) / 2;
                 ctx.drawImage(userImage, x, y, baseSize, baseSize);
             } else {
-                // Placeholder gradient inside heart
-                const grad = ctx.createLinearGradient(0, 200, 0, 700);
-                grad.addColorStop(0, '#f8d7da');
-                grad.addColorStop(1, '#f1f3f5');
-                ctx.fillStyle = grad;
-                ctx.fill(heartPath);
+                ctx.fillStyle = '#f8f9fa';
+                ctx.fillRect(boxX, boxY, boxSize, boxSize);
 
-                ctx.fillStyle = '#c1121f';
-                ctx.font = 'bold 32px sans-serif';
+                ctx.fillStyle = '#8d0801';
+                ctx.font = 'bold 30px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('Tap above to', 500, 430);
-                ctx.fillText('upload photo', 500, 475);
+                ctx.fillText('Tap below to', canvas.width / 2, boxY + 250);
+                ctx.fillText('upload your photo', canvas.width / 2, boxY + 295);
             }
             ctx.restore();
 
-            // 3. Campaign Red Frame Border & Accents
-            ctx.strokeStyle = '#c1121f';
-            ctx.lineWidth = 14;
-            ctx.stroke(heartPath);
+            // Layer 3: White Border Frame Around the Photo Box
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 10;
+            ctx.beginPath();
+            ctx.roundRect(boxX, boxY, boxSize, boxSize, radius);
+            ctx.stroke();
 
-            // Outer decorative corners / Header band
-            ctx.fillStyle = '#c1121f';
-            ctx.fillRect(0, 0, canvas.width, 100);
+            // Layer 4: Draw Hospital Logo (Top Left Corner)
+            if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
+                const logoHeight = 65;
+                const logoWidth = (hospitalLogo.width / hospitalLogo.height) * logoHeight;
+                ctx.drawImage(hospitalLogo, 40, 25, logoWidth, logoHeight);
+            }
 
-            // Top Header Text
+            // Layer 5: Top Header Text (White)
             ctx.fillStyle = '#ffffff';
-            ctx.font = '900 44px sans-serif';
+            ctx.font = '900 40px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('WORLD HEART DAY 2026', canvas.width / 2, 62);
+            ctx.fillText('WORLD HEART DAY 2026', canvas.width / 2 + 30, 70);
 
-            // Bottom Banner Band
-            ctx.fillStyle = '#780000';
-            ctx.fillRect(0, canvas.height - 150, canvas.width, 150);
-
-            // Rotating Slogan
+            // Layer 6: Bottom Slogan & Text Area
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 30px sans-serif';
-            wrapText(ctx, currentSlogan, canvas.width / 2, canvas.height - 100, canvas.width - 80, 38);
+            ctx.font = 'bold 28px sans-serif';
+            ctx.textAlign = 'center';
+            wrapText(ctx, currentSlogan, canvas.width / 2, 735, canvas.width - 80, 38);
 
-            // Custom Name / Hashtags
+            // Custom Name or Hashtags
             const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "#DontMissABeat #UseHeart";
-            ctx.fillStyle = '#ffccd5';
+            ctx.fillStyle = '#ffe3e3';
             ctx.font = 'bold 22px sans-serif';
-            ctx.fillText(nameText, canvas.width / 2, canvas.height - 32);
+            ctx.fillText(nameText, canvas.width / 2, 845);
         }
 
         // Text Wrapping Utility
@@ -344,9 +354,6 @@
             }
             context.fillText(line, x, currentY);
         }
-
-        // Initial canvas paint on load
-        drawCanvas();
 
         // Download Action
         downloadBtn.addEventListener('click', () => {
