@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>World Heart Day 2026 - Creator</title>
+    <title>World Heart Day 2026 - Creator & Video Generator</title>
     
     <!-- PWA & Mobile Meta Tags -->
-    <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="WHD Creator">
+    <meta name="apple-mobile-web-app-title" content="WHD Generator">
 
     <style>
         :root {
@@ -53,8 +52,37 @@
         p.subtitle {
             font-size: 0.8rem;
             color: #6c757d;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             font-weight: 500;
+        }
+
+        /* Mode Switcher Tabs */
+        .mode-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 12px;
+            background: #e9ecef;
+            padding: 4px;
+            border-radius: 10px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #495057;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: #ffffff;
+            color: var(--primary-red);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         }
 
         .canvas-wrapper {
@@ -91,11 +119,11 @@
         .file-upload-btn {
             background: #ffe3e3;
             border: 2px dashed var(--primary-red);
-            padding: 12px;
+            padding: 10px;
             border-radius: 10px;
             cursor: pointer;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--primary-red);
             text-align: center;
             transition: background 0.2s;
@@ -112,11 +140,11 @@
 
         input[type="text"], input[type="range"] {
             width: 100%;
-            padding: 10px;
+            padding: 9px;
             border-radius: 8px;
             border: 1px solid #ced4da;
             box-sizing: border-box;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             outline: none;
         }
 
@@ -161,6 +189,14 @@
             background: var(--primary-red);
             color: white;
         }
+
+        #videoStatus {
+            font-size: 0.75rem;
+            color: var(--primary-red);
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -169,6 +205,12 @@
         <h2>WORLD HEART DAY 2026</h2>
         <p class="subtitle">#DontMissABeat #UseHeart</p>
         
+        <!-- Mode Switcher -->
+        <div class="mode-tabs">
+            <button class="tab-btn active" id="modeImageBtn" onclick="switchMode('image')">📷 Photo Poster Mode</button>
+            <button class="tab-btn" id="modeVideoBtn" onclick="switchMode('video')">🎥 10s Video Clip Mode</button>
+        </div>
+
         <!-- Live Preview Canvas -->
         <div class="canvas-wrapper">
             <canvas id="creatorCanvas" width="1000" height="1000"></canvas>
@@ -176,9 +218,10 @@
 
         <!-- Controls -->
         <div class="controls">
+            <!-- Mobile Camera & Gallery Trigger -->
             <label class="file-upload-btn">
-                📸 Take Selfie or Choose Photo
-                <input type="file" id="imageUpload" accept="image/*" capture="user">
+                📸 Take Selfie / Choose from Gallery
+                <input type="file" id="imageUpload" accept="image/*">
             </label>
 
             <label class="field-label" for="zoomRange">Adjust Photo Zoom</label>
@@ -189,9 +232,11 @@
 
             <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Official Theme</button>
             
+            <div id="videoStatus">Recording 10s Video Clip... Please wait.</div>
+
             <div class="btn-group">
-                <button class="btn btn-download" id="downloadBtn">💾 Save Image</button>
-                <button class="btn btn-share" id="shareBtn">📤 Share Card</button>
+                <button class="btn btn-download" id="actionDownloadBtn">💾 Save Image</button>
+                <button class="btn btn-share" id="actionShareBtn">📤 Share Card</button>
             </div>
         </div>
     </div>
@@ -203,18 +248,22 @@
         const zoomRange = document.getElementById('zoomRange');
         const userNameInput = document.getElementById('userName');
         const shuffleBtn = document.getElementById('shuffleBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const shareBtn = document.getElementById('shareBtn');
+        const actionDownloadBtn = document.getElementById('actionDownloadBtn');
+        const actionShareBtn = document.getElementById('actionShareBtn');
+        const videoStatus = document.getElementById('videoStatus');
 
         let userImage = null;
         let photoScale = 1;
+        let currentMode = 'image'; // 'image' or 'video'
+        let animationId = null;
+        let pulsePhase = 0;
 
         // Load Hospital Logo
         const hospitalLogo = new Image();
         hospitalLogo.src = 'shah_logo.png';
-        hospitalLogo.onload = () => drawCanvas();
+        hospitalLogo.onload = () => { if (currentMode === 'image') drawStaticCanvas(); };
 
-        // Official World Heart Day 2026 Themes & Slogans
+        // Official World Heart Day Themes & Slogans
         const campaignThemes = [
             "DON'T MISS A BEAT",
             "USE HEART FOR ACTION",
@@ -224,7 +273,7 @@
         ];
         let currentSlogan = campaignThemes[0];
 
-        // Handle Photo Upload / Camera Capture
+        // Handle Photo Upload / Gallery Selection
         imageUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -232,7 +281,9 @@
                 reader.onload = (event) => {
                     userImage = new Image();
                     userImage.src = event.target.result;
-                    userImage.onload = () => drawCanvas();
+                    userImage.onload = () => {
+                        if (currentMode === 'image') drawStaticCanvas();
+                    };
                 };
                 reader.readAsDataURL(file);
             }
@@ -240,10 +291,12 @@
 
         zoomRange.addEventListener('input', (e) => {
             photoScale = parseFloat(e.target.value);
-            drawCanvas();
+            if (currentMode === 'image') drawStaticCanvas();
         });
 
-        userNameInput.addEventListener('input', () => drawCanvas());
+        userNameInput.addEventListener('input', () => {
+            if (currentMode === 'image') drawStaticCanvas();
+        });
 
         shuffleBtn.addEventListener('click', () => {
             const currentIndex = campaignThemes.indexOf(currentSlogan);
@@ -252,58 +305,50 @@
                 nextIndex = Math.floor(Math.random() * campaignThemes.length);
             } while (nextIndex === currentIndex);
             currentSlogan = campaignThemes[nextIndex];
-            drawCanvas();
+            if (currentMode === 'image') drawStaticCanvas();
         });
 
-        // Core Canvas Renderer: Red BG, Full Healthy P-Q-R-S-T ECG, Left-Touching Circle Frame, and 2026 Branding
-        function drawCanvas() {
+        // Mode Switcher Logic
+        function switchMode(mode) {
+            currentMode = mode;
+            if (animationId) cancelAnimationFrame(animationId);
+
+            document.getElementById('modeImageBtn').classList.toggle('active', mode === 'image');
+            document.getElementById('modeVideoBtn').classList.toggle('active', mode === 'video');
+
+            if (mode === 'image') {
+                videoStatus.style.display = 'none';
+                actionDownloadBtn.textContent = '💾 Save Image';
+                actionShareBtn.textContent = '📤 Share Card';
+                drawStaticCanvas();
+            } else {
+                videoStatus.style.display = 'block';
+                videoStatus.textContent = '🎥 Video Mode Active (Animated Pulse & Audio Tone)';
+                actionDownloadBtn.textContent = '📥 Export 10s Video';
+                actionShareBtn.textContent = '📤 Share Video';
+                startVideoPreviewLoop();
+            }
+        }
+
+        // --- Core Rendering for Static Image ---
+        function drawStaticCanvas(pulse = 0) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 1. Red Campaign Background
+            // 1. Red Background
             ctx.fillStyle = '#d90429';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // 2. Draw Full Healthy Rhythm ECG Heartbeat Line (P-Q-R-S-T Waves repeating)
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 6;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.beginPath();
-            
-            const ecgY = 560;
-            ctx.moveTo(0, ecgY);
-            // First Beat Rhythm Cycle
-            ctx.lineTo(100, ecgY);
-            ctx.lineTo(120, ecgY - 15); // P wave
-            ctx.lineTo(140, ecgY);     // baseline
-            ctx.lineTo(155, ecgY + 25); // Q dip
-            ctx.lineTo(180, ecgY - 220); // R peak (tall healthy spike)
-            ctx.lineTo(205, ecgY + 70); // S wave drop
-            ctx.lineTo(230, ecgY);     // baseline
-            ctx.lineTo(265, ecgY - 50); // T wave
-            ctx.lineTo(300, ecgY);
-            
-            // Second Beat Rhythm Cycle
-            ctx.lineTo(450, ecgY);
-            ctx.lineTo(470, ecgY - 15); // P wave
-            ctx.lineTo(490, ecgY);
-            ctx.lineTo(505, ecgY + 25); // Q dip
-            ctx.lineTo(530, ecgY - 220); // R peak
-            ctx.lineTo(555, ecgY + 70); // S wave
-            ctx.lineTo(580, ecgY);
-            ctx.lineTo(615, ecgY - 50); // T wave
-            ctx.lineTo(750, ecgY);
-            ctx.lineTo(1000, ecgY);
-            ctx.stroke();
+            // 2. ECG Heartbeat Line with optional pulse scaling
+            drawEcgLine(pulse);
 
-            // 3. Draw Hospital Logo (Top Left Corner)
+            // 3. Hospital Logo
             if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
                 const logoHeight = 60;
                 const logoWidth = (hospitalLogo.width / hospitalLogo.height) * logoHeight;
                 ctx.drawImage(hospitalLogo, 50, 40, logoWidth, logoHeight);
             }
 
-            // 4. Top Header Text: "WORLD HEART DAY 2026" in White
+            // 4. Header Title
             ctx.fillStyle = '#ffffff';
             ctx.font = '900 44px sans-serif';
             ctx.textAlign = 'center';
@@ -311,12 +356,11 @@
             ctx.font = '900 34px sans-serif';
             ctx.fillText('2026', canvas.width / 2, 170);
 
-            // 5. Circular Photo Frame Configuration (Shifted Left, touching left side)
-            const circleRadius = 210;
-            const circleX = circleRadius + 40; // touching left margin edge
+            // 5. Left-Aligned Circle Photo Frame
+            const circleRadius = 210 + (pulse > 0 ? pulse * 4 : 0); // subtle heartbeat scale effect
+            const circleX = circleRadius + 40;
             const circleY = 560;
 
-            // Save state for circular clipping
             ctx.save();
             ctx.beginPath();
             ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
@@ -328,10 +372,8 @@
                 const y = circleY - (baseSize / 2);
                 ctx.drawImage(userImage, x, y, baseSize, baseSize);
             } else {
-                // Placeholder background inside the circle
                 ctx.fillStyle = '#ffffff';
                 ctx.fill();
-
                 ctx.fillStyle = '#d90429';
                 ctx.font = 'bold 26px sans-serif';
                 ctx.textAlign = 'center';
@@ -340,32 +382,73 @@
             }
             ctx.restore();
 
-            // 6. Clean White Border Stroke around the Left Circle
+            // Circle Border
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 12;
             ctx.beginPath();
             ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
             ctx.stroke();
 
-            // 7. Theme Slogan & Custom Name on the Right Side / Bottom
+            // 6. Theme Slogan & Name
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 32px sans-serif';
             ctx.textAlign = 'center';
             wrapText(ctx, currentSlogan, 700, 420, 500, 42);
 
-            // Custom Name or Official Hashtags at Bottom Right
             const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "#DontMissABeat #UseHeart";
             ctx.fillStyle = '#ffe3e3';
             ctx.font = 'bold 24px sans-serif';
             ctx.fillText(nameText, 700, 740, 520);
         }
 
-        // Text Wrapping Utility
+        // Draw ECG Line Helper
+        function drawEcgLine(pulse = 0) {
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            
+            const ecgY = 560;
+            ctx.moveTo(0, ecgY);
+            ctx.lineTo(100, ecgY);
+            ctx.lineTo(120, ecgY - 15);
+            ctx.lineTo(140, ecgY);
+            ctx.lineTo(155, ecgY + 25);
+            ctx.lineTo(180, ecgY - (220 + pulse * 20)); // Dynamic pulse spike
+            ctx.lineTo(205, ecgY + 70);
+            ctx.lineTo(230, ecgY);
+            ctx.lineTo(265, ecgY - 50);
+            ctx.lineTo(300, ecgY);
+            
+            ctx.lineTo(450, ecgY);
+            ctx.lineTo(470, ecgY - 15);
+            ctx.lineTo(490, ecgY);
+            ctx.lineTo(505, ecgY + 25);
+            ctx.lineTo(530, ecgY - (220 + pulse * 20));
+            ctx.lineTo(555, ecgY + 70);
+            ctx.lineTo(580, ecgY);
+            ctx.lineTo(615, ecgY - 50);
+            ctx.lineTo(750, ecgY);
+            ctx.lineTo(1000, ecgY);
+            ctx.stroke();
+        }
+
+        // --- Video Preview & Animation Loop ---
+        function startVideoPreviewLoop() {
+            function loop(timestamp) {
+                if (currentMode !== 'video') return;
+                pulsePhase = Math.sin(timestamp / 200) > 0.8 ? 1 : 0; // Heartbeat trigger pulse
+                drawStaticCanvas(pulsePhase);
+                animationId = requestAnimationFrame(loop);
+            }
+            animationId = requestAnimationFrame(loop);
+        }
+
         function wrapText(context, text, x, y, maxWidth, lineHeight) {
             const words = text.split(' ');
             let line = '';
             let currentY = y;
-
             for (let n = 0; n < words.length; n++) {
                 const testLine = line + words[n] + ' ';
                 if (context.measureText(testLine).width > maxWidth && n > 0) {
@@ -379,36 +462,97 @@
             context.fillText(line, x, currentY);
         }
 
-        // Download Action
-        downloadBtn.addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.download = 'world-heart-day-2026.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        });
-
-        // Web Share API (Android & iOS Native Share)
-        shareBtn.addEventListener('click', async () => {
-            try {
-                const dataUrl = canvas.toDataURL('image/png');
-                const blob = await (await fetch(dataUrl)).blob();
-                const file = new File([blob], 'world-heart-day-2026.png', { type: 'image/png' });
-
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        title: 'World Heart Day 2026',
-                        text: `${currentSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
-                        files: [file]
-                    });
-                } else {
-                    alert("Direct sharing is restricted in this browser view. Please use 'Save Image' instead!");
+        // --- Export & Share Handlers ---
+        actionDownloadBtn.addEventListener('click', async () => {
+            if (currentMode === 'image') {
+                const link = document.createElement('a');
+                link.download = 'world-heart-day-2026.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } else {
+                // Video Recording Mode using MediaRecorder (10 seconds)
+                if (!window.MediaRecorder) {
+                    alert("Video recording is not supported on this browser.");
+                    return;
                 }
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.error("Sharing failed:", err);
+
+                videoStatus.style.display = 'block';
+                videoStatus.textContent = '🎥 Recording 10s video clip with audio simulation... Please wait.';
+                
+                const stream = canvas.captureStream(30); // 30 FPS canvas stream
+                
+                // Add synthetic heartbeat audio tone using Web Audio API
+                try {
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const dest = audioCtx.createMediaStreamDestination();
+                    
+                    // Periodic soft heartbeat beep simulation
+                    const interval = setInterval(() => {
+                        if (audioCtx.state === 'suspended') audioCtx.resume();
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(120, audioCtx.currentTime); // low thump tone
+                        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                        osc.connect(gain);
+                        gain.connect(dest);
+                        osc.start();
+                        osc.stop(audioCtx.currentTime + 0.15);
+                    }, 800);
+
+                    // Combine video stream and audio destination
+                    const combinedStream = new MediaStream([
+                        ...stream.getVideoTracks(),
+                        ...dest.stream.getAudioTracks()
+                    ]);
+
+                    const recorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm' });
+                    let chunks = [];
+
+                    recorder.ondataavailable = e => chunks.push(e.data);
+                    recorder.onstop = () => {
+                        clearInterval(interval);
+                        const blob = new Blob(chunks, { type: 'video/webm' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'world-heart-day-2026.webm';
+                        a.click();
+                        videoStatus.textContent = '✅ 10s Video Clip saved successfully!';
+                    };
+
+                    recorder.start();
+                    setTimeout(() => {
+                        recorder.stop();
+                    }, 10000); // exactly 10 seconds
+
+                } catch (err) {
+                    console.error(err);
+                    alert("Video export error: " + err.message);
+                    videoStatus.style.display = 'none';
                 }
             }
         });
+
+        actionShareBtn.addEventListener('click', async () => {
+            const dataUrl = canvas.toDataURL('image/png');
+            const blob = await (await fetch(dataUrl)).blob();
+            const file = new File([blob], 'world-heart-day-2026.png', { type: 'image/png' });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: 'World Heart Day 2026',
+                    text: `${currentSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
+                    files: [file]
+                });
+            } else {
+                alert("Direct sharing is restricted in this browser view. Please use 'Save Image' instead!");
+            }
+        });
+
+        // Initial paint
+        drawStaticCanvas();
     </script>
 </body>
 </html>
