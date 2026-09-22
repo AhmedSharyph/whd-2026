@@ -2,109 +2,160 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>World Heart Day 2026 · Creator Studio</title>
-  <!-- PWA & Mobile Meta -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="WHD Creator">
   <meta name="theme-color" content="#7a0010">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="screen-orientation" content="portrait">
+  <meta name="x5-orientation" content="portrait">
+  <title>WHD 2026 · Mobile Studio</title>
   <style>
-    /* ----- RESET & GLOBAL ----- */
-    * {
+    /* ===== RESET & GLOBAL (MOBILE-FIRST) ===== */
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      height: 100%;
+      overflow: hidden;
+      touch-action: manipulation;
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background: radial-gradient(circle at 30% 20%, #b3001b, #4a000b);
-      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #4a000b;
+      background: radial-gradient(circle at 50% 30%, #b3001b 0%, #4a000b 100%);
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 16px;
+      justify-content: flex-start;
+      padding: 0;
       margin: 0;
       color: #1a1a1a;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overscroll-behavior: none;
+      -webkit-overflow-scrolling: touch;
     }
 
-    /* ----- GLASS CARD ----- */
-    .creator-container {
+    /* ===== APP SHELL (full-height mobile) ===== */
+    .app {
       width: 100%;
-      max-width: 460px;
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: 32px;
-      padding: 24px 20px 20px;
-      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      transition: all 0.2s ease;
+      height: 100%;
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
     }
 
-    h1 {
-      font-size: 1.3rem;
+    /* ===== SCROLLABLE CONTENT ===== */
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 16px 16px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      scroll-behavior: smooth;
+      overscroll-behavior: contain;
+    }
+
+    /* ===== HEADER ===== */
+    .app-header {
+      text-align: center;
+      padding: 4px 0 2px;
+      flex-shrink: 0;
+    }
+
+    .app-header h1 {
+      font-size: 1.15rem;
       font-weight: 800;
       letter-spacing: -0.02em;
       color: #7a0010;
-      text-align: center;
-      margin-bottom: 2px;
+      line-height: 1.2;
     }
 
-    .subtitle {
-      text-align: center;
-      font-size: 0.7rem;
-      font-weight: 600;
+    .app-header .sub {
+      font-size: 0.62rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #8a5a5a;
-      margin-bottom: 16px;
+      letter-spacing: 0.1em;
+      color: #9a5a5a;
+      margin-top: 2px;
     }
 
-    /* ----- MODE TABS ----- */
+    /* ===== MODE TABS ===== */
     .mode-tabs {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      background: rgba(0, 0, 0, 0.06);
+      gap: 4px;
+      background: rgba(0, 0, 0, 0.05);
       padding: 4px;
       border-radius: 14px;
-      margin-bottom: 16px;
+      flex-shrink: 0;
     }
 
     .tab-btn {
       background: transparent;
       border: none;
-      padding: 10px 8px;
-      font-size: 0.8rem;
+      padding: 12px 4px;
+      font-size: 0.78rem;
       font-weight: 700;
-      color: #5a3a3a;
-      border-radius: 10px;
+      color: #6a4040;
+      border-radius: 11px;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1);
+      transition: all 0.22s cubic-bezier(0.2, 0.9, 0.4, 1);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 5px;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
     }
 
     .tab-btn.active {
       background: #ffffff;
       color: #b3001b;
-      box-shadow: 0 6px 14px rgba(180, 20, 40, 0.15);
+      box-shadow: 0 4px 12px rgba(180, 20, 40, 0.18);
     }
 
-    /* ----- CANVAS WRAPPER ----- */
-    .canvas-wrapper {
-      position: relative;
+    .tab-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* ===== CANVAS (square, full-width) ===== */
+    .canvas-wrap {
       width: 100%;
       aspect-ratio: 1 / 1;
       background: #1a0004;
-      border-radius: 24px;
+      border-radius: 20px;
       overflow: hidden;
-      margin-bottom: 18px;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.3);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+      flex-shrink: 0;
+      position: relative;
       touch-action: none;
     }
 
@@ -112,69 +163,123 @@
       width: 100%;
       height: 100%;
       display: block;
-      cursor: grab;
       touch-action: none;
     }
 
-    canvas:active {
-      cursor: grabbing;
-    }
-
-    /* ----- CONTROLS ----- */
-    .controls {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .field-label {
-      font-size: 0.68rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #5e3e3e;
-      margin-left: 4px;
-      margin-bottom: 2px;
-    }
-
-    .file-upload-btn {
+    /* ===== UPLOAD BUTTON ===== */
+    .upload-btn {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      background: linear-gradient(135deg, #fff5f6, #ffe6e9);
+      background: linear-gradient(135deg, #fff5f6, #ffe4e7);
       border: 2px dashed #c81e1e;
-      padding: 14px 12px;
+      padding: 16px 14px;
       border-radius: 16px;
       font-weight: 700;
       font-size: 0.82rem;
       color: #990011;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 4px 10px rgba(200, 30, 30, 0.08);
+      box-shadow: 0 4px 10px rgba(200, 30, 30, 0.06);
       text-align: center;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
+      flex-shrink: 0;
     }
 
-    .file-upload-btn:active {
+    .upload-btn:active {
       transform: scale(0.98);
-      background: #ffd9dd;
+      background: #ffd6db;
     }
 
-    .file-upload-btn input[type="file"] {
+    .upload-btn input[type="file"] {
       display: none;
     }
 
+    /* ===== FIELD GROUPS ===== */
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .field-label {
+      font-size: 0.64rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #5e3e3e;
+      margin-left: 4px;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    /* ===== RANGE SLIDER (mobile-optimized) ===== */
+    .range-wrapper {
+      width: 100%;
+      padding: 0 2px;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      background: #e8d0d0;
+      border-radius: 6px;
+      outline: none;
+      margin: 8px 0 4px;
+      touch-action: manipulation;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #c81e1e;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(200, 30, 30, 0.4);
+      border: 3px solid #fff;
+      transition: transform 0.1s;
+      touch-action: manipulation;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:active {
+      transform: scale(1.15);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #c81e1e;
+      cursor: pointer;
+      border: 3px solid #fff;
+      box-shadow: 0 3px 10px rgba(200, 30, 30, 0.4);
+    }
+
+    /* ===== TEXT INPUT ===== */
     input[type="text"] {
       width: 100%;
-      padding: 12px 14px;
+      padding: 14px 16px;
       border-radius: 14px;
       border: 1.5px solid rgba(0, 0, 0, 0.08);
       background: #fff;
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       font-weight: 500;
       outline: none;
       transition: all 0.2s;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+      -webkit-appearance: none;
+      appearance: none;
+      touch-action: manipulation;
+      color: #1a1a1a;
     }
 
     input[type="text"]:focus {
@@ -182,143 +287,258 @@
       box-shadow: 0 0 0 3px rgba(200, 30, 30, 0.1);
     }
 
-    input[type="range"] {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 6px;
-      background: #e0c0c0;
-      border-radius: 4px;
-      outline: none;
-      margin: 4px 0 2px;
+    input[type="text"]::placeholder {
+      color: #b09090;
+      font-weight: 400;
     }
 
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: #c81e1e;
+    /* ===== BUTTONS ===== */
+    .btn {
+      width: 100%;
+      padding: 16px 12px;
+      border-radius: 16px;
+      border: none;
+      font-weight: 700;
+      font-size: 0.84rem;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(200, 30, 30, 0.4);
-      border: 2px solid #fff;
+      transition: all 0.2s;
+      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
+      -webkit-appearance: none;
+      appearance: none;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-shuffle {
+      background: #23232e;
+      font-size: 0.86rem;
+    }
+
+    .btn-download {
+      background: #111;
+    }
+
+    .btn-share {
+      background: linear-gradient(135deg, #d90429, #7a0010);
     }
 
     .btn-group {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 4px;
+      flex-shrink: 0;
     }
 
-    .btn {
-      width: 100%;
-      padding: 14px 10px;
-      border-radius: 16px;
-      border: none;
-      font-weight: 700;
-      font-size: 0.82rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .btn:active {
-      transform: scale(0.97);
-    }
-
-    .btn-shuffle {
-      background: #23232e;
-      color: white;
-      grid-column: span 2;
-      font-size: 0.85rem;
-    }
-
-    .btn-download {
-      background: #111;
-      color: white;
-    }
-
-    .btn-share {
-      background: linear-gradient(135deg, #d90429, #7a0010);
-      color: white;
-    }
-
-    #videoStatus {
-      font-size: 0.74rem;
+    /* ===== VIDEO STATUS ===== */
+    .video-status {
+      font-size: 0.72rem;
       font-weight: 600;
       color: #990011;
       text-align: center;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 8px;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 10px;
       border-radius: 12px;
       display: none;
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(200, 30, 30, 0.2);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(200, 30, 30, 0.18);
+      flex-shrink: 0;
+      line-height: 1.4;
     }
 
-    /* ----- UTILITY ----- */
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      border: 0;
+    .video-status.visible {
+      display: block;
+    }
+
+    /* ===== FOOTER ===== */
+    .app-footer {
+      text-align: center;
+      font-size: 0.58rem;
+      color: #b09090;
+      font-weight: 500;
+      padding: 6px 0 2px;
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
+    }
+
+    /* ===== SAFE AREA PADDING ===== */
+    @supports (padding: env(safe-area-inset-bottom)) {
+      .scroll-area {
+        padding-bottom: calc(28px + env(safe-area-inset-bottom));
+      }
+      .app-footer {
+        padding-bottom: calc(4px + env(safe-area-inset-bottom));
+      }
+    }
+
+    /* ===== RESPONSIVE TOUCH TARGETS (small phones) ===== */
+    @media (max-height: 700px) {
+      .scroll-area {
+        gap: 10px;
+        padding: 10px 12px 20px;
+      }
+      .app-header h1 {
+        font-size: 1rem;
+      }
+      .canvas-wrap {
+        border-radius: 16px;
+      }
+      .upload-btn {
+        padding: 13px 12px;
+        font-size: 0.78rem;
+      }
+      .btn {
+        padding: 13px 10px;
+        font-size: 0.8rem;
+      }
+      input[type="text"] {
+        padding: 12px 14px;
+        font-size: 0.85rem;
+      }
+      .tab-btn {
+        padding: 10px 4px;
+        font-size: 0.72rem;
+      }
+    }
+
+    /* ===== PREVENT DESKTOP INTERACTION (visual hint) ===== */
+    @media (min-width: 601px) {
+      body::after {
+        content: '📱 This studio is designed for mobile — please use a phone.';
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1a1a1a;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 40px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        z-index: 9999;
+        white-space: nowrap;
+        opacity: 0.9;
+        pointer-events: none;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    /* ===== HIDE DESKTOP-ONLY ELEMENTS ===== */
+    @media (min-width: 601px) {
+      .desktop-note {
+        display: block;
+      }
+    }
+    @media (max-width: 600px) {
+      .desktop-note {
+        display: none;
+      }
+    }
+
+    /* ===== DISABLE TEXT SELECTION GLOBALLY ===== */
+    .app, .app * {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Allow input selection */
+    input[type="text"] {
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
+    }
+
+    /* ===== DISABLE PULL-TO-REFRESH ===== */
+    body {
+      overscroll-behavior-y: none;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .scroll-area > * {
+      animation: fadeIn 0.3s ease both;
     }
   </style>
 </head>
 <body>
-  <div class="creator-container">
-    <h1>SHAH HEALTH PORTAL</h1>
-    <div class="subtitle">World Heart Day 2026 Studio</div>
+  <div class="app" id="app">
+    <div class="scroll-area" id="scrollArea">
 
-    <!-- MODE SWITCH -->
-    <div class="mode-tabs">
-      <button class="tab-btn active" id="modeImageBtn" onclick="switchMode('image')" aria-label="Photo poster mode">
-        📷 Photo Poster
-      </button>
-      <button class="tab-btn" id="modeVideoBtn" onclick="switchMode('video')" aria-label="10 second video clip mode">
-        🎥 10s Video
-      </button>
-    </div>
+      <!-- HEADER -->
+      <header class="app-header">
+        <h1>SHAH HEALTH PORTAL</h1>
+        <div class="sub">World Heart Day 2026 · Mobile Studio</div>
+      </header>
 
-    <!-- CANVAS -->
-    <div class="canvas-wrapper">
-      <canvas id="creatorCanvas" width="1000" height="1000"></canvas>
-    </div>
+      <!-- MODE SWITCH -->
+      <div class="mode-tabs" id="modeTabs">
+        <button class="tab-btn active" id="modeImageBtn" onclick="switchMode('image')" aria-label="Photo poster mode">
+          📷 Photo
+        </button>
+        <button class="tab-btn" id="modeVideoBtn" onclick="switchMode('video')" aria-label="10 second video mode">
+          🎥 10s Video
+        </button>
+      </div>
 
-    <!-- CONTROLS -->
-    <div class="controls">
-      <!-- Upload button — label wraps hidden input, so it's fully accessible -->
-      <label class="file-upload-btn" id="uploadLabelBtn">
+      <!-- CANVAS -->
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="creatorCanvas" width="1000" height="1000"></canvas>
+      </div>
+
+      <!-- UPLOAD -->
+      <label class="upload-btn" id="uploadLabelBtn" for="mediaUpload">
         <span id="uploadBtnText">📸 Shoot / Select Photo</span>
-        <input type="file" id="imageUpload" accept="image/*">
+        <input type="file" id="mediaUpload" accept="image/*" capture="environment">
       </label>
 
-      <div>
-        <div class="field-label">Zoom & Drag inside circle</div>
-        <input type="range" id="zoomRange" min="0.5" max="3.0" step="0.05" value="1">
+      <!-- ZOOM -->
+      <div class="field-group">
+        <div class="field-label">Zoom & drag inside circle</div>
+        <div class="range-wrapper">
+          <input type="range" id="zoomRange" min="0.5" max="3.0" step="0.05" value="1">
+        </div>
       </div>
 
-      <div>
+      <!-- NAME -->
+      <div class="field-group">
         <label class="field-label" for="userName">Your name / team (optional)</label>
-        <input type="text" id="userName" placeholder="e.g. Community Health Team" maxlength="28">
+        <input type="text" id="userName" placeholder="e.g. Community Health Team" maxlength="28" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
       </div>
 
+      <!-- SHUFFLE -->
       <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Slogan & Mascot</button>
 
-      <div id="videoStatus">Recording 10s MP4 Video Clip... Please wait.</div>
+      <!-- VIDEO STATUS -->
+      <div class="video-status" id="videoStatus"></div>
 
+      <!-- ACTION BUTTONS -->
       <div class="btn-group">
         <button class="btn btn-download" id="actionDownloadBtn">💾 Save Image</button>
         <button class="btn btn-share" id="actionShareBtn">📤 Share Card</button>
       </div>
+
+      <!-- FOOTER -->
+      <div class="app-footer">Developed by Ahmed Shareef · Shaviyani Atoll Hospital</div>
+
     </div>
   </div>
 
@@ -326,26 +546,28 @@
     (function() {
       "use strict";
 
-      // ---------- DOM refs ----------
+      // ===== DOM REFS =====
       const canvas = document.getElementById('creatorCanvas');
       const ctx = canvas.getContext('2d');
-      const uploadLabelBtn = document.getElementById('uploadLabelBtn');
+      const scrollArea = document.getElementById('scrollArea');
       const uploadBtnText = document.getElementById('uploadBtnText');
+      const mediaUpload = document.getElementById('mediaUpload');
       const zoomRange = document.getElementById('zoomRange');
       const userNameInput = document.getElementById('userName');
       const shuffleBtn = document.getElementById('shuffleBtn');
       const actionDownloadBtn = document.getElementById('actionDownloadBtn');
       const actionShareBtn = document.getElementById('actionShareBtn');
       const videoStatus = document.getElementById('videoStatus');
-      const imageUpload = document.getElementById('imageUpload');
+      const modeImageBtn = document.getElementById('modeImageBtn');
+      const modeVideoBtn = document.getElementById('modeVideoBtn');
 
-      // ---------- State ----------
+      // ===== STATE =====
       let userImage = null;
       let userVideo = null;
       let photoScale = 1;
       let photoOffsetX = 0;
       let photoOffsetY = 0;
-      let currentMode = 'image';          // 'image' | 'video'
+      let currentMode = 'image';
       let animationId = null;
       let recordingStartTime = 0;
       let lastRecordedVideoBlob = null;
@@ -354,12 +576,13 @@
       let currentRotatingSlogan = "ACT EARLY, PROTECT YOUR LIFE";
       let currentMascotIndex = 0;
       let mascotSide = 'right';
+      let lastDrawTime = 0;
 
-      // ---------- Assets ----------
+      // ===== ASSETS =====
       const hospitalLogo = new Image();
       hospitalLogo.src = 'shah_logo.png';
-      hospitalLogo.onload = () => { if (currentMode === 'image') drawCanvas(0); };
-      hospitalLogo.onerror = () => { /* silent fallback */ };
+      hospitalLogo.onload = () => { if (currentMode === 'image') scheduleDraw(); };
+      hospitalLogo.onerror = () => {};
 
       const mascotSources = [
         'mascot_heart_1.png',
@@ -371,9 +594,8 @@
       ];
       let loadedMascots = [];
       let mascotsReady = false;
-
-      // Load mascots
       let mascotLoadCount = 0;
+
       mascotSources.forEach((src, idx) => {
         const img = new Image();
         img.src = src;
@@ -381,16 +603,14 @@
           loadedMascots[idx] = img;
           mascotLoadCount++;
           if (mascotLoadCount === mascotSources.length) mascotsReady = true;
-          if (idx === 0 && currentMode === 'image') drawCanvas(0);
+          if (idx === 0 && currentMode === 'image') scheduleDraw();
         };
         img.onerror = () => {
           mascotLoadCount++;
           if (mascotLoadCount === mascotSources.length) mascotsReady = true;
-          // leave undefined — will fallback
         };
       });
 
-      // Fallback mascot if none loaded
       const fallbackMascot = (() => {
         const c = document.createElement('canvas');
         c.width = 200; c.height = 200;
@@ -416,7 +636,18 @@
         "USE HEART TO CONNECT & CARE"
       ];
 
-      // ---------- Helper: pick random mascot ----------
+      // ===== DRAW SCHEDULER (throttle) =====
+      let drawScheduled = false;
+      function scheduleDraw() {
+        if (drawScheduled) return;
+        drawScheduled = true;
+        requestAnimationFrame(() => {
+          drawScheduled = false;
+          drawCanvas(0);
+        });
+      }
+
+      // ===== RANDOM MASCOT =====
       function randomizeMascot() {
         const available = loadedMascots
           .map((img, i) => (img && img.complete && img.naturalHeight !== 0) ? i : -1)
@@ -430,10 +661,13 @@
         mascotSide = Math.random() > 0.5 ? 'right' : 'left';
       }
 
-      // ---------- Draw Canvas (main render) ----------
-      function drawCanvas(elapsedTime = 0) {
+      // ===== MAIN DRAW =====
+      function drawCanvas(elapsedTime) {
         const w = canvas.width;
         const h = canvas.height;
+        const now = performance.now();
+        if (now - lastDrawTime < 16 && elapsedTime === 0) return; // ~60fps cap for static
+        lastDrawTime = now;
 
         ctx.clearRect(0, 0, w, h);
 
@@ -445,7 +679,7 @@
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, w, h);
 
-        // 2. Central circle frame
+        // 2. Circle frame
         const circleRadius = 350;
         const circleX = 500;
         const circleY = 535;
@@ -456,7 +690,6 @@
         ctx.clip();
 
         if (userVideo && userVideo.readyState >= 2) {
-          // video draw — cover circle
           const vw = userVideo.videoWidth;
           const vh = userVideo.videoHeight;
           if (vw && vh) {
@@ -476,18 +709,17 @@
           const y = circleY - (baseSize / 2) + photoOffsetY;
           ctx.drawImage(userImage, x, y, baseSize, baseSize);
         } else {
-          // placeholder
           ctx.fillStyle = '#ffffff';
           ctx.fill();
           ctx.fillStyle = '#d90429';
-          ctx.font = 'bold 32px sans-serif';
+          ctx.font = 'bold 32px -apple-system, sans-serif';
           ctx.textAlign = 'center';
           ctx.fillText('Tap below to', circleX, circleY - 18);
           ctx.fillText('upload media', circleX, circleY + 25);
         }
         ctx.restore();
 
-        // 3. Overlay gradient on circle
+        // 3. Overlay
         ctx.save();
         ctx.beginPath();
         ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
@@ -500,14 +732,14 @@
         ctx.fill();
         ctx.restore();
 
-        // 4. Circle border
+        // 4. Border
         ctx.strokeStyle = 'rgba(255,255,255,0.95)';
         ctx.lineWidth = 14;
         ctx.beginPath();
         ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
         ctx.stroke();
 
-        // 5. ECG line
+        // 5. ECG
         drawContinuousNormalEcg(elapsedTime);
 
         // 6. Mascot
@@ -518,7 +750,6 @@
           const mX = mascotSide === 'right' ? (canvas.width - mWidth - 25) : 25;
           const mY = 970 - mHeight;
 
-          // backlight glow
           ctx.save();
           const backLight = ctx.createRadialGradient(
             mX + mWidth / 2, mY + mHeight / 2, 20,
@@ -536,7 +767,7 @@
           ctx.drawImage(activeMascot, mX, mY, mWidth, mHeight);
         }
 
-        // 7. Header: logo + title
+        // 7. Header
         const headerY = 22;
         let logoWidthRightEdge = 175;
 
@@ -566,31 +797,31 @@
         const textStartX = logoWidthRightEdge;
         ctx.textAlign = 'left';
         ctx.fillStyle = '#ffffff';
-        ctx.font = '900 38px sans-serif';
+        ctx.font = '900 38px -apple-system, sans-serif';
         ctx.shadowColor = 'rgba(0,0,0,0.8)';
         ctx.shadowBlur = 12;
         ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 42);
 
-        ctx.font = '900 35px sans-serif';
+        ctx.font = '900 35px -apple-system, sans-serif';
         ctx.fillStyle = '#ffe3e3';
         ctx.fillText(bannerSloganText, textStartX, headerY + 82);
         ctx.shadowBlur = 0;
 
-        // 8. User name
+        // 8. Name
         const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
         if (nameText) {
           ctx.textAlign = 'center';
           ctx.fillStyle = '#fff0f3';
-          ctx.font = '900 28px sans-serif';
+          ctx.font = '900 28px -apple-system, sans-serif';
           ctx.shadowColor = 'rgba(0,0,0,0.6)';
           ctx.shadowBlur = 8;
           ctx.fillText(nameText, canvas.width / 2, 490, 650);
           ctx.shadowBlur = 0;
         }
 
-        // 9. Rotating slogan
+        // 9. Slogan
         ctx.fillStyle = '#ffffff';
-        ctx.font = '900 36px sans-serif';
+        ctx.font = '900 36px -apple-system, sans-serif';
         ctx.textAlign = 'center';
         ctx.shadowColor = 'rgba(0,0,0,0.9)';
         ctx.shadowBlur = 12;
@@ -598,17 +829,17 @@
 
         // 10. Hashtags
         ctx.fillStyle = '#ffe3e3';
-        ctx.font = '900 28px sans-serif';
+        ctx.font = '900 28px -apple-system, sans-serif';
         ctx.fillText('#DontMissABeat   #UseHeart', canvas.width / 2, 912);
         ctx.shadowBlur = 0;
 
         // 11. Credit
         ctx.fillStyle = 'rgba(255,255,255,0.85)';
-        ctx.font = '300 15px sans-serif';
+        ctx.font = '300 15px -apple-system, sans-serif';
         ctx.fillText('Developed by: Ahmed Shareef for Shaviyani Atoll Hospital', canvas.width / 2, 970);
       }
 
-      // ---------- ECG drawing ----------
+      // ===== ECG =====
       function drawContinuousNormalEcg(elapsedTime) {
         ctx.save();
         ctx.strokeStyle = '#ffffff';
@@ -646,7 +877,7 @@
         const timeShift = (currentMode === 'video') ? elapsedTime : (performance.now() * 0.4);
         const endX = (currentMode === 'video') ? maxVisibleX : canvas.width;
 
-        for (let x = 0; x <= endX; x += 3) {
+        for (let x = 0; x <= endX; x += 4) {
           const t = x * 2.2 + timeShift;
           const y = ecgY + getEcgOffset(t);
           if (!started) {
@@ -660,7 +891,7 @@
         ctx.restore();
       }
 
-      // ---------- Text wrap ----------
+      // ===== TEXT WRAP =====
       function wrapText(context, text, x, y, maxWidth, lineHeight) {
         const words = text.split(' ');
         let line = '';
@@ -678,61 +909,46 @@
         context.fillText(line, x, currentY);
       }
 
-      // ---------- File handling (unified) ----------
-      function handleFileSelect(e) {
+      // ===== FILE HANDLING =====
+      function handleMediaSelect(e) {
         const file = e.target.files[0];
         if (!file) return;
 
         photoOffsetX = 0;
         photoOffsetY = 0;
+        zoomRange.value = 1;
+        photoScale = 1;
 
         if (file.type.startsWith('video/')) {
-          // video
-          if (userImage) { userImage = null; }
           if (userVideo) { userVideo.pause(); userVideo.src = ''; }
           userVideo = document.createElement('video');
           userVideo.src = URL.createObjectURL(file);
           userVideo.loop = true;
           userVideo.muted = true;
           userVideo.playsInline = true;
+          userVideo.setAttribute('playsinline', '');
+          userVideo.setAttribute('webkit-playsinline', '');
           userVideo.crossOrigin = 'anonymous';
           userVideo.play().catch(() => {});
-          userVideo.onloadeddata = () => {
-            if (currentMode === 'image') drawCanvas(0);
-          };
+          userVideo.onloadeddata = () => scheduleDraw();
+          userImage = null;
         } else {
-          // image
           if (userVideo) { userVideo.pause(); userVideo.src = ''; userVideo = null; }
           const reader = new FileReader();
           reader.onload = (ev) => {
             userImage = new Image();
             userImage.src = ev.target.result;
-            userImage.onload = () => {
-              if (currentMode === 'image') drawCanvas(0);
-            };
+            userImage.onload = () => scheduleDraw();
           };
           reader.readAsDataURL(file);
         }
+        // Reset input so same file can be re-selected
+        setTimeout(() => { mediaUpload.value = ''; }, 500);
       }
 
-      // Attach file input listener (single, permanent)
-      imageUpload.addEventListener('change', handleFileSelect);
+      mediaUpload.addEventListener('change', handleMediaSelect);
 
-      // ---------- Drag / pan support ----------
-      canvas.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        startX = e.clientX - photoOffsetX;
-        startY = e.clientY - photoOffsetY;
-        e.preventDefault();
-      });
-      window.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        photoOffsetX = e.clientX - startX;
-        photoOffsetY = e.clientY - startY;
-        if (currentMode === 'image') drawCanvas(0);
-      });
-      window.addEventListener('mouseup', () => { isDragging = false; });
-
+      // ===== TOUCH DRAG =====
       canvas.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
           isDragging = true;
@@ -746,22 +962,41 @@
         if (isDragging && e.touches.length === 1) {
           photoOffsetX = e.touches[0].clientX - startX;
           photoOffsetY = e.touches[0].clientY - startY;
-          if (currentMode === 'image') drawCanvas(0);
+          if (currentMode === 'image') scheduleDraw();
           e.preventDefault();
         }
       }, { passive: false });
 
-      canvas.addEventListener('touchend', () => { isDragging = false; });
+      canvas.addEventListener('touchend', (e) => {
+        isDragging = false;
+        e.preventDefault();
+      }, { passive: false });
+
       canvas.addEventListener('touchcancel', () => { isDragging = false; });
 
-      // ---------- UI listeners ----------
+      // Mouse fallback (desktop testing)
+      canvas.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX - photoOffsetX;
+        startY = e.clientY - photoOffsetY;
+        e.preventDefault();
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        photoOffsetX = e.clientX - startX;
+        photoOffsetY = e.clientY - startY;
+        if (currentMode === 'image') scheduleDraw();
+      });
+      window.addEventListener('mouseup', () => { isDragging = false; });
+
+      // ===== UI LISTENERS =====
       zoomRange.addEventListener('input', (e) => {
         photoScale = parseFloat(e.target.value);
-        if (currentMode === 'image') drawCanvas(0);
+        if (currentMode === 'image') scheduleDraw();
       });
 
       userNameInput.addEventListener('input', () => {
-        if (currentMode === 'image') drawCanvas(0);
+        if (currentMode === 'image') scheduleDraw();
       });
 
       shuffleBtn.addEventListener('click', () => {
@@ -772,44 +1007,43 @@
         } while (nextIndex === currentIndex && rotatingHeartbeatSlogans.length > 1);
         currentRotatingSlogan = rotatingHeartbeatSlogans[nextIndex];
         randomizeMascot();
-        if (currentMode === 'image') drawCanvas(0);
+        if (currentMode === 'image') scheduleDraw();
       });
 
-      // ---------- Mode switching ----------
+      // ===== MODE SWITCH =====
       window.switchMode = function(mode) {
         currentMode = mode;
         if (animationId) cancelAnimationFrame(animationId);
         lastRecordedVideoBlob = null;
 
-        document.getElementById('modeImageBtn').classList.toggle('active', mode === 'image');
-        document.getElementById('modeVideoBtn').classList.toggle('active', mode === 'video');
+        modeImageBtn.classList.toggle('active', mode === 'image');
+        modeVideoBtn.classList.toggle('active', mode === 'video');
 
         if (mode === 'image') {
-          videoStatus.style.display = 'none';
+          videoStatus.classList.remove('visible');
           actionDownloadBtn.textContent = '💾 Save Image';
           actionShareBtn.textContent = '📤 Share Card';
           uploadBtnText.textContent = '📸 Shoot / Select Photo';
-          imageUpload.accept = 'image/*';
-          // Reset video objects
+          mediaUpload.accept = 'image/*';
+          mediaUpload.setAttribute('capture', 'environment');
           if (userVideo) { userVideo.pause(); userVideo = null; }
-          drawCanvas(0);
+          scheduleDraw();
         } else {
-          videoStatus.style.display = 'block';
-          videoStatus.textContent = '🎥 10s MP4 Video Mode Active (ECG + audio)';
+          videoStatus.classList.add('visible');
+          videoStatus.textContent = '🎥 10s MP4 Video Mode · ECG + audio';
           actionDownloadBtn.textContent = '📥 Export MP4';
           actionShareBtn.textContent = '📤 Share MP4';
           uploadBtnText.textContent = '🎬 Record / Select Video';
-          imageUpload.accept = 'video/*';
-          // Reset image
+          mediaUpload.accept = 'video/*';
+          mediaUpload.removeAttribute('capture');
           userImage = null;
           recordingStartTime = performance.now();
           startVideoPreviewLoop();
         }
-        // Clear file input value so same file can be re-selected
-        imageUpload.value = '';
+        mediaUpload.value = '';
       };
 
-      // ---------- Video preview loop ----------
+      // ===== VIDEO PREVIEW =====
       function startVideoPreviewLoop() {
         function loop(timestamp) {
           if (currentMode !== 'video') return;
@@ -824,27 +1058,24 @@
         animationId = requestAnimationFrame(loop);
       }
 
-      // ---------- Download / Share ----------
+      // ===== DOWNLOAD =====
       actionDownloadBtn.addEventListener('click', async () => {
         if (currentMode === 'image') {
-          // Save image
           const link = document.createElement('a');
           link.download = 'world-heart-day-2026.png';
           link.href = canvas.toDataURL('image/png');
           link.click();
         } else {
-          // Export MP4
           if (!window.MediaRecorder) {
             alert('Video recording is not supported on this browser.');
             return;
           }
-
           if (lastRecordedVideoBlob) {
             downloadVideoBlob(lastRecordedVideoBlob);
             return;
           }
 
-          videoStatus.style.display = 'block';
+          videoStatus.classList.add('visible');
           videoStatus.textContent = '🎥 Recording 10s MP4 video... Please wait.';
 
           recordingStartTime = performance.now();
@@ -860,7 +1091,7 @@
               const gain = audioCtx.createGain();
               osc.type = 'sine';
               osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-              gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+              gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
               gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
               osc.connect(gain);
               gain.connect(dest);
@@ -902,7 +1133,7 @@
           } catch (err) {
             console.error(err);
             alert('MP4 Video export error: ' + err.message);
-            videoStatus.style.display = 'none';
+            videoStatus.classList.remove('visible');
           }
         }
       });
@@ -916,6 +1147,7 @@
         setTimeout(() => URL.revokeObjectURL(url), 4000);
       }
 
+      // ===== SHARE =====
       actionShareBtn.addEventListener('click', async () => {
         if (currentMode === 'image') {
           const dataUrl = canvas.toDataURL('image/png');
@@ -940,7 +1172,6 @@
             alert('Please click "Export MP4" first to record the 10s clip before sharing.');
             return;
           }
-
           const videoFile = new File([lastRecordedVideoBlob], 'world-heart-day-2026-clip.mp4', { type: 'video/mp4' });
 
           if (navigator.canShare && navigator.canShare({ files: [videoFile] })) {
@@ -959,15 +1190,38 @@
         }
       });
 
-      // ---------- Init ----------
-      // Set random mascot initially
-      randomizeMascot();
-      // First draw
-      drawCanvas(0);
+      // ===== PREVENT SCROLL BOUNCE ON CANVAS =====
+      document.getElementById('canvasWrap').addEventListener('touchmove', (e) => {
+        e.preventDefault();
+      }, { passive: false });
 
-      // Re-draw when mascots finish loading
+      // ===== PREVENT DOUBLE-TAP ZOOM =====
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+          e.preventDefault();
+        }
+        lastTouchEnd = now;
+      }, { passive: false });
+
+      // ===== INIT =====
+      randomizeMascot();
+      scheduleDraw();
+
       window.addEventListener('load', () => {
-        if (currentMode === 'image') drawCanvas(0);
+        if (currentMode === 'image') scheduleDraw();
+      });
+
+      // ===== VISIBILITY CHANGE (pause video when app backgrounded) =====
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          if (userVideo) userVideo.pause();
+          if (animationId) cancelAnimationFrame(animationId);
+        } else {
+          if (userVideo && currentMode === 'image') userVideo.play().catch(() => {});
+          if (currentMode === 'image') scheduleDraw();
+        }
       });
 
     })();
