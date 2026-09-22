@@ -21,7 +21,6 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            /* Modern vibrant gradient mesh background */
             background: linear-gradient(135deg, #7a0010 0%, #d90429 50%, #52000a 100%);
             color: var(--text-dark);
             margin: 0;
@@ -33,7 +32,6 @@
             box-sizing: border-box;
         }
 
-        /* Glassmorphic Container Card */
         .creator-container {
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
@@ -65,7 +63,6 @@
             letter-spacing: 1px;
         }
 
-        /* Modern Mode Switcher Tabs */
         .mode-tabs {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -167,7 +164,6 @@
             box-shadow: 0 0 0 3px rgba(255, 30, 56, 0.15);
         }
 
-        /* Modern Custom Range Slider */
         input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
@@ -186,11 +182,6 @@
             background: var(--primary-red);
             cursor: pointer;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: transform 0.1s;
-        }
-
-        input[type="range"]::-webkit-slider-thumb:active {
-            transform: scale(1.2);
         }
 
         .btn-group {
@@ -264,17 +255,17 @@
         <!-- Controls -->
         <div class="controls">
             <label class="file-upload-btn">
-                📸 Take Selfie / Choose from Gallery
-                <input type="file" id="imageUpload" accept="image/*">
+                📸📹 Upload Photo, Selfie or Video Clip
+                <input type="file" id="imageUpload" accept="image/*,video/*">
             </label>
 
-            <label class="field-label" for="zoomRange">Adjust Photo Zoom</label>
+            <label class="field-label" for="zoomRange">Adjust Media Zoom</label>
             <input type="range" id="zoomRange" min="0.5" max="2.5" step="0.05" value="1">
 
             <label class="field-label" for="userName">Your Name or Team (Optional)</label>
             <input type="text" id="userName" placeholder="e.g. Community Health Team" maxlength="28">
 
-            <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Heartbeat Theme Slogan</button>
+            <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Theme Slogan</button>
             
             <div id="videoStatus">Recording 10s Video Clip... Please wait.</div>
 
@@ -297,6 +288,7 @@
         const videoStatus = document.getElementById('videoStatus');
 
         let userImage = null;
+        let userVideo = null;
         let photoScale = 1;
         let currentMode = 'image';
         let animationId = null;
@@ -305,7 +297,7 @@
         // Load Hospital Logo
         const hospitalLogo = new Image();
         hospitalLogo.src = 'shah_logo.png';
-        hospitalLogo.onload = () => { if (currentMode === 'image') drawStaticCanvas(); };
+        hospitalLogo.onload = () => { if (currentMode === 'image') drawCanvas(); };
 
         // Fixed Slogan & Rotating Related Heartbeat Slogans
         const fixedBannerSlogan = "DON'T MISS A BEAT";
@@ -318,29 +310,43 @@
         ];
         let currentRotatingSlogan = rotatingHeartbeatSlogans[0];
 
-        // Handle Photo Upload / Gallery Selection
+        // Handle Photo or Video Upload
         imageUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    userImage = new Image();
-                    userImage.src = event.target.result;
-                    userImage.onload = () => {
-                        if (currentMode === 'image') drawStaticCanvas();
+                if (file.type.startsWith('video/')) {
+                    userImage = null;
+                    userVideo = document.createElement('video');
+                    userVideo.src = URL.createObjectURL(file);
+                    userVideo.loop = true;
+                    userVideo.muted = true;
+                    userVideo.playsInline = true;
+                    userVideo.play();
+                    userVideo.onloadeddata = () => {
+                        if (currentMode === 'image') drawCanvas();
                     };
-                };
-                reader.readAsDataURL(file);
+                } else {
+                    userVideo = null;
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        userImage = new Image();
+                        userImage.src = event.target.result;
+                        userImage.onload = () => {
+                            if (currentMode === 'image') drawCanvas();
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                }
             }
         });
 
         zoomRange.addEventListener('input', (e) => {
             photoScale = parseFloat(e.target.value);
-            if (currentMode === 'image') drawStaticCanvas();
+            if (currentMode === 'image') drawCanvas();
         });
 
         userNameInput.addEventListener('input', () => {
-            if (currentMode === 'image') drawStaticCanvas();
+            if (currentMode === 'image') drawCanvas();
         });
 
         shuffleBtn.addEventListener('click', () => {
@@ -350,7 +356,7 @@
                 nextIndex = Math.floor(Math.random() * rotatingHeartbeatSlogans.length);
             } while (nextIndex === currentIndex);
             currentRotatingSlogan = rotatingHeartbeatSlogans[nextIndex];
-            if (currentMode === 'image') drawStaticCanvas();
+            if (currentMode === 'image') drawCanvas();
         });
 
         function switchMode(mode) {
@@ -364,7 +370,7 @@
                 videoStatus.style.display = 'none';
                 actionDownloadBtn.textContent = '💾 Save Image';
                 actionShareBtn.textContent = '📤 Share Card';
-                drawStaticCanvas();
+                drawCanvas();
             } else {
                 videoStatus.style.display = 'block';
                 videoStatus.textContent = '🎥 Video Mode Active (Animated Pulse & Audio Tone)';
@@ -374,8 +380,8 @@
             }
         }
 
-        // --- Core Rendering Function with Glass-Feel Gradient & Glow ---
-        function drawStaticCanvas(pulse = 0) {
+        // --- Core Canvas Renderer with Refined Typography & Layout ---
+        function drawCanvas(pulse = 0) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // 1. Glass-feeling Multi-stop Radial Gradient Background
@@ -386,7 +392,7 @@
             ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Subtle ambient lighting glow behind components
+            // Ambient lighting glow
             ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
             ctx.beginPath();
             ctx.arc(500, 500, 450, 0, Math.PI * 2);
@@ -396,38 +402,43 @@
             if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
                 const logoHeight = 65;
                 const logoWidth = (hospitalLogo.width / hospitalLogo.height) * logoHeight;
-                ctx.drawImage(hospitalLogo, (canvas.width - logoWidth) / 2, 30, logoWidth, logoHeight);
+                ctx.drawImage(hospitalLogo, (canvas.width - logoWidth) / 2, 28, logoWidth, logoHeight);
             }
 
-            // 3. Title Full Width Below Logo: "WORLD HEART DAY 2026"
+            // 3. Larger Title Full Width Below Logo: "WORLD HEART DAY 2026"
             ctx.fillStyle = '#ffffff';
-            ctx.font = '900 38px sans-serif';
+            ctx.font = '900 44px sans-serif';
             ctx.textAlign = 'center';
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-            ctx.shadowBlur = 8;
-            ctx.fillText('WORLD HEART DAY 2026', canvas.width / 2, 130);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+            ctx.shadowBlur = 10;
+            ctx.fillText('WORLD HEART DAY 2026', canvas.width / 2, 132);
 
-            // 4. Fixed Sub-Banner Slogan: "DON'T MISS A BEAT"
-            ctx.font = 'bold 22px sans-serif';
+            // 4. Larger Fixed Sub-Banner Slogan: "DON'T MISS A BEAT"
+            ctx.font = '900 28px sans-serif';
             ctx.fillStyle = '#ffe3e3';
-            ctx.fillText(fixedBannerSlogan, canvas.width / 2, 165);
-            ctx.shadowBlur = 0; // reset shadow
+            ctx.fillText(fixedBannerSlogan, canvas.width / 2, 172);
+            ctx.shadowBlur = 0;
 
-            // 5. Larger Left Circular Photo Frame (Touching Left Margin)
-            const circleRadius = 230;
-            const circleX = circleRadius + 15;
-            const circleY = 570;
+            // 5. Left Circular Photo Frame Configuration
+            const circleRadius = 220;
+            const circleX = circleRadius + 20;
+            const circleY = 480; // shifted slightly higher to leave ample room below
 
             // 6. Draw ECG Heartbeat Line starting precisely from the right edge of the circle
             drawEcgLine(circleX + circleRadius, pulse);
 
-            // 7. Draw User Image inside the Circle
+            // 7. Draw User Media (Video or Photo) inside the Circle
             ctx.save();
             ctx.beginPath();
             ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
             ctx.clip();
 
-            if (userImage) {
+            if (userVideo && userVideo.readyState >= 2) {
+                const vSize = Math.min(userVideo.videoWidth, userVideo.videoHeight) * photoScale;
+                const vx = (userVideo.videoWidth - vSize) / 2;
+                const vy = (userVideo.videoHeight - vSize) / 2;
+                ctx.drawImage(userVideo, vx, vy, vSize, vSize, circleX - circleRadius, circleY - circleRadius, circleRadius * 2, circleRadius * 2);
+            } else if (userImage) {
                 const baseSize = (circleRadius * 2) * photoScale;
                 const x = circleX - (baseSize / 2);
                 const y = circleY - (baseSize / 2);
@@ -439,38 +450,38 @@
                 ctx.font = 'bold 24px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText('Tap below', circleX, circleY - 10);
-                ctx.fillText('to take selfie', circleX, circleY + 25);
+                ctx.fillText('to upload media', circleX, circleY + 25);
             }
             ctx.restore();
 
             // Glass-styled Circle Border Frame
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
             ctx.lineWidth = 14;
             ctx.beginPath();
             ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
             ctx.stroke();
 
-            // 8. Rotating Related Slogans Over the Heartbeat Area (Right Side)
+            // 8. Rotating Related Slogans Below the Circle (Easy to read, centered)
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 26px sans-serif';
+            ctx.font = 'bold 30px sans-serif';
             ctx.textAlign = 'center';
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
-            ctx.shadowBlur = 6;
-            wrapText(ctx, currentRotatingSlogan, 730, 420, 480, 36);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 8;
+            wrapText(ctx, currentRotatingSlogan, canvas.width / 2, 770, 900, 40);
 
-            // 9. Custom Name or Team (Middle Right)
+            // 9. Custom Name or Team (if entered)
             const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
             if (nameText) {
                 ctx.fillStyle = '#fff0f3';
-                ctx.font = 'bold 22px sans-serif';
-                ctx.fillText(nameText, 730, 710, 480);
+                ctx.font = 'bold 24px sans-serif';
+                ctx.fillText(nameText, canvas.width / 2, 840, 900);
             }
-            ctx.shadowBlur = 0; // reset shadow
+            ctx.shadowBlur = 0;
 
             // 10. Fixed Hashtags at the Bottom
             ctx.fillStyle = '#ffe3e3';
-            ctx.font = 'bold 22px sans-serif';
-            ctx.fillText("#DontMissABeat   #UseHeart", canvas.width / 2, 935);
+            ctx.font = 'bold 24px sans-serif';
+            ctx.fillText("#DontMissABeat   #UseHeart", canvas.width / 2, 920);
         }
 
         // Draw ECG Line starting right from the circle's right edge
@@ -480,36 +491,26 @@
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
-            ctx.shadowBlur = 10; // Glowing heartbeat line effect
+            ctx.shadowBlur = 10;
             ctx.beginPath();
             
-            const ecgY = 570;
+            const ecgY = 480; // matches circleY
             ctx.moveTo(startX, ecgY);
             
-            const step = (1000 - startX) / 3;
-            const beat1X = startX + step * 0.5;
-            const beat2X = startX + step * 1.8;
+            const step = (1000 - startX) / 2.5;
+            const beat1X = startX + step * 0.7;
 
             ctx.lineTo(beat1X - 50, ecgY);
-            ctx.lineTo(beat1X - 30, ecgY - 15); // P wave
-            ctx.lineTo(beat1X - 10, ecgY);     // baseline
-            ctx.lineTo(beat1X,     ecgY + 25); // Q dip
-            ctx.lineTo(beat1X + 25, ecgY - (210 + pulse * 20)); // R peak
-            ctx.lineTo(beat1X + 50, ecgY + 70); // S wave
-            ctx.lineTo(beat1X + 75, ecgY);     // baseline
-            ctx.lineTo(beat1X + 110, ecgY - 45); // T wave
-            ctx.lineTo(beat2X - 40, ecgY);
-
-            ctx.lineTo(beat2X - 20, ecgY - 15); // P wave
-            ctx.lineTo(beat2X,      ecgY);
-            ctx.lineTo(beat2X + 10, ecgY + 25); // Q dip
-            ctx.lineTo(beat2X + 35, ecgY - (210 + pulse * 20)); // R peak
-            ctx.lineTo(beat2X + 60, ecgY + 70); // S wave
-            ctx.lineTo(beat2X + 85, ecgY);
-            ctx.lineTo(beat2X + 120, ecgY - 45); // T wave
+            ctx.lineTo(beat1X - 30, ecgY - 15);
+            ctx.lineTo(beat1X - 10, ecgY);
+            ctx.lineTo(beat1X,     ecgY + 25);
+            ctx.lineTo(beat1X + 25, ecgY - (200 + pulse * 20));
+            ctx.lineTo(beat1X + 50, ecgY + 70);
+            ctx.lineTo(beat1X + 75, ecgY);
+            ctx.lineTo(beat1X + 110, ecgY - 45);
             ctx.lineTo(1000, ecgY);
             ctx.stroke();
-            ctx.shadowBlur = 0; // reset shadow
+            ctx.shadowBlur = 0;
         }
 
         // --- Video Preview & Animation Loop ---
@@ -517,7 +518,7 @@
             function loop(timestamp) {
                 if (currentMode !== 'video') return;
                 pulsePhase = Math.sin(timestamp / 200) > 0.8 ? 1 : 0;
-                drawStaticCanvas(pulsePhase);
+                drawCanvas(pulsePhase);
                 animationId = requestAnimationFrame(loop);
             }
             animationId = requestAnimationFrame(loop);
@@ -626,7 +627,7 @@
         });
 
         // Initial paint
-        drawStaticCanvas();
+        drawCanvas();
     </script>
 </body>
 </html>
