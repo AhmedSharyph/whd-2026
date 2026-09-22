@@ -3,403 +3,330 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>World Heart Day Campaign Creator</title>
+    <title>World Heart Day 2026 - Creator</title>
     
-    <link rel="manifest" href="manifest.json">
+    <!-- PWA & Mobile Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="WHD Creator">
-    <link rel="apple-touch-icon" href="icon-192.png">
 
     <style>
         :root {
-            --whd-red: #D32F2F;
-            --whd-dark-red: #9A0007;
-            --whd-light-bg: #FFF5F5;
-            --text-main: #212529;
-            --border-radius: 16px;
-        }
-
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+            --primary-red: #c1121f;
+            --dark-red: #780000;
+            --accent-pink: #fdf0ed;
+            --bg-color: #f7f9fa;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--whd-light-bg);
-            color: var(--text-main);
+            background-color: var(--bg-color);
+            color: #212529;
             margin: 0;
-            padding: 0;
+            padding: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            touch-action: manipulation;
+            box-sizing: border-box;
         }
 
-        .mobile-container {
-            width: 100%;
-            max-width: 450px;
-            height: 100vh;
-            max-height: 900px;
+        .creator-container {
             background: #ffffff;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            width: 100%;
+            max-width: 400px;
             padding: 16px;
-            box-shadow: 0 10px 30px rgba(211, 47, 47, 0.15);
-            position: relative;
-        }
-
-        @media (min-width: 480px) {
-            .mobile-container {
-                border-radius: 24px;
-                height: 92vh;
-            }
-        }
-
-        header {
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(193, 18, 31, 0.12);
+            box-sizing: border-box;
             text-align: center;
-            margin-bottom: 8px;
         }
 
-        header h1 {
-            font-size: 1.25rem;
-            color: var(--whd-red);
+        h2 {
             margin: 0 0 4px 0;
+            color: var(--primary-red);
+            font-size: 1.3rem;
             font-weight: 800;
             letter-spacing: -0.5px;
         }
 
-        header p {
-            font-size: 0.75rem;
+        p.subtitle {
+            font-size: 0.8rem;
             color: #6c757d;
-            margin: 0;
+            margin-bottom: 12px;
+            font-weight: 500;
         }
 
-        .canvas-area {
+        .canvas-wrapper {
             position: relative;
             width: 100%;
             aspect-ratio: 1 / 1;
-            background: #f8f9fa;
-            border-radius: var(--border-radius);
+            background: #f1f3f5;
+            border-radius: 14px;
             overflow: hidden;
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.06);
-            border: 2px solid rgba(211, 47, 47, 0.1);
+            margin-bottom: 12px;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);
         }
 
         canvas {
             width: 100%;
             height: 100%;
             display: block;
-            touch-action: none;
         }
 
-        .adjustment-hints {
-            text-align: center;
-            font-size: 0.7rem;
-            color: #adb5bd;
-            margin: 4px 0 10px 0;
-            min-height: 16px;
-        }
-
-        .controls-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        .controls {
+            display: flex;
+            flex-direction: column;
             gap: 8px;
-            margin-bottom: 12px;
+            text-align: left;
         }
 
-        .btn {
-            width: 100%;
-            padding: 12px;
-            border-radius: 12px;
-            border: none;
+        label.field-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #495057;
+            margin-left: 2px;
+        }
+
+        .file-upload-btn {
+            background: var(--accent-pink);
+            border: 2px dashed var(--primary-red);
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
             font-weight: 700;
             font-size: 0.85rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            color: var(--primary-red);
+            text-align: center;
+            transition: background 0.2s;
         }
 
-        .btn:active {
-            transform: scale(0.97);
-        }
-
-        .btn-primary {
-            background: var(--whd-red);
-            color: white;
-            grid-column: span 2;
-            font-size: 0.95rem;
-            padding: 14px;
-            box-shadow: 0 6px 16px rgba(211, 47, 47, 0.3);
-        }
-
-        .btn-secondary {
-            background: #f1f3f5;
-            color: #495057;
-        }
-
-        .btn-accent {
-            background: #212529;
-            color: white;
+        .file-upload-btn:active {
+            background: #f8d7da;
         }
 
         input[type="file"] {
             display: none;
         }
 
-        .toast {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: rgba(33, 37, 41, 0.9);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            transition: transform 0.3s ease;
-            pointer-events: none;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        input[type="text"], input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            box-sizing: border-box;
+            font-size: 0.9rem;
+            outline: none;
         }
 
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
+        input[type="text"]:focus {
+            border-color: var(--primary-red);
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 11px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        .btn-shuffle {
+            background: #495057;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .btn-download {
+            background: #212529;
+            color: white;
+        }
+
+        .btn-share {
+            background: var(--primary-red);
+            color: white;
         }
     </style>
 </head>
 <body>
 
-    <div class="mobile-container">
-        <header>
-            <h1>❤️ Don't Miss a Beat</h1>
-            <p>World Heart Day Campaign Creator</p>
-        </header>
-
-        <!-- Interactive Render Area -->
-        <div>
-            <div class="canvas-area">
-                <canvas id="whdCanvas" width="1080" height="1080"></canvas>
-            </div>
-            <div class="adjustment-hints" id="hintText">Pinch to scale • Drag to position image</div>
+    <div class="creator-container">
+        <h2>WORLD HEART DAY</h2>
+        <p class="subtitle">#DontMissABeat #UseHeart</p>
+        
+        <!-- Live Preview Canvas -->
+        <div class="canvas-wrapper">
+            <canvas id="creatorCanvas" width="1000" height="1000"></canvas>
         </div>
 
-        <!-- Action Control Center -->
-        <div class="controls-grid">
-            <label class="btn btn-primary" id="uploadLabel">
-                📷 Upload or Snap Photo
+        <!-- Controls -->
+        <div class="controls">
+            <label class="file-upload-btn">
+                📷 Tap to Choose or Take Photo
                 <input type="file" id="imageUpload" accept="image/*">
             </label>
 
-            <button class="btn btn-secondary" id="shuffleBtn">🔄 Shuffle Theme</button>
-            <button class="btn btn-secondary" id="resetBtn">🎯 Center Photo</button>
+            <label class="field-label" for="zoomRange">Adjust Photo Zoom</label>
+            <input type="range" id="zoomRange" min="0.5" max="2.5" step="0.05" value="1">
 
-            <button class="btn btn-accent" id="downloadBtn">💾 Save Image</button>
-            <button class="btn btn-primary" id="shareBtn" style="grid-column: span 1; background: #c92a2a;">📤 Share Campaign</button>
+            <label class="field-label" for="userName">Your Name or Team (Optional)</label>
+            <input type="text" id="userName" placeholder="e.g. Community Health Team" maxlength="28">
+
+            <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Campaign Slogan</button>
+            
+            <div class="btn-group">
+                <button class="btn btn-download" id="downloadBtn">💾 Save Image</button>
+                <button class="btn btn-share" id="shareBtn">📤 Share Card</button>
+            </div>
         </div>
-
-        <div class="toast" id="toastMessage">Image saved successfully!</div>
     </div>
 
     <script>
-        const canvas = document.getElementById('whdCanvas');
+        const canvas = document.getElementById('creatorCanvas');
         const ctx = canvas.getContext('2d');
         const imageUpload = document.getElementById('imageUpload');
+        const zoomRange = document.getElementById('zoomRange');
+        const userNameInput = document.getElementById('userName');
         const shuffleBtn = document.getElementById('shuffleBtn');
-        const resetBtn = document.getElementById('resetBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         const shareBtn = document.getElementById('shareBtn');
-        const hintText = document.getElementById('hintText');
-        const toast = document.getElementById('toastMessage');
 
-        // Campaign Themes and Hashtags pool
-        const campaignThemes = [
-            { slogan: "Don't Miss a Beat: See the Early Signs", hashtag: "#DontMissABeat #WorldHeartDay" },
-            { slogan: "Heart Disease Can Hide in Plain Sight", hashtag: "#UseHeart #HeartHealth" },
-            { slogan: "Protect Your Heart: Act Early & Live Bold", hashtag: "#KeepTheBeat #WHD2026" },
-            { slogan: "Move More, Eat Smart, Protect Your Heart", hashtag: "#HealthyHeart #ActionForHealth" },
-            { slogan: "Know Your Risks, Empower Your Choices", hashtag: "#HeartHero #CheckYourHeart" }
-        ];
-
-        let currentThemeIndex = Math.floor(Math.random() * campaignThemes.length);
-
-        // User Photo State for Pan/Zoom
         let userImage = null;
-        let imgScale = 1;
-        let imgOffsetX = 0;
-        let imgOffsetY = 0;
-        let baseScale = 1;
+        let photoScale = 1;
 
-        // Touch & Mouse Interaction Tracking
-        let isDragging = false;
-        let startX = 0;
-        let startY = 0;
-        let initialDistance = null;
+        // Official 2026 Rotating Campaign Slogans
+        const campaignThemes = [
+            "Don't Miss a Beat: See the Hidden Signs",
+            "Protect Your Heart: Act Early & Live Well",
+            "Keep the Beat: Move More, Eat Healthier",
+            "Use Heart for Action: Know Your Risks",
+            "Heart Health First: Don't Skip Your Checkup"
+        ];
+        let currentSlogan = campaignThemes[0];
 
-        // Heart Viewport Mask Dimensions inside 1080x1080 canvas
-        // Heart center is at (540, 440) with width ~640 and height ~560
-        const heartConfig = {
-            cx: 540,
-            cy: 420,
-            width: 640,
-            height: 560
-        };
-
-        // Load Default State on Startup
-        window.addEventListener('load', () => {
-            drawCanvas();
-        });
-
+        // Load Default State
         imageUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (event) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        userImage = img;
-                        // Calculate initial cover scale to fill heart viewport nicely
-                        baseScale = Math.max(heartConfig.width / img.width, heartConfig.height / img.height);
-                        imgScale = baseScale;
-                        imgOffsetX = 0;
-                        imgOffsetY = 0;
-                        hintText.textContent = "Drag to pan • Pinch or use sliders to zoom";
-                        drawCanvas();
-                    };
-                    img.src = event.target.result;
+                    userImage = new Image();
+                    userImage.src = event.target.result;
+                    userImage.onload = () => drawCanvas();
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        shuffleBtn.addEventListener('click', () => {
-            currentThemeIndex = (currentThemeIndex + 1) % campaignThemes.length;
-            showToast("Switched campaign slogan!");
+        zoomRange.addEventListener('input', (e) => {
+            photoScale = parseFloat(e.target.value);
             drawCanvas();
         });
 
-        resetBtn.addEventListener('click', () => {
-            if (userImage) {
-                imgScale = baseScale;
-                imgOffsetX = 0;
-                imgOffsetY = 0;
-                drawCanvas();
-                showToast("Photo centered");
-            }
+        userNameInput.addEventListener('input', () => drawCanvas());
+
+        shuffleBtn.addEventListener('click', () => {
+            const currentIndex = campaignThemes.indexOf(currentSlogan);
+            let nextIndex;
+            do {
+                nextIndex = Math.floor(Math.random() * campaignThemes.length);
+            } while (nextIndex === currentIndex);
+            currentSlogan = campaignThemes[nextIndex];
+            drawCanvas();
         });
 
+        // Helper: Draw Heart Path Geometry
+        function getHeartPath() {
+            const path = new Path2D();
+            path.moveTo(500, 310);
+            path.bezierCurveTo(410, 190, 250, 210, 250, 370);
+            path.bezierCurveTo(250, 530, 500, 710, 500, 710);
+            path.bezierCurveTo(500, 710, 750, 530, 750, 370);
+            path.bezierCurveTo(750, 210, 590, 190, 500, 310);
+            path.closePath();
+            return path;
+        }
+
+        // Core Canvas Renderer
         function drawCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 1. Draw Background Base
-            ctx.fillStyle = "#FFF9F9";
+            // 1. Background Fill (Clean White)
+            ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // 2. Setup Heart Clip Region for User Photo
+            // 2. Render User Photo inside Heart Mask
             ctx.save();
-            ctx.beginPath();
-            drawHeartPath(ctx, heartConfig.cx, heartConfig.cy, heartConfig.width, heartConfig.height);
-            ctx.clip();
+            const heartPath = getHeartPath();
+            ctx.clip(heartPath);
 
-            // Background placeholder or user image inside heart
             if (userImage) {
-                ctx.save();
-                ctx.translate(canvas.width / 2 + imgOffsetX, canvas.height / 2 + imgOffsetY - 20);
-                ctx.scale(imgScale, imgScale);
-                ctx.drawImage(userImage, -userImage.width / 2, -userImage.height / 2);
-                ctx.restore();
+                const baseSize = Math.max(canvas.width, canvas.height) * photoScale;
+                const x = (canvas.width - baseSize) / 2;
+                const y = (canvas.height - baseSize) / 2 + 30; // slight offset for heart centering
+                ctx.drawImage(userImage, x, y, baseSize, baseSize);
             } else {
-                // Empty State Placeholder inside Heart
-                ctx.fillStyle = "#ffe3e3";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "#c92a2a";
-                ctx.font = "bold 42px sans-serif";
-                ctx.textAlign = "center";
-                ctx.fillText("Tap 'Upload' to Add Photo", canvas.width / 2, canvas.height / 2 - 20);
+                // Placeholder gradient inside heart
+                const grad = ctx.createLinearGradient(0, 200, 0, 700);
+                grad.addColorStop(0, '#f8d7da');
+                grad.addColorStop(1, '#f1f3f5');
+                ctx.fillStyle = grad;
+                ctx.fill(heartPath);
+
+                ctx.fillStyle = '#c1121f';
+                ctx.font = 'bold 32px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Tap above to', 500, 430);
+                ctx.fillText('upload photo', 500, 475);
             }
             ctx.restore();
 
-            // 3. Draw Decorative Frame Overlay (SVG-styled vector overlay)
-            drawOverlayFrame();
+            // 3. Campaign Red Frame Border & Accents
+            ctx.strokeStyle = '#c1121f';
+            ctx.lineWidth = 14;
+            ctx.stroke(heartPath);
 
-            // 4. Draw Bottom Red Banner with Campaign Message & Hashtags
-            drawCampaignBanner();
+            // Outer decorative corners / Header band
+            ctx.fillStyle = '#c1121f';
+            ctx.fillRect(0, 0, canvas.width, 100);
+
+            // Top Header Text
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '900 44px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('WORLD HEART DAY 2026', canvas.width / 2, 62);
+
+            // Bottom Banner Band
+            ctx.fillStyle = '#780000';
+            ctx.fillRect(0, canvas.height - 150, canvas.width, 150);
+
+            // Rotating Slogan
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 30px sans-serif';
+            wrapText(ctx, currentSlogan, canvas.width / 2, canvas.height - 100, canvas.width - 80, 38);
+
+            // Custom Name / Hashtags
+            const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "#DontMissABeat #UseHeart";
+            ctx.fillStyle = '#ffccd5';
+            ctx.font = 'bold 22px sans-serif';
+            ctx.fillText(nameText, canvas.width / 2, canvas.height - 32);
         }
 
-        function drawHeartPath(context, cx, cy, w, h) {
-            // Precise mathematical heart curve scaled to dimensions
-            context.save();
-            context.translate(cx, cy);
-            let scaleX = w / 32;
-            let scaleY = h / 32;
-            context.scale(scaleX, scaleY);
-            
-            context.beginPath();
-            context.moveTo(0, 10);
-            context.bezierCurveTo(0, 3, -8, -6, -16, -6);
-            context.bezierCurveTo(-26, -6, -26, 8, -26, 8);
-            context.bezierCurveTo(-26, 18, -14, 26, 0, 34);
-            context.bezierCurveTo(14, 26, 26, 18, 26, 8);
-            context.bezierCurveTo(26, 8, 26, -6, 16, -6);
-            context.bezierCurveTo(8, -6, 0, 3, 0, 10);
-            context.closePath();
-            context.restore();
-        }
-
-        function drawOverlayFrame() {
-            // Outer Red Border Ribbon / Badge accents
-            ctx.strokeStyle = "#D32F2F";
-            ctx.lineWidth = 16;
-            ctx.beginPath();
-            drawHeartPath(ctx, heartConfig.cx, heartConfig.cy, heartConfig.width + 16, heartConfig.height + 16);
-            ctx.stroke();
-
-            // Top Header Ribbon Badge
-            ctx.fillStyle = "#D32F2F";
-            ctx.roundRect(140, 40, 800, 90, 45);
-            ctx.fill();
-
-            ctx.fillStyle = "#FFFFFF";
-            ctx.font = "900 38px sans-serif";
-            ctx.textAlign = "center";
-            ctx.fillText("WORLD HEART DAY 2026", canvas.width / 2, 98);
-        }
-
-        function drawCampaignBanner() {
-            const bannerY = 820;
-            const bannerHeight = 260;
-
-            // Bottom Banner Background Gradient
-            const grad = ctx.createLinearGradient(0, bannerY, 0, canvas.height);
-            grad.addColorStop(0, "#9A0007");
-            grad.addColorStop(1, "#D32F2F");
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, bannerY, canvas.width, bannerHeight);
-
-            // Inner Accent Line
-            ctx.fillStyle = "#FF8787";
-            ctx.fillRect(0, bannerY, canvas.width, 6);
-
-            // Slogan Text
-            const currentTheme = campaignThemes[currentThemeIndex];
-            ctx.fillStyle = "#FFFFFF";
-            ctx.font = "700 44px sans-serif";
-            ctx.textAlign = "center";
-            wrapText(ctx, currentTheme.slogan, canvas.width / 2, bannerY + 75, canvas.width - 80, 52);
-
-            // Hashtags
-            ctx.fillStyle = "#FFE3E3";
-            ctx.font = "bold 32px sans-serif";
-            ctx.fillText(currentTheme.hashtag, canvas.width / 2, bannerY + 205);
-        }
-
+        // Text Wrapping Utility
         function wrapText(context, text, x, y, maxWidth, lineHeight) {
             const words = text.split(' ');
             let line = '';
@@ -407,8 +334,7 @@
 
             for (let n = 0; n < words.length; n++) {
                 const testLine = line + words[n] + ' ';
-                const metrics = context.measureText(testLine);
-                if (metrics.width > maxWidth && n > 0) {
+                if (context.measureText(testLine).width > maxWidth && n > 0) {
                     context.fillText(line, x, currentY);
                     line = words[n] + ' ';
                     currentY += lineHeight;
@@ -419,91 +345,39 @@
             context.fillText(line, x, currentY);
         }
 
-        canvas.addEventListener('pointerdown', (e) => {
-            isDragging = true;
-            startX = e.clientX - imgOffsetX;
-            startY = e.clientY - imgOffsetY;
-            canvas.setPointerCapture(e.pointerId);
-        });
+        // Initial canvas paint on load
+        drawCanvas();
 
-        canvas.addEventListener('pointermove', (e) => {
-            if (!isDragging || !userImage) return;
-            imgOffsetX = e.clientX - startX;
-            imgOffsetY = e.clientY - startY;
-            drawCanvas();
-        });
-
-        canvas.addEventListener('pointerup', (e) => {
-            isDragging = false;
-            canvas.releasePointerCapture(e.pointerId);
-        });
-
-        // Touch pinch zoom support for mobile devices
-        canvas.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 2) {
-                initialDistance = Math.hypot(
-                    e.touches[0].clientX - e.touches[1].clientX,
-                    e.touches[0].clientY - e.touches[1].clientY
-                );
-            }
-        });
-
-        canvas.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 2 && initialDistance && userImage) {
-                const currentDistance = Math.hypot(
-                    e.touches[0].clientX - e.touches[1].clientX,
-                    e.touches[0].clientY - e.touches[1].clientY
-                );
-                const factor = currentDistance / initialDistance;
-                imgScale = Math.max(baseScale * 0.5, Math.min(baseScale * 4, imgScale * factor));
-                initialDistance = currentDistance;
-                drawCanvas();
-            }
-        });
-
+        // Download Action
         downloadBtn.addEventListener('click', () => {
             const link = document.createElement('a');
             link.download = 'world-heart-day-2026.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
-            showToast("Saved to device gallery!");
         });
 
+        // Web Share API (Android & iOS Native Share)
         shareBtn.addEventListener('click', async () => {
             try {
-                canvas.toBlob(async (blob) => {
-                    const file = new File([blob], 'world-heart-day-2026.png', { type: 'image/png' });
-                    const shareData = {
-                        title: 'World Heart Day 2026',
-                        text: `${campaignThemes[currentThemeIndex].slogan} ${campaignThemes[currentThemeIndex].hashtag}`,
-                        files: [file]
-                    };
+                const dataUrl = canvas.toDataURL('image/png');
+                const blob = await (await fetch(dataUrl)).blob();
+                const file = new File([blob], 'world-heart-day-2026.png', { type: 'image/png' });
 
-                    if (navigator.canShare && navigator.canShare(shareData)) {
-                        await navigator.share(shareData);
-                    } else {
-                        // Fallback download if share sheet unavailable
-                        const link = document.createElement('a');
-                        link.download = 'world-heart-day-2026.png';
-                        link.href = canvas.toDataURL('image/png');
-                        link.click();
-                        showToast("Image downloaded for sharing!");
-                    }
-                }, 'image/png');
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: 'World Heart Day 2026',
+                        text: `${currentSlogan} #WorldHeartDay #DontMissABeat`,
+                        files: [file]
+                    });
+                } else {
+                    alert("Direct sharing is restricted in this browser view. Please use 'Save Image' instead!");
+                }
             } catch (err) {
                 if (err.name !== 'AbortError') {
-                    showToast("Sharing cancelled or unsupported");
+                    console.error("Sharing failed:", err);
                 }
             }
         });
-
-        function showToast(message) {
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2500);
-        }
     </script>
 </body>
 </html>
