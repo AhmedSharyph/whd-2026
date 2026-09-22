@@ -284,7 +284,6 @@
     <script>
         const canvas = document.getElementById('creatorCanvas');
         const ctx = canvas.getContext('2d');
-        let imageUpload = document.getElementById('imageUpload');
         const uploadLabelBtn = document.getElementById('uploadLabelBtn');
         const zoomRange = document.getElementById('zoomRange');
         const userNameInput = document.getElementById('userName');
@@ -389,9 +388,12 @@
         ];
         let currentRotatingSlogan = rotatingHeartbeatSlogans[0];
 
+        // Dynamic file input binding
         function setupFileInputListener() {
-            imageUpload = document.getElementById('imageUpload');
-            imageUpload.addEventListener('change', handleFileSelect);
+            const imageUpload = document.getElementById('imageUpload');
+            if (imageUpload) {
+                imageUpload.addEventListener('change', handleFileSelect);
+            }
         }
 
         function handleFileSelect(e) {
@@ -463,6 +465,7 @@
                 actionDownloadBtn.textContent = '💾 Save Image';
                 actionShareBtn.textContent = '📤 Share Card';
                 
+                // Restores clear photo capture / gallery options
                 uploadLabelBtn.innerHTML = '📸 Shoot Photo or Select from Gallery <input type="file" id="imageUpload" accept="image/*">';
                 drawCanvas(0);
             } else {
@@ -471,6 +474,7 @@
                 actionDownloadBtn.textContent = '📥 Export MP4 Video';
                 actionShareBtn.textContent = '📤 Share MP4 Video';
                 
+                // Restores clear video recording / gallery options
                 uploadLabelBtn.innerHTML = '🎬 Record Video or Select from Gallery <input type="file" id="imageUpload" accept="video/*">';
                 
                 recordingStartTime = performance.now();
@@ -775,12 +779,11 @@
                         ...dest.stream.getAudioTracks()
                     ]);
 
-                    // Determine optimal MP4 supported MIME type configuration
                     let mime = 'video/mp4;codecs=avc1.42E01E,mp4a.40.2';
                     if (!MediaRecorder.isTypeSupported(mime)) {
                         mime = 'video/mp4';
                         if (!MediaRecorder.isTypeSupported(mime)) {
-                            mime = 'video/webm;codecs=h264,opus'; // Fallback container wrapper for compatibility
+                            mime = 'video/webm;codecs=h264,opus';
                         }
                     }
 
