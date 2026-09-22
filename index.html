@@ -175,10 +175,9 @@
 
         <!-- Controls -->
         <div class="controls">
-            <!-- Fixed Android/iOS Camera & Gallery Selector -->
+            <!-- Mobile Camera & Gallery Trigger -->
             <label class="file-upload-btn">
                 📸 Take Selfie or Choose Photo
-                <!-- capture="user" forces Android/iOS to open front camera directly while allowing gallery choice depending on device -->
                 <input type="file" id="imageUpload" accept="image/*" capture="user">
             </label>
 
@@ -188,7 +187,7 @@
             <label class="field-label" for="userName">Your Name or Team (Optional)</label>
             <input type="text" id="userName" placeholder="e.g. Community Health Team" maxlength="28">
 
-            <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Campaign Slogan</button>
+            <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Official Theme</button>
             
             <div class="btn-group">
                 <button class="btn btn-download" id="downloadBtn">💾 Save Image</button>
@@ -210,27 +209,18 @@
         let userImage = null;
         let photoScale = 1;
 
-        // Load Frame Background Image
-        const frameBg = new Image();
-        frameBg.src = 'frame-bg.png';
-        frameBg.onload = () => drawCanvas();
-        frameBg.onerror = () => {
-            console.warn('frame-bg.png not found. Falling back to solid red background.');
-            drawCanvas();
-        };
-
         // Load Hospital Logo
         const hospitalLogo = new Image();
         hospitalLogo.src = 'shah_logo.png';
         hospitalLogo.onload = () => drawCanvas();
 
-        // Official Rotating Campaign Slogans
+        // Official 2026 World Heart Day Themes & Slogans
         const campaignThemes = [
-            "Don't Miss a Beat: See the Hidden Signs",
-            "Protect Your Heart: Act Early & Live Well",
-            "Keep the Beat: Move More, Eat Healthier",
-            "Use Heart for Action: Know Your Risks",
-            "Heart Health First: Don't Skip Your Checkup"
+            "DON'T MISS A BEAT",
+            "USE HEART FOR ACTION",
+            "SEE THE SIGNS, PROTECT YOUR HEART",
+            "LOVE YOUR HEART BEFORE IT HURT",
+            "KEEP THE BEAT: ACT EARLY"
         ];
         let currentSlogan = campaignThemes[0];
 
@@ -265,102 +255,123 @@
             drawCanvas();
         });
 
-        // Helper: Artistic Heart Path Geometry (Centered on Canvas)
-        function getArtisticHeartPath() {
-            const path = new Path2D();
-            // Perfectly proportioned centered artistic heart path
-            path.moveTo(500, 315);
-            path.bezierCurveTo(400, 170, 230, 200, 230, 375);
-            path.bezierCurveTo(230, 535, 500, 720, 500, 720);
-            path.bezierCurveTo(500, 720, 770, 535, 770, 375);
-            path.bezierCurveTo(770, 200, 600, 170, 500, 315);
-            path.closePath();
-            return path;
-        }
-
-        // Core Canvas Renderer
+        // Core Canvas Renderer matching reference layout
         function drawCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Layer 1: Draw Frame Background Image (or solid red fallback)
-            if (frameBg.complete && frameBg.naturalHeight !== 0) {
-                ctx.drawImage(frameBg, 0, 0, canvas.width, canvas.height);
-            } else {
-                ctx.fillStyle = '#d90429';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
+            // 1. Red Campaign Background
+            ctx.fillStyle = '#d90429';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Layer 2: Artistic Heart Shape Clipping Path for User Photo
-            ctx.save();
-            const heartPath = getArtisticHeartPath();
-            ctx.clip(heartPath);
-
-            if (userImage) {
-                const baseSize = 600 * photoScale;
-                const x = (canvas.width - baseSize) / 2;
-                const y = (canvas.height - baseSize) / 2 - 20;
-                ctx.drawImage(userImage, x, y, baseSize, baseSize);
-            } else {
-                // Placeholder background inside the heart shape
-                ctx.fillStyle = '#f8f9fa';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                ctx.fillStyle = '#8d0801';
-                ctx.font = 'bold 30px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('Tap below to take', canvas.width / 2, 430);
-                ctx.fillText('your selfie photo', canvas.width / 2, 475);
-            }
-            ctx.restore();
-
-            // Layer 3: Clean White Border Stroke around the Artistic Heart
+            // 2. Draw White Heartbeat ECG Line across the middle
             ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 12;
-            ctx.stroke(heartPath);
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            
+            const ecgY = 520;
+            ctx.moveTo(0, ecgY);
+            ctx.lineTo(220, ecgY);
+            ctx.lineTo(260, ecgY - 40);
+            ctx.lineTo(300, ecgY + 120);
+            ctx.lineTo(340, ecgY - 180);
+            ctx.lineTo(380, ecgY + 80);
+            ctx.lineTo(410, ecgY - 20);
+            ctx.lineTo(440, ecgY);
+            ctx.lineTo(560, ecgY); // gap behind circle
+            ctx.lineTo(600, ecgY - 30);
+            ctx.lineTo(640, ecgY + 90);
+            ctx.lineTo(680, ecgY - 110);
+            ctx.lineTo(720, ecgY + 40);
+            ctx.lineTo(760, ecgY);
+            ctx.lineTo(1000, ecgY);
+            ctx.stroke();
 
-            // Layer 4: Draw Hospital Logo (Top Left Corner)
+            // 3. Draw Hospital Logo (Top Left Corner)
             if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
                 const logoHeight = 65;
                 const logoWidth = (hospitalLogo.width / hospitalLogo.height) * logoHeight;
-                ctx.drawImage(hospitalLogo, 40, 25, logoWidth, logoHeight);
+                ctx.drawImage(hospitalLogo, 50, 40, logoWidth, logoHeight);
             }
 
-            // Layer 5: Top Header Text (White)
+            // 4. Top Header Text (White)
             ctx.fillStyle = '#ffffff';
-            ctx.font = '900 40px sans-serif';
+            ctx.font = '900 48px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('WORLD HEART DAY 2026', canvas.width / 2 + 30, 70);
+            ctx.fillText('WORLD', canvas.width / 2, 130);
+            ctx.fillText('HEART DAY', canvas.width / 2, 190);
 
-            // Layer 6: Bottom Slogan & Text Area
+            // 5. Circular Photo Frame Configuration
+            const circleX = canvas.width / 2;
+            const circleY = 520;
+            const circleRadius = 240;
+
+            // Save state for circular clipping
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
+            ctx.clip();
+
+            if (userImage) {
+                const baseSize = (circleRadius * 2) * photoScale;
+                const x = circleX - (baseSize / 2);
+                const y = circleY - (baseSize / 2);
+                ctx.drawImage(userImage, x, y, baseSize, baseSize);
+            } else {
+                // Placeholder background inside the circle
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+
+                ctx.fillStyle = '#d90429';
+                ctx.font = 'bold 30px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Tap below to take', circleX, circleY - 15);
+                ctx.fillText('your selfie photo', circleX, circleY + 30);
+            }
+            ctx.restore();
+
+            // 6. Clean White Border Stroke around the Circle
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 14;
+            ctx.beginPath();
+            ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // 7. Curved Theme Slogan Text along the bottom edge of circle
+            ctx.save();
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 28px sans-serif';
+            ctx.font = 'bold 25px sans-serif';
             ctx.textAlign = 'center';
-            wrapText(ctx, currentSlogan, canvas.width / 2, 775, canvas.width - 80, 38);
+            drawCurvedText(ctx, currentSlogan, circleX, circleY, circleRadius + 35, Math.PI * 0.15, Math.PI * 0.85);
+            ctx.restore();
 
-            // Custom Name or Hashtags
+            // 8. Custom Name or Hashtags at Bottom
             const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "#DontMissABeat #UseHeart";
             ctx.fillStyle = '#ffe3e3';
             ctx.font = 'bold 22px sans-serif';
-            ctx.fillText(nameText, canvas.width / 2, 870);
+            ctx.fillText(nameText, canvas.width / 2, 920);
         }
 
-        // Text Wrapping Utility
-        function wrapText(context, text, x, y, maxWidth, lineHeight) {
-            const words = text.split(' ');
-            let line = '';
-            let currentY = y;
+        // Helper Function to Render Curved Text around the Circle
+        function drawCurvedText(context, str, centerX, centerY, radius, angleStart, angleEnd) {
+            context.save();
+            context.translate(centerX, centerY);
+            
+            const totalChars = str.length;
+            const angleStep = (angleEnd - angleStart) / (totalChars - 1 || 1);
+            let currentAngle = angleStart;
 
-            for (let n = 0; n < words.length; n++) {
-                const testLine = line + words[n] + ' ';
-                if (context.measureText(testLine).width > maxWidth && n > 0) {
-                    context.fillText(line, x, currentY);
-                    line = words[n] + ' ';
-                    currentY += lineHeight;
-                } else {
-                    line = testLine;
-                }
+            for (let i = 0; i < totalChars; i++) {
+                const char = str[i];
+                context.save();
+                context.rotate(currentAngle);
+                context.translate(0, -radius);
+                context.fillText(char, 0, 0);
+                context.restore();
+                currentAngle += angleStep;
             }
-            context.fillText(line, x, currentY);
+            context.restore();
         }
 
         // Download Action
@@ -381,7 +392,7 @@
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
                         title: 'World Heart Day 2026',
-                        text: `${currentSlogan} #WorldHeartDay #DontMissABeat`,
+                        text: `${currentSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
                         files: [file]
                     });
                 } else {
