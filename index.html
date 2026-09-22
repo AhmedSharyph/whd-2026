@@ -721,8 +721,6 @@
       }
 
       // ===== CURVED TEXT ALONG CIRCLE ARC =====
-      // Draws text along the top arc of a circle, centered at the top.
-      // startAngle / endAngle are in radians, where 0 = right, -PI/2 = top, -PI = left.
       function drawCurvedText(text, cx, cy, radius, options) {
         const {
           fontSize = 30,
@@ -731,8 +729,6 @@
           fillStyle = '#ffe3e3',
           shadowColor = 'rgba(0,0,0,0.85)',
           shadowBlur = 10,
-          startAngle = -Math.PI * 0.92,   // start just above the left side of the circle
-          endAngle = -Math.PI * 0.08,     // end just above the right side of the circle
           letterSpacing = 0
         } = options || {};
 
@@ -744,7 +740,6 @@
         ctx.shadowColor = shadowColor;
         ctx.shadowBlur = shadowBlur;
 
-        // Measure each character's width
         const chars = text.split('');
         const charWidths = chars.map(ch => {
           const w = ctx.measureText(ch).width;
@@ -752,30 +747,13 @@
         });
         const totalWidth = charWidths.reduce((a, b) => a + b, 0);
 
-        // Total arc span
-        const arcSpan = endAngle - startAngle;
-
-        // We'll position each character so the whole string is centered on the arc.
-        // First find the total angle the string occupies based on character widths.
-        // To keep it simple, distribute the arcSpan proportionally to character widths.
-        // But we want it centered on the top of the circle (which is at -PI/2).
-        // So we compute a start angle for the string so that its midpoint sits at -PI/2.
-        // Actually, we'll just place characters sequentially across the arcSpan, and
-        // adjust startAngle so that the visual center of the string sits at the top (-PI/2).
-        // Simplest approach: treat the string as spanning from startAngle to endAngle,
-        // and position each character proportionally.
-
-        // But we want the string centered around the top. So compute the string's angular width
-        // proportional to totalWidth vs arc length of the full circle at this radius.
         const circumference = 2 * Math.PI * radius;
         const stringArcLength = totalWidth;
         const stringAngleSpan = (stringArcLength / circumference) * (2 * Math.PI);
 
-        // We want the string's midpoint at the top (-PI/2), so startAngle for the string is:
         const stringCenterAngle = -Math.PI / 2;
         const stringStartAngle = stringCenterAngle - stringAngleSpan / 2;
 
-        // Now walk along the string
         let currentAngle = stringStartAngle;
         for (let i = 0; i < chars.length; i++) {
           const ch = chars[i];
@@ -783,11 +761,9 @@
           const chAngleSpan = (chWidth / circumference) * (2 * Math.PI);
           const charAngle = currentAngle + chAngleSpan / 2;
 
-          // Position along the circle (top arc)
           const x = cx + radius * Math.cos(charAngle);
           const y = cy + radius * Math.sin(charAngle);
 
-          // Rotate character so it's upright relative to the circle
           ctx.save();
           ctx.translate(x, y);
           ctx.rotate(charAngle + Math.PI / 2);
@@ -851,10 +827,10 @@
           ctx.fillStyle = '#ffffff';
           ctx.fill();
           ctx.fillStyle = '#d90429';
-          ctx.font = 'bold 32px -apple-system, sans-serif';
+          ctx.font = 'bold 36px -apple-system, sans-serif';
           ctx.textAlign = 'center';
           ctx.fillText('Tap below to', circleX, circleY - 18);
-          ctx.fillText('upload media', circleX, circleY + 25);
+          ctx.fillText('upload media', circleX, circleY + 28);
         }
         ctx.restore();
 
@@ -906,7 +882,7 @@
           ctx.drawImage(activeMascot, mX, mY, mWidth, mHeight);
         }
 
-        // 7. Header (logo + title only — slogan now curved on circle)
+        // 7. Header — LARGER TITLE
         const headerY = 22;
         let logoWidthRightEdge = 175;
 
@@ -936,24 +912,22 @@
         const textStartX = logoWidthRightEdge;
         ctx.textAlign = 'left';
         ctx.fillStyle = '#ffffff';
-        ctx.font = '900 38px -apple-system, sans-serif';
+        ctx.font = '900 52px -apple-system, sans-serif';   // ← INCREASED from 38px
         ctx.shadowColor = 'rgba(0,0,0,0.8)';
-        ctx.shadowBlur = 12;
-        ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 42);
+        ctx.shadowBlur = 14;
+        ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 52);
         ctx.shadowBlur = 0;
 
-        // 8. === CURVED SLOGAN ON TOP OF CIRCLE ===
-        // "DON'T MISS A BEAT" arcs over the top of the heartbeat circle,
-        // starting from the left upper side and ending on the right upper side.
-        const sloganRadius = circleRadius + 42;  // outside the border
+        // 8. === CURVED SLOGAN — LARGER FONT ===
+        const sloganRadius = circleRadius + 48;
         drawCurvedText(bannerSloganText, circleX, circleY, sloganRadius, {
-          fontSize: 38,
+          fontSize: 54,                                    // ← INCREASED from 38px
           fontWeight: '900',
           fontFamily: '-apple-system, sans-serif',
           fillStyle: '#ffe3e3',
           shadowColor: 'rgba(0,0,0,0.9)',
-          shadowBlur: 14,
-          letterSpacing: 3
+          shadowBlur: 16,
+          letterSpacing: 4
         });
 
         // 9. Name
@@ -961,31 +935,31 @@
         if (nameText) {
           ctx.textAlign = 'center';
           ctx.fillStyle = '#fff0f3';
-          ctx.font = '900 28px -apple-system, sans-serif';
+          ctx.font = '900 32px -apple-system, sans-serif';  // ← INCREASED from 28px
           ctx.shadowColor = 'rgba(0,0,0,0.6)';
           ctx.shadowBlur = 8;
           ctx.fillText(nameText, canvas.width / 2, 490, 650);
           ctx.shadowBlur = 0;
         }
 
-        // 10. Rotating Slogan
+        // 10. Rotating Slogan — LARGER
         ctx.fillStyle = '#ffffff';
-        ctx.font = '900 36px -apple-system, sans-serif';
+        ctx.font = '900 42px -apple-system, sans-serif';    // ← INCREASED from 36px
         ctx.textAlign = 'center';
         ctx.shadowColor = 'rgba(0,0,0,0.9)';
-        ctx.shadowBlur = 12;
-        wrapText(ctx, currentRotatingSlogan, canvas.width / 2, 835, 780, 42);
+        ctx.shadowBlur = 14;
+        wrapText(ctx, currentRotatingSlogan, canvas.width / 2, 838, 800, 48);
 
         // 11. Hashtags
         ctx.fillStyle = '#ffe3e3';
-        ctx.font = '900 28px -apple-system, sans-serif';
-        ctx.fillText('#DontMissABeat   #UseHeart', canvas.width / 2, 912);
+        ctx.font = '900 32px -apple-system, sans-serif';    // ← INCREASED from 28px
+        ctx.fillText('#DontMissABeat   #UseHeart', canvas.width / 2, 916);
         ctx.shadowBlur = 0;
 
         // 12. Credit
         ctx.fillStyle = 'rgba(255,255,255,0.85)';
-        ctx.font = '300 15px -apple-system, sans-serif';
-        ctx.fillText('Developed by: Ahmed Shareef for Shaviyani Atoll Hospital', canvas.width / 2, 970);
+        ctx.font = '300 16px -apple-system, sans-serif';    // ← INCREASED from 15px
+        ctx.fillText('Developed by: Ahmed Shareef for Shaviyani Atoll Hospital', canvas.width / 2, 972);
       }
 
       // ===== ECG =====
