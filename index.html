@@ -11,12 +11,10 @@
   <meta name="format-detection" content="telephone=no">
   <meta name="screen-orientation" content="portrait">
   <meta name="x5-orientation" content="portrait">
-  <title>WHD 2026 · Mobile Studio</title>
+  <title>WHD 2026 · Creator Studio</title>
   <style>
-    /* ===== RESET ===== */
-    *,
-    *::before,
-    *::after {
+    /* ============ RESET ============ */
+    *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -28,142 +26,194 @@
       width: 100%;
       overflow: hidden;
       touch-action: manipulation;
-      background: #fafafa;
+      background: #0f0206;
+      -webkit-text-size-adjust: 100%;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       height: 100%;
       width: 100%;
       overflow: hidden;
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       display: flex;
       flex-direction: column;
       padding: 0;
       margin: 0;
-      color: #1a1a1a;
+      color: #ffffff;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       overscroll-behavior: none;
       -webkit-overflow-scrolling: touch;
-      background: #fafafa;
+      background: #0f0206;
     }
 
-    /* ===== APP SHELL ===== */
+    /* ============ APP SHELL — DARK MODERN ============ */
     .app {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       width: 100%;
       height: 100%;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      background: #fafafa;
+      background: linear-gradient(180deg, #1a0308 0%, #0f0206 100%);
       z-index: 1;
     }
 
-    /* ===== SCROLL AREA ===== */
+    /* ============ SCROLL AREA ============ */
     .scroll-area {
       flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
-      padding: 16px 16px 28px;
+      padding: 16px 16px 32px;
       display: flex;
       flex-direction: column;
       gap: 14px;
-      scroll-behavior: smooth;
       overscroll-behavior: contain;
-      background: #fafafa;
+      background: transparent;
+      scrollbar-width: none;
+    }
+    .scroll-area::-webkit-scrollbar {
+      display: none;
     }
 
-    /* ===== HEADER ===== */
+    /* ============ HEADER ============ */
     .app-header {
-      text-align: center;
-      padding: 4px 0 2px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 4px 8px;
       flex-shrink: 0;
     }
 
-    .app-header h1 {
-      font-size: 1.15rem;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ff2d55, #b3001b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 6px 16px rgba(255, 45, 85, 0.35);
+    }
+
+    .brand-text h1 {
+      font-size: 0.9rem;
       font-weight: 800;
       letter-spacing: -0.02em;
-      color: #7a0010;
-      line-height: 1.2;
+      color: #ffffff;
+      line-height: 1.1;
     }
 
-    .app-header .sub {
-      font-size: 0.62rem;
+    .brand-text .sub {
+      font-size: 0.58rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #ff8fa3;
+      margin-top: 1px;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 10px;
+      border-radius: 20px;
+      background: rgba(255, 45, 85, 0.15);
+      border: 1px solid rgba(255, 45, 85, 0.35);
+      font-size: 0.6rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #9a5a5a;
-      margin-top: 2px;
+      letter-spacing: 0.08em;
+      color: #ff8fa3;
     }
 
-    /* ===== MODE TABS ===== */
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ff2d55;
+      box-shadow: 0 0 8px #ff2d55;
+      animation: livePulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.75); }
+    }
+
+    /* ============ MODE TABS — MODERN PILL ============ */
     .mode-tabs {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 4px;
-      background: rgba(0, 0, 0, 0.05);
-      padding: 4px;
-      border-radius: 14px;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 5px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
       flex-shrink: 0;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
 
     .tab-btn {
       background: transparent;
       border: none;
-      padding: 12px 4px;
-      font-size: 0.78rem;
+      padding: 12px 8px;
+      font-size: 0.76rem;
       font-weight: 700;
-      color: #6a4040;
-      border-radius: 11px;
+      color: rgba(255, 255, 255, 0.55);
+      border-radius: 12px;
       cursor: pointer;
-      transition: all 0.22s cubic-bezier(0.2, 0.9, 0.4, 1);
+      transition: all 0.28s cubic-bezier(0.2, 0.9, 0.4, 1);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 6px;
       -webkit-user-select: none;
       user-select: none;
       touch-action: manipulation;
+      font-family: inherit;
+      letter-spacing: 0.02em;
     }
 
     .tab-btn.active {
-      background: #ffffff;
-      color: #b3001b;
-      box-shadow: 0 4px 12px rgba(180, 20, 40, 0.18);
+      background: linear-gradient(135deg, #ff2d55, #d90429);
+      color: #ffffff;
+      box-shadow: 0 6px 18px rgba(255, 45, 85, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
     }
 
     .tab-btn:active {
       transform: scale(0.97);
     }
 
-    /* ===== CANVAS FRAME ===== */
+    /* ============ CANVAS FRAME — GLASSY DARK ============ */
     .canvas-frame {
       position: relative;
       width: 100%;
       aspect-ratio: 1 / 1;
-      border-radius: 22px;
+      border-radius: 26px;
       overflow: hidden;
       flex-shrink: 0;
-      background: rgba(255, 255, 255, 0.55);
-      backdrop-filter: blur(22px) saturate(160%);
-      -webkit-backdrop-filter: blur(22px) saturate(160%);
-      border: 1.5px solid rgba(255, 255, 255, 0.75);
+      background: rgba(30, 10, 15, 0.6);
+      backdrop-filter: blur(28px) saturate(140%);
+      -webkit-backdrop-filter: blur(28px) saturate(140%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow:
-        0 14px 34px rgba(120, 0, 20, 0.22),
-        0 0 0 1px rgba(255, 255, 255, 0.3) inset,
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        0 20px 50px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 45, 85, 0.08) inset,
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
       padding: 8px;
       box-sizing: border-box;
     }
@@ -171,7 +221,7 @@
     .canvas-frame .hearts-layer {
       position: absolute;
       inset: 8px;
-      border-radius: 16px;
+      border-radius: 19px;
       overflow: hidden;
       pointer-events: none;
       z-index: 1;
@@ -184,7 +234,7 @@
       opacity: 0;
       animation: heartFall linear infinite;
       will-change: transform, opacity;
-      filter: drop-shadow(0 0 3px rgba(255, 100, 120, 0.55));
+      filter: drop-shadow(0 0 4px rgba(255, 100, 130, 0.7));
     }
 
     @keyframes heartFall {
@@ -192,15 +242,9 @@
         transform: translateY(-30px) translateX(0) rotate(0deg) scale(0.6);
         opacity: 0;
       }
-      12% {
-        opacity: 0.9;
-      }
-      50% {
-        opacity: 0.7;
-      }
-      88% {
-        opacity: 0.35;
-      }
+      12% { opacity: 0.95; }
+      50% { opacity: 0.75; }
+      88% { opacity: 0.35; }
       100% {
         transform: translateY(110%) translateX(var(--drift, 24px)) rotate(340deg) scale(1);
         opacity: 0;
@@ -213,62 +257,146 @@
       width: 100%;
       height: 100%;
       display: block;
-      border-radius: 16px;
+      border-radius: 19px;
       touch-action: none;
     }
 
-    /* ===== UPLOAD BUTTON ===== */
-    .upload-btn {
+    /* ============ UPLOAD SECTION — CAMERA + GALLERY ============ */
+    .upload-section {
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
       gap: 8px;
-      background: linear-gradient(135deg, #fff5f6, #ffe4e7);
-      border: 2px dashed #c81e1e;
-      padding: 16px 14px;
-      border-radius: 16px;
-      font-weight: 700;
-      font-size: 0.82rem;
-      color: #990011;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 4px 10px rgba(200, 30, 30, 0.06);
-      text-align: center;
-      -webkit-user-select: none;
-      user-select: none;
-      touch-action: manipulation;
       flex-shrink: 0;
     }
 
-    .upload-btn:active {
-      transform: scale(0.98);
-      background: #ffd6db;
+    .upload-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4px;
     }
 
-    .upload-btn input[type="file"] {
+    .upload-label-row .label-text {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .upload-label-row .media-type-badge {
+      font-size: 0.58rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #ff8fa3;
+      background: rgba(255, 45, 85, 0.12);
+      border: 1px solid rgba(255, 45, 85, 0.3);
+      padding: 3px 8px;
+      border-radius: 8px;
+    }
+
+    .upload-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .upload-action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 16px 10px;
+      border-radius: 18px;
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.72rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
+      font-family: inherit;
+      text-align: center;
+      letter-spacing: 0.01em;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .upload-action-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent);
+      pointer-events: none;
+    }
+
+    .upload-action-btn .icon-circle {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255, 45, 85, 0.22), rgba(217, 4, 41, 0.15));
+      border: 1px solid rgba(255, 45, 85, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: transform 0.2s;
+    }
+
+    .upload-action-btn:active {
+      transform: scale(0.97);
+      background: rgba(255, 45, 85, 0.15);
+      border-color: rgba(255, 45, 85, 0.5);
+    }
+
+    .upload-action-btn:active .icon-circle {
+      transform: scale(1.1);
+    }
+
+    .upload-action-btn input[type="file"] {
       display: none;
     }
 
-    /* ===== FIELD GROUPS ===== */
+    /* ============ FIELD GROUPS ============ */
     .field-group {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
       flex-shrink: 0;
     }
 
     .field-label {
-      font-size: 0.64rem;
+      font-size: 0.62rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: #5e3e3e;
-      margin-left: 4px;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.5);
+      padding: 0 4px;
       -webkit-user-select: none;
       user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    /* ===== RANGE SLIDER ===== */
+    .field-label .value-badge {
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #ff8fa3;
+      background: rgba(255, 45, 85, 0.12);
+      padding: 2px 7px;
+      border-radius: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    /* ============ RANGE SLIDER — MODERN ============ */
     .range-wrapper {
       width: 100%;
       padding: 0 2px;
@@ -278,111 +406,135 @@
       -webkit-appearance: none;
       appearance: none;
       width: 100%;
-      height: 8px;
-      background: #e8d0d0;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 6px;
       outline: none;
-      margin: 8px 0 4px;
+      margin: 4px 0;
       touch-action: manipulation;
       cursor: pointer;
+      border: none;
     }
 
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
-      background: #c81e1e;
+      background: linear-gradient(135deg, #ff2d55, #b3001b);
       cursor: pointer;
-      box-shadow: 0 3px 10px rgba(200, 30, 30, 0.4);
-      border: 3px solid #fff;
-      transition: transform 0.1s;
+      box-shadow: 0 4px 14px rgba(255, 45, 85, 0.55), 0 0 0 3px rgba(255, 45, 85, 0.15);
+      border: 2.5px solid #ffffff;
+      transition: transform 0.12s;
       touch-action: manipulation;
     }
 
     input[type="range"]::-webkit-slider-thumb:active {
-      transform: scale(1.15);
+      transform: scale(1.18);
     }
 
     input[type="range"]::-moz-range-thumb {
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
-      background: #c81e1e;
+      background: linear-gradient(135deg, #ff2d55, #b3001b);
       cursor: pointer;
-      border: 3px solid #fff;
-      box-shadow: 0 3px 10px rgba(200, 30, 30, 0.4);
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 4px 14px rgba(255, 45, 85, 0.55);
     }
 
-    /* ===== TEXT INPUT ===== */
+    /* ============ TEXT INPUT — DARK MODERN ============ */
     input[type="text"] {
       width: 100%;
-      padding: 14px 16px;
-      border-radius: 14px;
-      border: 1.5px solid rgba(0, 0, 0, 0.08);
-      background: #fff;
+      padding: 15px 16px;
+      border-radius: 16px;
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
       font-size: 0.9rem;
       font-weight: 500;
       outline: none;
       transition: all 0.2s;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
       -webkit-appearance: none;
       appearance: none;
       touch-action: manipulation;
-      color: #1a1a1a;
+      color: #ffffff;
+      font-family: inherit;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
     input[type="text"]:focus {
-      border-color: #c81e1e;
-      box-shadow: 0 0 0 3px rgba(200, 30, 30, 0.1);
+      border-color: #ff2d55;
+      background: rgba(255, 45, 85, 0.08);
+      box-shadow: 0 0 0 3px rgba(255, 45, 85, 0.15);
     }
 
     input[type="text"]::placeholder {
-      color: #b09090;
+      color: rgba(255, 255, 255, 0.35);
       font-weight: 400;
     }
 
-    /* ===== BUTTONS ===== */
+    /* ============ BUTTONS ============ */
     .btn {
       width: 100%;
       padding: 16px 12px;
-      border-radius: 16px;
+      border-radius: 18px;
       border: none;
       font-weight: 700;
       font-size: 0.84rem;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.08);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 8px;
       -webkit-user-select: none;
       user-select: none;
       touch-action: manipulation;
       -webkit-appearance: none;
       appearance: none;
-      color: #fff;
+      color: #ffffff;
       flex-shrink: 0;
+      font-family: inherit;
+      letter-spacing: 0.01em;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 55%);
+      pointer-events: none;
     }
 
     .btn:active {
       transform: scale(0.97);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .btn-shuffle {
-      background: #23232e;
-      font-size: 0.86rem;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      font-size: 0.82rem;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .btn-shuffle:active {
+      background: rgba(255, 255, 255, 0.12);
     }
 
     .btn-download {
-      background: #111;
+      background: linear-gradient(135deg, #1c1c1e, #000000);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
 
     .btn-share {
-      background: linear-gradient(135deg, #d90429, #7a0010);
+      background: linear-gradient(135deg, #ff2d55, #b3001b);
+      box-shadow: 0 8px 22px rgba(255, 45, 85, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
 
     .btn-group {
@@ -392,88 +544,92 @@
       flex-shrink: 0;
     }
 
-    /* ===== VIDEO STATUS ===== */
+    /* ============ VIDEO STATUS ============ */
     .video-status {
       font-size: 0.72rem;
       font-weight: 600;
-      color: #990011;
+      color: #ff8fa3;
       text-align: center;
-      background: rgba(255, 255, 255, 0.85);
-      padding: 10px;
-      border-radius: 12px;
+      background: rgba(255, 45, 85, 0.08);
+      padding: 12px 14px;
+      border-radius: 14px;
       display: none;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      border: 1px solid rgba(200, 30, 30, 0.18);
+      border: 1px solid rgba(255, 45, 85, 0.25);
       flex-shrink: 0;
-      line-height: 1.4;
+      line-height: 1.5;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      letter-spacing: 0.01em;
     }
 
     .video-status.visible {
       display: block;
+      animation: fadeIn 0.3s ease both;
     }
 
-    /* ===== FOOTER ===== */
+    /* ============ FOOTER ============ */
     .app-footer {
       text-align: center;
-      font-size: 0.58rem;
-      color: #b09090;
+      font-size: 0.56rem;
+      color: rgba(255, 255, 255, 0.3);
       font-weight: 500;
-      padding: 6px 0 2px;
+      padding: 8px 0 4px;
       flex-shrink: 0;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.04em;
     }
 
-    /* ===== SAFE AREA ===== */
+    /* ============ SAFE AREA ============ */
     @supports (padding: env(safe-area-inset-bottom)) {
       .scroll-area {
-        padding-bottom: calc(28px + env(safe-area-inset-bottom));
+        padding-bottom: calc(32px + env(safe-area-inset-bottom));
         padding-top: calc(16px + env(safe-area-inset-top));
+      }
+      .app-header {
+        padding-top: calc(4px + env(safe-area-inset-top));
       }
       .app-footer {
         padding-bottom: calc(4px + env(safe-area-inset-bottom));
       }
     }
 
-    /* ===== SMALL PHONES ===== */
-    @media (max-height: 700px) {
+    /* ============ SMALL PHONES ============ */
+    @media (max-height: 720px) {
       .scroll-area {
         gap: 10px;
-        padding: 10px 12px 20px;
-      }
-      .app-header h1 {
-        font-size: 1rem;
+        padding: 12px 14px 24px;
       }
       .canvas-frame {
-        border-radius: 18px;
+        border-radius: 20px;
         padding: 6px;
       }
-      .canvas-frame .hearts-layer {
-        inset: 6px;
-        border-radius: 13px;
-      }
+      .canvas-frame .hearts-layer,
       .canvas-frame canvas {
-        border-radius: 13px;
+        border-radius: 15px;
       }
-      .upload-btn {
-        padding: 13px 12px;
-        font-size: 0.78rem;
+      .upload-action-btn {
+        padding: 13px 8px;
+        font-size: 0.68rem;
+      }
+      .upload-action-btn .icon-circle {
+        width: 32px;
+        height: 32px;
+        font-size: 15px;
       }
       .btn {
-        padding: 13px 10px;
+        padding: 14px 10px;
         font-size: 0.8rem;
       }
       input[type="text"] {
-        padding: 12px 14px;
-        font-size: 0.85rem;
+        padding: 13px 14px;
+        font-size: 0.86rem;
       }
       .tab-btn {
-        padding: 10px 4px;
+        padding: 11px 6px;
         font-size: 0.72rem;
       }
     }
 
-    /* ===== TEXT SELECTION ===== */
+    /* ============ TEXT SELECTION ============ */
     .app, .app * {
       -webkit-user-select: none;
       -moz-user-select: none;
@@ -493,13 +649,22 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     .scroll-area > * {
-      animation: fadeIn 0.3s ease both;
+      animation: fadeIn 0.35s cubic-bezier(0.2, 0.9, 0.4, 1) both;
     }
+
+    .scroll-area > *:nth-child(2) { animation-delay: 0.04s; }
+    .scroll-area > *:nth-child(3) { animation-delay: 0.08s; }
+    .scroll-area > *:nth-child(4) { animation-delay: 0.12s; }
+    .scroll-area > *:nth-child(5) { animation-delay: 0.16s; }
+    .scroll-area > *:nth-child(6) { animation-delay: 0.20s; }
+    .scroll-area > *:nth-child(7) { animation-delay: 0.24s; }
+    .scroll-area > *:nth-child(8) { animation-delay: 0.28s; }
+    .scroll-area > *:nth-child(9) { animation-delay: 0.32s; }
   </style>
 </head>
 <body>
@@ -509,8 +674,17 @@
 
       <!-- HEADER -->
       <header class="app-header">
-        <h1>SHAH HEALTH PORTAL</h1>
-        <div class="sub">World Heart Day 2026 · Mobile Studio</div>
+        <div class="brand">
+          <div class="brand-mark">❤️</div>
+          <div class="brand-text">
+            <h1>SHAH HEALTH PORTAL</h1>
+            <div class="sub">World Heart Day 2026</div>
+          </div>
+        </div>
+        <div class="live-badge">
+          <span class="live-dot"></span>
+          Studio
+        </div>
       </header>
 
       <!-- MODE SWITCH -->
@@ -529,15 +703,35 @@
         <canvas id="creatorCanvas" width="1000" height="1000"></canvas>
       </div>
 
-      <!-- UPLOAD -->
-      <label class="upload-btn" id="uploadLabelBtn" for="mediaUpload">
-        <span id="uploadBtnText">📸 Shoot / Select Photo</span>
-        <input type="file" id="mediaUpload" accept="image/*" capture="environment">
-      </label>
+      <!-- UPLOAD SECTION — CAMERA + GALLERY (BOTH MODES) -->
+      <div class="upload-section">
+        <div class="upload-label-row">
+          <span class="label-text">Add your media</span>
+          <span class="media-type-badge" id="mediaTypeBadge">Photo</span>
+        </div>
+        <div class="upload-actions">
+          <!-- Camera button -->
+          <button class="upload-action-btn" id="cameraBtn" type="button">
+            <span class="icon-circle">📸</span>
+            <span id="cameraBtnText">Take Photo</span>
+          </button>
+          <!-- Gallery button -->
+          <button class="upload-action-btn" id="galleryBtn" type="button">
+            <span class="icon-circle">🖼️</span>
+            <span id="galleryBtnText">Choose Photo</span>
+          </button>
+        </div>
+        <!-- Hidden file inputs — one for camera, one for gallery -->
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
+        <input type="file" id="galleryInput" accept="image/*" style="display:none;">
+      </div>
 
       <!-- ZOOM -->
       <div class="field-group">
-        <div class="field-label">Zoom & drag inside circle</div>
+        <div class="field-label">
+          <span>Zoom & drag inside circle</span>
+          <span class="value-badge" id="zoomValue">1.0×</span>
+        </div>
         <div class="range-wrapper">
           <input type="range" id="zoomRange" min="0.5" max="3.0" step="0.05" value="1">
         </div>
@@ -545,7 +739,9 @@
 
       <!-- NAME -->
       <div class="field-group">
-        <label class="field-label" for="userName">Your name / team (optional)</label>
+        <label class="field-label" for="userName">
+          <span>Your name / team (optional)</span>
+        </label>
         <input type="text" id="userName" placeholder="e.g. Community Health Team" maxlength="28" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
       </div>
 
@@ -571,28 +767,28 @@
     (function() {
       "use strict";
 
-      // ===== HEART CASCADE =====
+      // ============ HEART CASCADE ============
       (function generateHearts() {
         const layer = document.getElementById('heartsLayer');
         const heartChars = ['❤', '♥', '❤️', '💗', '💓'];
         const colors = [
-          'rgba(255, 180, 190, 0.9)',
-          'rgba(255, 140, 160, 0.85)',
-          'rgba(255, 200, 210, 0.8)',
-          'rgba(255, 120, 150, 0.75)',
-          'rgba(255, 220, 225, 0.7)'
+          'rgba(255, 180, 200, 0.9)',
+          'rgba(255, 140, 170, 0.85)',
+          'rgba(255, 200, 215, 0.8)',
+          'rgba(255, 120, 155, 0.75)',
+          'rgba(255, 220, 230, 0.7)'
         ];
-        const count = 18;
+        const count = 20;
 
         for (let i = 0; i < count; i++) {
           const heart = document.createElement('span');
           heart.className = 'heart';
           heart.textContent = heartChars[Math.floor(Math.random() * heartChars.length)];
-          const size = 8 + Math.random() * 14;
+          const size = 8 + Math.random() * 16;
           const duration = 8 + Math.random() * 12;
           const delay = Math.random() * 12;
           const left = Math.random() * 100;
-          const drift = (Math.random() * 60 - 30).toFixed(0) + 'px';
+          const drift = (Math.random() * 70 - 35).toFixed(0) + 'px';
           const color = colors[Math.floor(Math.random() * colors.length)];
 
           heart.style.left = left + '%';
@@ -605,22 +801,28 @@
         }
       })();
 
-      // ===== DOM REFS =====
+      // ============ DOM REFS ============
       const canvas = document.getElementById('creatorCanvas');
       const ctx = canvas.getContext('2d');
       const scrollArea = document.getElementById('scrollArea');
-      const uploadBtnText = document.getElementById('uploadBtnText');
-      const mediaUpload = document.getElementById('mediaUpload');
-      const zoomRange = document.getElementById('zoomRange');
       const userNameInput = document.getElementById('userName');
+      const zoomRange = document.getElementById('zoomRange');
+      const zoomValue = document.getElementById('zoomValue');
       const shuffleBtn = document.getElementById('shuffleBtn');
       const actionDownloadBtn = document.getElementById('actionDownloadBtn');
       const actionShareBtn = document.getElementById('actionShareBtn');
       const videoStatus = document.getElementById('videoStatus');
       const modeImageBtn = document.getElementById('modeImageBtn');
       const modeVideoBtn = document.getElementById('modeVideoBtn');
+      const mediaTypeBadge = document.getElementById('mediaTypeBadge');
+      const cameraBtn = document.getElementById('cameraBtn');
+      const galleryBtn = document.getElementById('galleryBtn');
+      const cameraBtnText = document.getElementById('cameraBtnText');
+      const galleryBtnText = document.getElementById('galleryBtnText');
+      const cameraInput = document.getElementById('cameraInput');
+      const galleryInput = document.getElementById('galleryInput');
 
-      // ===== STATE =====
+      // ============ STATE ============
       let userImage = null;
       let userVideo = null;
       let photoScale = 1;
@@ -637,72 +839,42 @@
       let mascotSide = 'right';
       let lastDrawTime = 0;
 
-      // ===== MASCOT MOTION (video mode) =====
-      // A timeline of keyframes: each entry { time, x, y, rot, scale }
-      // The mascot will smoothly interpolate between them across the 10s clip.
+      // ============ MASCOT MOTION TIMELINE (video mode) ============
       let mascotTimeline = null;
 
-      // Predefined interesting positions (as fractions of canvas)
-      // x, y = top-left position; rot = rotation (radians); scale = size multiplier
       function buildMascotTimeline() {
-        // Base mascot size on canvas
-        const baseH = 270;
-        const baseW = 240; // will be recalculated per mascot but ~square
-
         const positions = [
-          // Start: bottom-right (original position)
-          { x: 1.00, y: 1.00, rot: 0, scale: 1.0 },
-          // Slide to bottom-center
+          { x: 1.00, y: 1.00, rot: 0,     scale: 1.0  },
           { x: 0.50, y: 1.02, rot: -0.08, scale: 1.05 },
-          // Bounce to top-right (smaller, peeking from corner)
-          { x: 0.98, y: 0.05, rot: 0.15, scale: 0.75 },
-          // Sweep to top-left
-          { x: 0.02, y: 0.08, rot: -0.2, scale: 0.9 },
-          // Drop to bottom-left
-          { x: 0.02, y: 0.98, rot: 0.1, scale: 1.1 },
-          // Wiggle to bottom-center
-          { x: 0.50, y: 1.00, rot: -0.12, scale: 1.0 },
-          // Rise to mid-right (near circle edge)
-          { x: 0.98, y: 0.55, rot: 0.18, scale: 0.85 },
-          // Final: settle at bottom-right (original-ish)
-          { x: 1.00, y: 1.00, rot: 0, scale: 1.0 }
+          { x: 0.98, y: 0.05, rot: 0.15,  scale: 0.75 },
+          { x: 0.02, y: 0.08, rot: -0.2,  scale: 0.9  },
+          { x: 0.02, y: 0.98, rot: 0.1,   scale: 1.1  },
+          { x: 0.50, y: 1.00, rot: -0.12, scale: 1.0  },
+          { x: 0.98, y: 0.55, rot: 0.18,  scale: 0.85 },
+          { x: 1.00, y: 1.00, rot: 0,     scale: 1.0  }
         ];
-
-        // Assign times across 10s clip
         const times = [0, 1.2, 2.6, 4.0, 5.4, 6.8, 8.2, 9.8];
-
         mascotTimeline = positions.map((p, i) => ({
-          time: times[i] * 1000, // ms
-          x: p.x,
-          y: p.y,
-          rot: p.rot,
-          scale: p.scale
+          time: times[i] * 1000,
+          x: p.x, y: p.y, rot: p.rot, scale: p.scale
         }));
       }
 
-      // Get interpolated mascot state at time t (ms)
       function getMascotState(t) {
         if (!mascotTimeline || mascotTimeline.length === 0) {
           return { x: 1.0, y: 1.0, rot: 0, scale: 1.0 };
         }
-
         const tl = mascotTimeline;
-
-        // Before first keyframe
         if (t <= tl[0].time) return { x: tl[0].x, y: tl[0].y, rot: tl[0].rot, scale: tl[0].scale };
-        // After last keyframe
         if (t >= tl[tl.length - 1].time) {
           const last = tl[tl.length - 1];
           return { x: last.x, y: last.y, rot: last.rot, scale: last.scale };
         }
-
-        // Find segment
         for (let i = 0; i < tl.length - 1; i++) {
           const a = tl[i];
           const b = tl[i + 1];
           if (t >= a.time && t <= b.time) {
             const segT = (t - a.time) / (b.time - a.time);
-            // Smoothstep easing for extra polish
             const eased = segT * segT * (3 - 2 * segT);
             return {
               x: a.x + (b.x - a.x) * eased,
@@ -712,19 +884,13 @@
             };
           }
         }
-
-        // Fallback
         return { x: 1.0, y: 1.0, rot: 0, scale: 1.0 };
       }
 
-      // ===== ANIMATION STATE (video mode) =====
+      // ============ TEXT ANIMATIONS (video mode) ============
       let textAnimations = {
-        title: null,
-        curvedSlogan: null,
-        rotatingSlogan: null,
-        hashtags: null,
-        name: null,
-        credit: null
+        title: null, curvedSlogan: null, rotatingSlogan: null,
+        hashtags: null, name: null, credit: null
       };
 
       const animationPool = [
@@ -751,86 +917,41 @@
       function getAnimState(animName, progress) {
         const state = { alpha: 1, offsetX: 0, offsetY: 0, scale: 1, rotate: 0, glow: 0 };
         const p = progress;
-
         switch (animName) {
-          case 'fadeIn':
-            state.alpha = p;
-            break;
-          case 'slideFromLeft':
-            state.offsetX = -180 * (1 - p);
-            state.alpha = p;
-            break;
-          case 'slideFromRight':
-            state.offsetX = 180 * (1 - p);
-            state.alpha = p;
-            break;
-          case 'slideFromTop':
-            state.offsetY = -120 * (1 - p);
-            state.alpha = p;
-            break;
-          case 'slideFromBottom':
-            state.offsetY = 120 * (1 - p);
-            state.alpha = p;
-            break;
-          case 'scaleUp':
-            state.scale = 0.3 + 0.7 * p;
-            state.alpha = p;
-            break;
-          case 'scaleDown':
-            state.scale = 1.6 - 0.6 * p;
-            state.alpha = p;
-            break;
-          case 'wave':
-            state.offsetY = Math.sin(p * Math.PI * 4) * 18 * (1 - p);
-            state.alpha = Math.min(1, p * 2);
-            break;
-          case 'pulse':
-            state.scale = 1 + Math.sin(p * Math.PI * 6) * 0.12 * (1 - p);
-            state.alpha = Math.min(1, p * 1.5);
-            break;
-          case 'glow':
-            state.glow = Math.sin(p * Math.PI * 5) * 22;
-            state.alpha = Math.min(1, p * 2);
-            break;
-          case 'rotateIn':
-            state.rotate = -Math.PI * 0.6 * (1 - p);
-            state.scale = 0.4 + 0.6 * p;
-            state.alpha = p;
-            break;
+          case 'fadeIn':          state.alpha = p; break;
+          case 'slideFromLeft':   state.offsetX = -180 * (1 - p); state.alpha = p; break;
+          case 'slideFromRight':  state.offsetX = 180 * (1 - p);  state.alpha = p; break;
+          case 'slideFromTop':    state.offsetY = -120 * (1 - p); state.alpha = p; break;
+          case 'slideFromBottom': state.offsetY = 120 * (1 - p);  state.alpha = p; break;
+          case 'scaleUp':         state.scale = 0.3 + 0.7 * p;    state.alpha = p; break;
+          case 'scaleDown':       state.scale = 1.6 - 0.6 * p;    state.alpha = p; break;
+          case 'wave':            state.offsetY = Math.sin(p * Math.PI * 4) * 18 * (1 - p); state.alpha = Math.min(1, p * 2); break;
+          case 'pulse':           state.scale = 1 + Math.sin(p * Math.PI * 6) * 0.12 * (1 - p); state.alpha = Math.min(1, p * 1.5); break;
+          case 'glow':            state.glow = Math.sin(p * Math.PI * 5) * 22; state.alpha = Math.min(1, p * 2); break;
+          case 'rotateIn':        state.rotate = -Math.PI * 0.6 * (1 - p); state.scale = 0.4 + 0.6 * p; state.alpha = p; break;
           case 'bounceIn':
             if (p < 0.7) {
               const tt = p / 0.7;
               state.scale = 0.3 + 1.0 * tt - 0.3 * Math.sin(tt * Math.PI);
-            } else {
-              state.scale = 1;
-            }
+            } else { state.scale = 1; }
             state.alpha = Math.min(1, p * 1.8);
             break;
-          case 'flipIn':
-            state.scale = 0.1 + 0.9 * p;
-            state.rotate = Math.PI * (1 - p);
-            state.alpha = p;
-            break;
+          case 'flipIn':          state.scale = 0.1 + 0.9 * p; state.rotate = Math.PI * (1 - p); state.alpha = p; break;
         }
         return state;
       }
 
-      // ===== ASSETS =====
+      // ============ ASSETS ============
       const hospitalLogo = new Image();
       hospitalLogo.src = 'shah_logo.png';
       hospitalLogo.onload = () => { if (currentMode === 'image') scheduleDraw(); };
       hospitalLogo.onerror = () => {};
 
       const mascotSources = [
-        'mascot_heart_1.png',
-        'mascot_heart_2.png',
-        'mascot_heart_3.png',
-        'mascot_heart_4.png',
-        'mascot_heart_5.png',
-        'mascot_heart_6.png'
+        'mascot_heart_1.png', 'mascot_heart_2.png', 'mascot_heart_3.png',
+        'mascot_heart_4.png', 'mascot_heart_5.png', 'mascot_heart_6.png'
       ];
       let loadedMascots = [];
-      let mascotsReady = false;
       let mascotLoadCount = 0;
 
       mascotSources.forEach((src, idx) => {
@@ -839,13 +960,9 @@
         img.onload = () => {
           loadedMascots[idx] = img;
           mascotLoadCount++;
-          if (mascotLoadCount === mascotSources.length) mascotsReady = true;
           if (idx === 0 && currentMode === 'image') scheduleDraw();
         };
-        img.onerror = () => {
-          mascotLoadCount++;
-          if (mascotLoadCount === mascotSources.length) mascotsReady = true;
-        };
+        img.onerror = () => { mascotLoadCount++; };
       });
 
       const fallbackMascot = (() => {
@@ -873,7 +990,7 @@
         "USE HEART TO CONNECT & CARE"
       ];
 
-      // ===== DRAW SCHEDULER =====
+      // ============ DRAW SCHEDULER ============
       let drawScheduled = false;
       function scheduleDraw() {
         if (drawScheduled) return;
@@ -884,12 +1001,11 @@
         });
       }
 
-      // ===== RANDOM MASCOT =====
+      // ============ RANDOM MASCOT ============
       function randomizeMascot() {
         const available = loadedMascots
           .map((img, i) => (img && img.complete && img.naturalHeight !== 0) ? i : -1)
           .filter(i => i !== -1);
-
         if (available.length > 0) {
           currentMascotIndex = available[Math.floor(Math.random() * available.length)];
         } else {
@@ -898,18 +1014,14 @@
         mascotSide = Math.random() > 0.5 ? 'right' : 'left';
       }
 
-      // ===== CURVED TEXT =====
+      // ============ CURVED TEXT ============
       function drawCurvedText(text, cx, cy, radius, options, animState) {
         const {
-          fontSize = 54,
-          fontWeight = '900',
+          fontSize = 54, fontWeight = '900',
           fontFamily = '-apple-system, sans-serif',
-          fillStyle = '#ffe3e3',
-          shadowColor = 'rgba(0,0,0,0.9)',
-          shadowBlur = 16,
-          letterSpacing = 4
+          fillStyle = '#ffe3e3', shadowColor = 'rgba(0,0,0,0.9)',
+          shadowBlur = 16, letterSpacing = 4
         } = options || {};
-
         const state = animState || { alpha: 1, offsetX: 0, offsetY: 0, scale: 1, rotate: 0, glow: 0 };
 
         ctx.save();
@@ -927,7 +1039,6 @@
           return w + (letterSpacing || 0);
         });
         const totalWidth = charWidths.reduce((a, b) => a + b, 0);
-
         const circumference = 2 * Math.PI * radius;
         const stringAngleSpan = (totalWidth / circumference) * (2 * Math.PI);
         const stringCenterAngle = -Math.PI / 2;
@@ -939,20 +1050,16 @@
           const chWidth = charWidths[i];
           const chAngleSpan = (chWidth / circumference) * (2 * Math.PI);
           const charAngle = currentAngle + chAngleSpan / 2;
-
           const x = cx + radius * Math.cos(charAngle) + (state.offsetX || 0);
           const y = cy + radius * Math.sin(charAngle) + (state.offsetY || 0);
-
           ctx.save();
           ctx.translate(x, y);
           ctx.rotate(charAngle + Math.PI / 2 + (state.rotate || 0));
           if (state.scale !== 1) ctx.scale(state.scale, state.scale);
           ctx.fillText(ch, 0, 0);
           ctx.restore();
-
           currentAngle += chAngleSpan;
         }
-
         ctx.restore();
       }
 
@@ -962,56 +1069,36 @@
           return;
         }
         const progress = getAnimProgress(elapsed, delay, duration);
-        const state = getAnimState(animName, progress);
-        drawFn(state);
+        drawFn(getAnimState(animName, progress));
       }
 
-      // ===== DRAW MASCOT WITH MOTION =====
+      // ============ DRAW MASCOT ============
       function drawMascot(elapsedTime) {
         const activeMascot = loadedMascots[currentMascotIndex] || fallbackMascot;
         if (!activeMascot || activeMascot.complete === false) return;
-
         const isVideo = (currentMode === 'video');
-
-        // Base dimensions
         const baseHeight = 270;
         const aspect = (activeMascot.width && activeMascot.height)
-          ? (activeMascot.width / activeMascot.height)
-          : 1;
+          ? (activeMascot.width / activeMascot.height) : 1;
         const baseWidth = baseHeight * aspect;
 
         let finalX, finalY, finalRot, finalScale, alpha;
 
         if (isVideo && mascotTimeline) {
-          // Animated movement across the clip
           const state = getMascotState(elapsedTime);
-
-          // Map normalized (0..1) coords to canvas positions
-          // state.x: 0 = left edge, 1 = right edge (anchor = mascot top-left will be placed so that
-          //          state.x = 1 means mascot's right edge touches canvas right edge)
-          // We'll interpret state.x and state.y as "positioning factor" for the mascot's center.
-          // state.x = 0 → mascot center at left edge; state.x = 1 → mascot center at right edge.
           const cx = state.x * canvas.width;
           const cy = state.y * canvas.height;
-
           finalScale = state.scale;
           finalRot = state.rot;
           const drawW = baseWidth * finalScale;
           const drawH = baseHeight * finalScale;
-
           finalX = cx - drawW / 2;
           finalY = cy - drawH / 2;
-
-          // Fade in quickly at start
           const fadeIn = getAnimProgress(elapsedTime, 0, 600);
           alpha = fadeIn;
-
         } else {
-          // Photo mode — static position (original logic)
-          const mHeight = baseHeight;
-          const mWidth = baseWidth;
-          finalX = mascotSide === 'right' ? (canvas.width - mWidth - 25) : 25;
-          finalY = 970 - mHeight;
+          finalX = mascotSide === 'right' ? (canvas.width - baseWidth - 25) : 25;
+          finalY = 970 - baseHeight;
           finalRot = 0;
           finalScale = 1;
           alpha = 1;
@@ -1023,13 +1110,9 @@
         ctx.save();
         ctx.globalAlpha = alpha;
 
-        // Backlight glow follows mascot
         const glowCx = finalX + drawW / 2;
         const glowCy = finalY + drawH / 2;
-        const backLight = ctx.createRadialGradient(
-          glowCx, glowCy, 20,
-          glowCx, glowCy, 140
-        );
+        const backLight = ctx.createRadialGradient(glowCx, glowCy, 20, glowCx, glowCy, 140);
         backLight.addColorStop(0, 'rgba(255,255,255,0.85)');
         backLight.addColorStop(0.4, 'rgba(255,120,140,0.55)');
         backLight.addColorStop(1, 'rgba(255,255,255,0)');
@@ -1038,15 +1121,13 @@
         ctx.arc(glowCx, glowCy, 135, 0, Math.PI * 2);
         ctx.fill();
 
-        // Draw mascot with rotation around its center
         ctx.translate(finalX + drawW / 2, finalY + drawH / 2);
         ctx.rotate(finalRot);
         ctx.drawImage(activeMascot, -drawW / 2, -drawH / 2, drawW, drawH);
-
         ctx.restore();
       }
 
-      // ===== MAIN DRAW =====
+      // ============ MAIN DRAW ============
       function drawCanvas(elapsedTime) {
         const w = canvas.width;
         const h = canvas.height;
@@ -1103,7 +1184,7 @@
           ctx.font = 'bold 36px -apple-system, sans-serif';
           ctx.textAlign = 'center';
           ctx.fillText('Tap below to', circleX, circleY - 18);
-          ctx.fillText('upload media', circleX, circleY + 28);
+          ctx.fillText('add your media', circleX, circleY + 28);
         }
         ctx.restore();
 
@@ -1130,10 +1211,10 @@
         // 5. ECG
         drawContinuousNormalEcg(elapsedTime);
 
-        // 6. Mascot (with motion in video mode)
+        // 6. Mascot
         drawMascot(t);
 
-        // ===== 7. HEADER — TITLE =====
+        // 7. Header
         const headerY = 22;
         let logoWidthRightEdge = 175;
 
@@ -1148,8 +1229,7 @@
           const pillY = headerY;
 
           if (isVideo) {
-            const lp = getAnimProgress(t, 0, 500);
-            ctx.globalAlpha = lp;
+            ctx.globalAlpha = getAnimProgress(t, 0, 500);
           }
 
           ctx.save();
@@ -1168,22 +1248,17 @@
 
         const textStartX = logoWidthRightEdge;
 
-        // Title — animated
+        // Title
         withAnimation(textAnimations.title, t, 100, 900, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
           const ox = state.offsetX, oy = state.offsetY;
-          const sc = state.scale;
-          const rot = state.rotate;
-          const glow = state.glow;
-
+          const sc = state.scale, rot = state.rotate, glow = state.glow;
           if (sc !== 1 || rot !== 0) {
-            ctx.translate(textStartX, headerY + 52);
-            ctx.rotate(rot);
-            ctx.scale(sc, sc);
-            ctx.translate(-textStartX, -(headerY + 52));
+            ctx.translate(textStartX, headerY + 48);
+            ctx.rotate(rot); ctx.scale(sc, sc);
+            ctx.translate(-textStartX, -(headerY + 48));
           }
-
           ctx.textAlign = 'left';
           ctx.fillStyle = '#ffffff';
           ctx.font = '900 48px -apple-system, sans-serif';
@@ -1193,38 +1268,30 @@
           ctx.restore();
         });
 
-        // ===== 8. CURVED SLOGAN =====
+        // 8. Curved slogan
         const sloganRadius = circleRadius + 48;
         withAnimation(textAnimations.curvedSlogan, t, 500, 1000, (state) => {
           drawCurvedText(bannerSloganText, circleX, circleY, sloganRadius, {
-            fontSize: 54,
-            fontWeight: '900',
+            fontSize: 54, fontWeight: '900',
             fontFamily: '-apple-system, sans-serif',
-            fillStyle: '#ffe3e3',
-            shadowColor: 'rgba(0,0,0,0.9)',
-            shadowBlur: 16,
-            letterSpacing: 4
+            fillStyle: '#ffe3e3', shadowColor: 'rgba(0,0,0,0.9)',
+            shadowBlur: 16, letterSpacing: 4
           }, state);
         });
 
-        // ===== 9. NAME =====
+        // 9. Name
         const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
         if (nameText) {
           withAnimation(textAnimations.name, t, 1000, 800, (state) => {
             ctx.save();
             ctx.globalAlpha = state.alpha;
             const ox = state.offsetX, oy = state.offsetY;
-            const sc = state.scale;
-            const rot = state.rotate;
-            const glow = state.glow;
-
+            const sc = state.scale, rot = state.rotate, glow = state.glow;
             if (sc !== 1 || rot !== 0) {
               ctx.translate(canvas.width / 2, 490);
-              ctx.rotate(rot);
-              ctx.scale(sc, sc);
+              ctx.rotate(rot); ctx.scale(sc, sc);
               ctx.translate(-canvas.width / 2, -490);
             }
-
             ctx.textAlign = 'center';
             ctx.fillStyle = '#fff0f3';
             ctx.font = '900 32px -apple-system, sans-serif';
@@ -1235,22 +1302,17 @@
           });
         }
 
-        // ===== 10. ROTATING SLOGAN =====
+        // 10. Rotating slogan
         withAnimation(textAnimations.rotatingSlogan, t, 1500, 900, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
           const ox = state.offsetX, oy = state.offsetY;
-          const sc = state.scale;
-          const rot = state.rotate;
-          const glow = state.glow;
-
+          const sc = state.scale, rot = state.rotate, glow = state.glow;
           if (sc !== 1 || rot !== 0) {
             ctx.translate(canvas.width / 2, 838);
-            ctx.rotate(rot);
-            ctx.scale(sc, sc);
+            ctx.rotate(rot); ctx.scale(sc, sc);
             ctx.translate(-canvas.width / 2, -838);
           }
-
           ctx.fillStyle = '#ffffff';
           ctx.font = '900 42px -apple-system, sans-serif';
           ctx.textAlign = 'center';
@@ -1275,22 +1337,17 @@
           ctx.restore();
         });
 
-        // ===== 11. HASHTAGS =====
+        // 11. Hashtags
         withAnimation(textAnimations.hashtags, t, 2000, 800, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
           const ox = state.offsetX, oy = state.offsetY;
-          const sc = state.scale;
-          const rot = state.rotate;
-          const glow = state.glow;
-
+          const sc = state.scale, rot = state.rotate, glow = state.glow;
           if (sc !== 1 || rot !== 0) {
             ctx.translate(canvas.width / 2, 916);
-            ctx.rotate(rot);
-            ctx.scale(sc, sc);
+            ctx.rotate(rot); ctx.scale(sc, sc);
             ctx.translate(-canvas.width / 2, -916);
           }
-
           ctx.fillStyle = '#ffe3e3';
           ctx.font = '900 32px -apple-system, sans-serif';
           ctx.textAlign = 'center';
@@ -1300,13 +1357,12 @@
           ctx.restore();
         });
 
-        // ===== 12. CREDIT =====
+        // 12. Credit
         withAnimation(textAnimations.credit, t, 2400, 700, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
           const ox = state.offsetX, oy = state.offsetY;
           const glow = state.glow;
-
           ctx.fillStyle = 'rgba(255,255,255,0.85)';
           ctx.font = '300 16px -apple-system, sans-serif';
           ctx.textAlign = 'center';
@@ -1317,7 +1373,7 @@
         });
       }
 
-      // ===== ECG =====
+      // ============ ECG ============
       function drawContinuousNormalEcg(elapsedTime) {
         ctx.save();
         ctx.strokeStyle = '#ffffff';
@@ -1358,18 +1414,14 @@
         for (let x = 0; x <= endX; x += 4) {
           const t = x * 2.2 + timeShift;
           const y = ecgY + getEcgOffset(t);
-          if (!started) {
-            ctx.moveTo(x, y);
-            started = true;
-          } else {
-            ctx.lineTo(x, y);
-          }
+          if (!started) { ctx.moveTo(x, y); started = true; }
+          else { ctx.lineTo(x, y); }
         }
         ctx.stroke();
         ctx.restore();
       }
 
-      // ===== TEXT WRAP =====
+      // ============ TEXT WRAP ============
       function wrapText(context, text, x, y, maxWidth, lineHeight) {
         const words = text.split(' ');
         let line = '';
@@ -1387,7 +1439,7 @@
         context.fillText(line, x, currentY);
       }
 
-      // ===== FILE HANDLING =====
+      // ============ FILE HANDLING — UNIFIED ============
       function handleMediaSelect(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -1396,6 +1448,7 @@
         photoOffsetY = 0;
         zoomRange.value = 1;
         photoScale = 1;
+        zoomValue.textContent = '1.0×';
 
         if (file.type.startsWith('video/')) {
           if (userVideo) { userVideo.pause(); userVideo.src = ''; }
@@ -1421,12 +1474,27 @@
           };
           reader.readAsDataURL(file);
         }
-        setTimeout(() => { mediaUpload.value = ''; }, 500);
+        setTimeout(() => {
+          cameraInput.value = '';
+          galleryInput.value = '';
+        }, 500);
       }
 
-      mediaUpload.addEventListener('change', handleMediaSelect);
+      cameraInput.addEventListener('change', handleMediaSelect);
+      galleryInput.addEventListener('change', handleMediaSelect);
 
-      // ===== TOUCH DRAG =====
+      // ============ CAMERA & GALLERY BUTTONS ============
+      cameraBtn.addEventListener('click', () => {
+        // Trigger camera capture
+        cameraInput.click();
+      });
+
+      galleryBtn.addEventListener('click', () => {
+        // Trigger gallery picker
+        galleryInput.click();
+      });
+
+      // ============ TOUCH DRAG ============
       canvas.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
           isDragging = true;
@@ -1466,9 +1534,10 @@
       });
       window.addEventListener('mouseup', () => { isDragging = false; });
 
-      // ===== UI LISTENERS =====
+      // ============ UI LISTENERS ============
       zoomRange.addEventListener('input', (e) => {
         photoScale = parseFloat(e.target.value);
+        zoomValue.textContent = photoScale.toFixed(1) + '×';
         if (currentMode === 'image') scheduleDraw();
       });
 
@@ -1487,7 +1556,7 @@
         if (currentMode === 'image') scheduleDraw();
       });
 
-      // ===== MODE SWITCH =====
+      // ============ MODE SWITCH ============
       window.switchMode = function(mode) {
         currentMode = mode;
         if (animationId) cancelAnimationFrame(animationId);
@@ -1500,9 +1569,12 @@
           videoStatus.classList.remove('visible');
           actionDownloadBtn.textContent = '💾 Save Image';
           actionShareBtn.textContent = '📤 Share Card';
-          uploadBtnText.textContent = '📸 Shoot / Select Photo';
-          mediaUpload.accept = 'image/*';
-          mediaUpload.setAttribute('capture', 'environment');
+          cameraBtnText.textContent = 'Take Photo';
+          galleryBtnText.textContent = 'Choose Photo';
+          mediaTypeBadge.textContent = 'Photo';
+          cameraInput.setAttribute('accept', 'image/*');
+          cameraInput.setAttribute('capture', 'environment');
+          galleryInput.setAttribute('accept', 'image/*');
           if (userVideo) { userVideo.pause(); userVideo = null; }
           mascotTimeline = null;
           scheduleDraw();
@@ -1510,20 +1582,24 @@
           randomizeTextAnimations();
           buildMascotTimeline();
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 10s Video · Animated text & moving mascot';
+          videoStatus.textContent = '🎥 10s Video · Animated text & moving mascot · Original audio preserved';
           actionDownloadBtn.textContent = '📥 Export MP4';
           actionShareBtn.textContent = '📤 Share MP4';
-          uploadBtnText.textContent = '🎬 Record / Select Video';
-          mediaUpload.accept = 'video/*';
-          mediaUpload.removeAttribute('capture');
+          cameraBtnText.textContent = 'Record Video';
+          galleryBtnText.textContent = 'Choose Video';
+          mediaTypeBadge.textContent = 'Video';
+          cameraInput.setAttribute('accept', 'video/*');
+          cameraInput.setAttribute('capture', 'environment');
+          galleryInput.setAttribute('accept', 'video/*');
           userImage = null;
           recordingStartTime = performance.now();
           startVideoPreviewLoop();
         }
-        mediaUpload.value = '';
+        cameraInput.value = '';
+        galleryInput.value = '';
       };
 
-      // ===== VIDEO PREVIEW =====
+      // ============ VIDEO PREVIEW ============
       function startVideoPreviewLoop() {
         function loop(timestamp) {
           if (currentMode !== 'video') return;
@@ -1538,7 +1614,7 @@
         animationId = requestAnimationFrame(loop);
       }
 
-      // ===== DOWNLOAD =====
+      // ============ DOWNLOAD ============
       actionDownloadBtn.addEventListener('click', async () => {
         if (currentMode === 'image') {
           const link = document.createElement('a');
@@ -1555,12 +1631,11 @@
             return;
           }
 
-          // Fresh animations and mascot path for the export
           randomizeTextAnimations();
           buildMascotTimeline();
 
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 Recording 10s video with moving mascot... Please wait.';
+          videoStatus.textContent = '🎥 Recording 10s video with animated text... Please wait.';
 
           recordingStartTime = performance.now();
           const canvasStream = canvas.captureStream(30);
@@ -1604,7 +1679,7 @@
               if (audioCtx) audioCtx.close().catch(() => {});
               lastRecordedVideoBlob = new Blob(chunks, { type: 'video/mp4' });
               downloadVideoBlob(lastRecordedVideoBlob);
-              videoStatus.textContent = '✅ 10s video saved with moving mascot!';
+              videoStatus.textContent = '✅ 10s video saved with animated text!';
             };
 
             recorder.start();
@@ -1631,7 +1706,7 @@
         setTimeout(() => URL.revokeObjectURL(url), 4000);
       }
 
-      // ===== SHARE =====
+      // ============ SHARE ============
       actionShareBtn.addEventListener('click', async () => {
         if (currentMode === 'image') {
           const dataUrl = canvas.toDataURL('image/png');
@@ -1674,12 +1749,12 @@
         }
       });
 
-      // ===== PREVENT SCROLL BOUNCE ON CANVAS =====
+      // ============ PREVENT SCROLL BOUNCE ON CANVAS ============
       document.getElementById('canvasFrame').addEventListener('touchmove', (e) => {
         if (e.target === canvas) e.preventDefault();
       }, { passive: false });
 
-      // ===== PREVENT DOUBLE-TAP ZOOM =====
+      // ============ PREVENT DOUBLE-TAP ZOOM ============
       let lastTouchEnd = 0;
       document.addEventListener('touchend', (e) => {
         const now = Date.now();
@@ -1689,7 +1764,7 @@
         lastTouchEnd = now;
       }, { passive: false });
 
-      // ===== INIT =====
+      // ============ INIT ============
       randomizeMascot();
       randomizeTextAnimations();
       scheduleDraw();
@@ -1698,7 +1773,7 @@
         if (currentMode === 'image') scheduleDraw();
       });
 
-      // ===== VISIBILITY CHANGE =====
+      // ============ VISIBILITY CHANGE ============
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
           if (userVideo) userVideo.pause();
