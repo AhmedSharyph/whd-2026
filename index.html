@@ -260,8 +260,8 @@
         <!-- Controls -->
         <div class="controls">
             <label class="file-upload-btn" id="uploadLabelBtn">
-                📸 Shoot Selfie / Photo or Pick Gallery
-                <input type="file" id="imageUpload" accept="image/*" capture="user">
+                📸 Shoot Photo or Select from Gallery
+                <input type="file" id="imageUpload" accept="image/*">
             </label>
 
             <label class="field-label" for="zoomRange">Adjust Media Zoom & Drag Inside Circle</label>
@@ -406,7 +406,10 @@
                     userVideo.loop = true;
                     userVideo.muted = true;
                     userVideo.playsInline = true;
-                    userVideo.play();
+                    userVideo.crossOrigin = "anonymous";
+                    
+                    userVideo.play().catch(err => console.log("Auto-play prevented:", err));
+                    
                     userVideo.onloadeddata = () => {
                         if (currentMode === 'image') drawCanvas(0);
                     };
@@ -461,7 +464,8 @@
                 actionDownloadBtn.textContent = '💾 Save Image';
                 actionShareBtn.textContent = '📤 Share Card';
                 
-                uploadLabelBtn.innerHTML = '📸 Shoot Selfie / Photo or Pick Gallery <input type="file" id="imageUpload" accept="image/*" capture="user">';
+                // Allow selecting photos or capturing via camera
+                uploadLabelBtn.innerHTML = '📸 Shoot Photo or Select from Gallery <input type="file" id="imageUpload" accept="image/*">';
                 drawCanvas(0);
             } else {
                 videoStatus.style.display = 'block';
@@ -469,7 +473,8 @@
                 actionDownloadBtn.textContent = '📥 Export & Save Video';
                 actionShareBtn.textContent = '📤 Share Video Clip';
                 
-                uploadLabelBtn.innerHTML = '🎬 Shoot Video Clip or Pick Gallery <input type="file" id="imageUpload" accept="video/*" capture="environment">';
+                // Fixed: Explicitly accepts video files and allows gallery selection or live video recording
+                uploadLabelBtn.innerHTML = '🎬 Record Video or Select from Gallery <input type="file" id="imageUpload" accept="video/*">';
                 
                 recordingStartTime = performance.now();
                 startVideoPreviewLoop();
@@ -517,7 +522,7 @@
                 ctx.font = 'bold 32px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText('Tap below to', circleX, circleY - 18);
-                ctx.fillText('upload media / selfie', circleX, circleY + 25);
+                ctx.fillText('upload media / video', circleX, circleY + 25);
             }
             ctx.restore();
 
@@ -566,7 +571,7 @@
                 ctx.drawImage(activeMascot, mX, mY, mWidth, mHeight);
             }
 
-            // 5. Header: Logo on Left, Title & Expanded Slogan on Right
+            // 5. Header: Logo on Left, Title & Slogan on Right
             const headerY = 22;
             let logoWidthRightEdge = 175;
 
@@ -603,7 +608,7 @@
             ctx.shadowBlur = 12;
             ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 42);
 
-            // Slogan: DON'T MISS A BEAT (Expanded font size & letter spacing to match the full title length)
+            // Slogan: DON'T MISS A BEAT
             ctx.font = '900 35px sans-serif';
             ctx.fillStyle = '#ffe3e3';
             ctx.fillText(bannerSloganText, textStartX, headerY + 82);
