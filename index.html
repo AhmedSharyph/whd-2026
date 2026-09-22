@@ -254,9 +254,9 @@
 
         <!-- Controls -->
         <div class="controls">
-            <label class="file-upload-btn">
-                📸📹 Upload Photo, Selfie or Video Clip
-                <input type="file" id="imageUpload" accept="image/*,video/*">
+            <label class="file-upload-btn" id="uploadLabelBtn">
+                📸 Select Photo or Selfie
+                <input type="file" id="imageUpload" accept="image/*">
             </label>
 
             <label class="field-label" for="zoomRange">Adjust Media Zoom</label>
@@ -280,6 +280,7 @@
         const canvas = document.getElementById('creatorCanvas');
         const ctx = canvas.getContext('2d');
         const imageUpload = document.getElementById('imageUpload');
+        const uploadLabelBtn = document.getElementById('uploadLabelBtn');
         const zoomRange = document.getElementById('zoomRange');
         const userNameInput = document.getElementById('userName');
         const shuffleBtn = document.getElementById('shuffleBtn');
@@ -310,7 +311,7 @@
         ];
         let currentRotatingSlogan = rotatingHeartbeatSlogans[0];
 
-        // Handle Photo or Video Upload
+        // Handle Media File Selection (Photos or Gallery/Camera Video Clips)
         imageUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -370,17 +371,60 @@
                 videoStatus.style.display = 'none';
                 actionDownloadBtn.textContent = '💾 Save Image';
                 actionShareBtn.textContent = '📤 Share Card';
+                
+                // Set file picker for Images only
+                imageUpload.setAttribute('accept', 'image/*');
+                imageUpload.removeAttribute('capture');
+                uploadLabelBtn.innerHTML = '📸 Select Photo or Selfie <input type="file" id="imageUpload" accept="image/*">';
+                
                 drawCanvas(0);
             } else {
                 videoStatus.style.display = 'block';
-                videoStatus.textContent = '🎥 Video Mode Active (Marquee ECG & Audio Tone)';
+                videoStatus.textContent = '🎥 Video Clip Mode Active (Marquee ECG & Audio Tone)';
                 actionDownloadBtn.textContent = '📥 Export 10s Video';
                 actionShareBtn.textContent = '📤 Share Video';
+                
+                // Set file picker to accept video clips from gallery or camera recording on Android/iOS
+                imageUpload.setAttribute('accept', 'video/*');
+                uploadLabelBtn.innerHTML = '🎬 Select Video Clip from Gallery / Camera <input type="file" id="imageUpload" accept="video/*">';
+                
                 startVideoPreviewLoop();
+            }
+            
+            // Re-bind listener to newly injected input element
+            document.getElementById('imageUpload').addEventListener('change', handleFileSelect);
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.type.startsWith('video/')) {
+                    userImage = null;
+                    userVideo = document.createElement('video');
+                    userVideo.src = URL.createObjectURL(file);
+                    userVideo.loop = true;
+                    userVideo.muted = true;
+                    userVideo.playsInline = true;
+                    userVideo.play();
+                    userVideo.onloadeddata = () => {
+                        if (currentMode === 'image') drawCanvas(0);
+                    };
+                } else {
+                    userVideo = null;
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        userImage = new Image();
+                        userImage.src = event.target.result;
+                        userImage.onload = () => {
+                            if (currentMode === 'image') drawCanvas(0);
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                }
             }
         }
 
-        // --- Core Canvas Renderer with Left-Aligned Logo & Side-by-Side Header ---
+        // --- Core Canvas Renderer ---
         function drawCanvas(offset = 0) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -419,8 +463,8 @@
                 ctx.fillStyle = '#d90429';
                 ctx.font = 'bold 30px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('Tap below to', circleX, circleY - 15);
-                ctx.fillText('upload media', circleX, circleY + 30);
+                ctx.fillText(currentMode === 'video' ? 'Select video clip' : 'Tap below to', circleX, circleY - 15);
+                ctx.fillText(currentMode === 'video' ? 'from gallery' : 'upload media', circleX, circleY + 30);
             }
             ctx.restore();
 
@@ -447,20 +491,19 @@
             // 3. Draw Marquee-style Scrolling ECG Heartbeat Line
             drawMarqueeEcgLine(offset);
 
-            // 4. Header: Logo on Left, Title & Slogan on Right (Side-by-side with matched height)
-            const headerY = 50;
-            const headerHeight = 110; // Total height matching title + slogan block
+            // 4. Header: Logo on Left, Title & Slogan starting right after the logo side-by-side
+            const headerY = 40;
+            let logoWidthRightEdge = 160;
 
-            // Draw Frosted White Glass Pill Badge for the Left Logo
             if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
-                const targetLogoHeight = headerHeight - 10;
+                const targetLogoHeight = 85;
                 const logoWidth = (hospitalLogo.width / hospitalLogo.height) * targetLogoHeight;
                 const pillPaddingX = 14;
                 const pillPaddingY = 8;
                 const pillWidth = logoWidth + pillPaddingX * 2;
                 const pillHeight = targetLogoHeight + pillPaddingY * 2;
-                const pillX = 40; // Left aligned
-                const pillY = headerY - 5;
+                const pillX = 40;
+                const pillY = headerY;
 
                 ctx.save();
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
@@ -472,23 +515,23 @@
                 ctx.restore();
 
                 ctx.drawImage(hospitalLogo, pillX + pillPaddingX, pillY + pillPaddingY, logoWidth, targetLogoHeight);
+                logoWidthRightEdge = pillX + pillWidth + 20;
             }
 
-            // Aligned Title & Slogan to the right of the logo
-            const textStartX = 230;
+            const textStartX = logoWidthRightEdge;
             ctx.textAlign = 'left';
             
             // Title: WORLD HEART DAY 2026
             ctx.fillStyle = '#ffffff';
-            ctx.font = '900 38px sans-serif';
+            ctx.font = '900 34px sans-serif';
             ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
             ctx.shadowBlur = 10;
-            ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 40);
+            ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 42);
 
             // Slogan: DON'T MISS A BEAT
-            ctx.font = '900 28px sans-serif';
+            ctx.font = '900 24px sans-serif';
             ctx.fillStyle = '#ffe3e3';
-            ctx.fillText(fixedBannerSlogan, textStartX, headerY + 82);
+            ctx.fillText(fixedBannerSlogan, textStartX, headerY + 80);
             ctx.shadowBlur = 0;
 
             // 5. Custom Name or Team (if entered)
