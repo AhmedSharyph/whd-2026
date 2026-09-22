@@ -478,7 +478,7 @@
             setupFileInputListener();
         }
 
-        // --- Core Canvas Renderer with Continuous 10s ECG Waveform ---
+        // --- Core Canvas Renderer with Higher Curved Slogan Placement ---
         function drawCanvas(elapsedTime = 0) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -566,12 +566,12 @@
                 ctx.drawImage(activeMascot, mX, mY, mWidth, mHeight);
             }
 
-            // 5. Header: Logo & Title
-            const headerY = 25;
+            // 5. Header: Logo on Left, Title on Right
+            const headerY = 22;
             let logoWidthRightEdge = 175;
 
             if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
-                const targetLogoHeight = 75;
+                const targetLogoHeight = 70;
                 const logoWidth = (hospitalLogo.width / hospitalLogo.height) * targetLogoHeight;
                 const pillPaddingX = 14;
                 const pillPaddingY = 8;
@@ -596,15 +596,16 @@
             const textStartX = logoWidthRightEdge;
             ctx.textAlign = 'left';
             
+            // Maximized Title: WORLD HEART DAY 2026
             ctx.fillStyle = '#ffffff';
-            ctx.font = '900 42px sans-serif';
+            ctx.font = '900 40px sans-serif';
             ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
             ctx.shadowBlur = 12;
-            ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 52);
+            ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 48);
             ctx.shadowBlur = 0;
 
-            // 6. Curved Slogan around top arc
-            drawCurvedText(ctx, curvedSloganText, circleX, circleY, circleRadius + 22, -Math.PI * 0.78, -Math.PI * 0.22);
+            // 6. Higher Curved Slogan (positioned higher up starting well above the ECG line)
+            drawCurvedText(ctx, curvedSloganText, circleX, circleY, circleRadius + 28, -Math.PI * 0.72, -Math.PI * 0.28);
 
             // 7. Custom Name
             const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
@@ -638,80 +639,10 @@
             ctx.fillText("Developed by: Ahmed Shareef for Shaviyani Atoll Hospital", canvas.width / 2, 970);
         }
 
-        // --- Complete Continuous Normal 10-Second ECG Waveform Generator ---
-        function drawContinuousNormalEcg(elapsedTime) {
-            ctx.save();
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 6;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.shadowColor = 'rgba(255, 255, 255, 0.95)';
-            ctx.shadowBlur = 14;
-            ctx.beginPath();
-
-            const ecgY = 665;
-            const totalDuration = 10000; // 10 seconds total duration
-            const progress = currentMode === 'video' ? Math.min(1, elapsedTime / totalDuration) : 1.0;
-            const maxVisibleX = canvas.width * progress;
-
-            // Mathematical single normal heartbeat template function (P-QRS-T complex)
-            function getEcgOffset(t) {
-                // normalize t within a beat cycle (e.g., 80 beats per minute -> 750ms per cycle)
-                const cycleTime = 750;
-                const localT = t % cycleTime;
-                
-                // Baseline
-                let val = 0;
-                
-                // P wave (Atrial depolarization) around 150ms
-                if (localT > 100 && localT < 220) {
-                    val -= 12 * Math.sin(((localT - 100) / 120) * Math.PI);
-                }
-                // Q wave
-                else if (localT >= 260 && localT < 290) {
-                    val += 18;
-                }
-                // R wave (Main ventricular spike) sharp upward
-                else if (localT >= 290 && localT < 340) {
-                    val -= 195 * Math.sin(((localT - 290) / 50) * Math.PI);
-                }
-                // S wave
-                else if (localT >= 340 && localT < 380) {
-                    val += 45 * Math.sin(((localT - 340) / 40) * Math.PI);
-                }
-                // T wave (Ventricular repolarization) around 500ms
-                else if (localT >= 460 && localT < 640) {
-                    val -= 28 * Math.sin(((localT - 460) / 180) * Math.PI);
-                }
-                return val;
-            }
-
-            // Draw smooth continuous line across the canvas width
-            let started = false;
-            // In video mode, we scroll or sweep smoothly across the 10s span
-            const timeShift = currentMode === 'video' ? elapsedTime : (performance.now() * 0.4);
-
-            for (let x = 0; x <= (currentMode === 'video' ? maxVisibleX : canvas.width); x += 3) {
-                // Map screen x position to time t
-                const t = x * 2.2 + timeShift;
-                const y = ecgY + getEcgOffset(t);
-
-                if (!started) {
-                    ctx.moveTo(x, y);
-                    started = true;
-                } else {
-                    ctx.lineTo(x, y);
-                }
-            }
-
-            ctx.stroke();
-            ctx.restore();
-        }
-
-        // Helper for curved text
+        // Helper to draw curved text along a circular path
         function drawCurvedText(context, str, centerX, centerY, radius, startAngle, endAngle) {
             context.save();
-            context.font = '900 29px sans-serif';
+            context.font = '900 28px sans-serif';
             context.fillStyle = '#ffe3e3';
             context.shadowColor = 'rgba(0, 0, 0, 0.8)';
             context.shadowBlur = 10;
@@ -732,6 +663,60 @@
                 currentAngle += angleSpan;
             }
             context.restore();
+        }
+
+        // Draw Continuous Normal ECG Line
+        function drawContinuousNormalEcg(elapsedTime) {
+            ctx.save();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.95)';
+            ctx.shadowBlur = 14;
+            ctx.beginPath();
+
+            const ecgY = 665;
+            const totalDuration = 10000;
+            const progress = currentMode === 'video' ? Math.min(1, elapsedTime / totalDuration) : 1.0;
+            const maxVisibleX = canvas.width * progress;
+
+            function getEcgOffset(t) {
+                const cycleTime = 750;
+                const localT = t % cycleTime;
+                let val = 0;
+                
+                if (localT > 100 && localT < 220) {
+                    val -= 12 * Math.sin(((localT - 100) / 120) * Math.PI);
+                } else if (localT >= 260 && localT < 290) {
+                    val += 18;
+                } else if (localT >= 290 && localT < 340) {
+                    val -= 195 * Math.sin(((localT - 290) / 50) * Math.PI);
+                } else if (localT >= 340 && localT < 380) {
+                    val += 45 * Math.sin(((localT - 340) / 40) * Math.PI);
+                } else if (localT >= 460 && localT < 640) {
+                    val -= 28 * Math.sin(((localT - 460) / 180) * Math.PI);
+                }
+                return val;
+            }
+
+            let started = false;
+            const timeShift = currentMode === 'video' ? elapsedTime : (performance.now() * 0.4);
+
+            for (let x = 0; x <= (currentMode === 'video' ? maxVisibleX : canvas.width); x += 3) {
+                const t = x * 2.2 + timeShift;
+                const y = ecgY + getEcgOffset(t);
+
+                if (!started) {
+                    ctx.moveTo(x, y);
+                    started = true;
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+
+            ctx.stroke();
+            ctx.restore();
         }
 
         function startVideoPreviewLoop() {
@@ -805,7 +790,7 @@
                         gain.connect(dest);
                         osc.start();
                         osc.stop(audioCtx.currentTime + 0.12);
-                    }, 750); // Beep matches normal heart rate rhythm
+                    }, 750);
 
                     const combinedStream = new MediaStream([
                         ...stream.getVideoTracks(),
