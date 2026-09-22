@@ -478,7 +478,7 @@
             setupFileInputListener();
         }
 
-        // --- Core Canvas Renderer with Higher Curved Slogan Placement ---
+        // --- Core Canvas Renderer with Upper Curved Slogan ---
         function drawCanvas(elapsedTime = 0) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -491,9 +491,9 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // 2. Maximized Central Circular Photo/Video Frame
-            const circleRadius = 370;
+            const circleRadius = 350;
             const circleX = 500;
-            const circleY = 515;
+            const circleY = 535;
 
             ctx.save();
             ctx.beginPath();
@@ -604,8 +604,8 @@
             ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 48);
             ctx.shadowBlur = 0;
 
-            // 6. Higher Curved Slogan (positioned higher up starting well above the ECG line)
-            drawCurvedText(ctx, curvedSloganText, circleX, circleY, circleRadius + 28, -Math.PI * 0.72, -Math.PI * 0.28);
+            // 6. UPPER CURVED SLOGAN: "DON'T MISS A BEAT" arched cleanly above the top of the circle/heartbeat line
+            drawCurvedText(ctx, curvedSloganText, circleX, circleY, circleRadius + 32, -Math.PI * 0.75, -Math.PI * 0.25);
 
             // 7. Custom Name
             const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
@@ -615,7 +615,7 @@
                 ctx.font = '900 28px sans-serif';
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
                 ctx.shadowBlur = 8;
-                ctx.fillText(nameText, canvas.width / 2, 470, 650);
+                ctx.fillText(nameText, canvas.width / 2, 490, 650);
                 ctx.shadowBlur = 0;
             }
 
@@ -639,13 +639,13 @@
             ctx.fillText("Developed by: Ahmed Shareef for Shaviyani Atoll Hospital", canvas.width / 2, 970);
         }
 
-        // Helper to draw curved text along a circular path
+        // Helper to draw curved text along the upper circular path
         function drawCurvedText(context, str, centerX, centerY, radius, startAngle, endAngle) {
             context.save();
-            context.font = '900 28px sans-serif';
+            context.font = '900 32px sans-serif';
             context.fillStyle = '#ffe3e3';
-            context.shadowColor = 'rgba(0, 0, 0, 0.8)';
-            context.shadowBlur = 10;
+            context.shadowColor = 'rgba(0, 0, 0, 0.9)';
+            context.shadowBlur = 12;
             
             let currentAngle = startAngle;
             for (let i = 0; i < str.length; i++) {
