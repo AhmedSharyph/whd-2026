@@ -379,7 +379,7 @@
         }
         randomizeMascot();
 
-        const curvedSloganText = "DON'T MISS A BEAT";
+        const bannerSloganText = "DON'T MISS A BEAT";
         const rotatingHeartbeatSlogans = [
             "ACT EARLY, PROTECT YOUR LIFE",
             "KNOW YOUR RISK FACTORS TODAY",
@@ -566,12 +566,12 @@
                 ctx.drawImage(activeMascot, mX, mY, mWidth, mHeight);
             }
 
-            // 5. Header: Logo on Left, Title on Right
+            // 5. Header: Logo on Left, Title & "DON'T MISS A BEAT" Slogan on Right
             const headerY = 22;
             let logoWidthRightEdge = 175;
 
             if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
-                const targetLogoHeight = 70;
+                const targetLogoHeight = 75;
                 const logoWidth = (hospitalLogo.width / hospitalLogo.height) * targetLogoHeight;
                 const pillPaddingX = 14;
                 const pillPaddingY = 8;
@@ -596,18 +596,20 @@
             const textStartX = logoWidthRightEdge;
             ctx.textAlign = 'left';
             
-            // Maximized Title: WORLD HEART DAY 2026
+            // Title: WORLD HEART DAY 2026
             ctx.fillStyle = '#ffffff';
-            ctx.font = '900 40px sans-serif';
+            ctx.font = '900 38px sans-serif';
             ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
             ctx.shadowBlur = 12;
-            ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 48);
+            ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 42);
+
+            // Slogan: DON'T MISS A BEAT (Placed directly below the main title)
+            ctx.font = '900 28px sans-serif';
+            ctx.fillStyle = '#ffe3e3';
+            ctx.fillText(bannerSloganText, textStartX, headerY + 78);
             ctx.shadowBlur = 0;
 
-            // 6. EXPANDED & UPWARD-CURVED SLOGAN: Positioned just below the main title, gently arched to match the circle's curvature
-            drawCurvedText(ctx, curvedSloganText, canvas.width / 2, 185, 390, -Math.PI * 0.28, Math.PI * 0.28);
-
-            // 7. Custom Name
+            // 6. Custom Name
             const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
             if (nameText) {
                 ctx.textAlign = 'center';
@@ -619,7 +621,7 @@
                 ctx.shadowBlur = 0;
             }
 
-            // 8. Rotating Slogan
+            // 7. Rotating Slogan
             ctx.fillStyle = '#ffffff';
             ctx.font = '900 36px sans-serif';
             ctx.textAlign = 'center';
@@ -627,45 +629,16 @@
             ctx.shadowBlur = 12;
             wrapText(ctx, currentRotatingSlogan, canvas.width / 2, 835, 780, 42);
 
-            // 9. Hashtags
+            // 8. Hashtags
             ctx.fillStyle = '#ffe3e3';
             ctx.font = '900 28px sans-serif';
             ctx.fillText("#DontMissABeat   #UseHeart", canvas.width / 2, 912);
             ctx.shadowBlur = 0;
 
-            // 10. Developer Credit
+            // 9. Developer Credit
             ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
             ctx.font = '300 15px sans-serif';
             ctx.fillText("Developed by: Ahmed Shareef for Shaviyani Atoll Hospital", canvas.width / 2, 970);
-        }
-
-        // Helper to draw text curved across an upward-facing arch matching the circle
-        function drawCurvedText(context, str, centerX, centerY, radius, startAngle, endAngle) {
-            context.save();
-            context.font = '900 31px sans-serif';
-            context.fillStyle = '#ffe3e3';
-            context.shadowColor = 'rgba(0, 0, 0, 0.9)';
-            context.shadowBlur = 12;
-            
-            const totalAngle = endAngle - startAngle;
-            // Center the text block along the top arch
-            let currentAngle = -totalAngle / 2;
-            
-            for (let i = 0; i < str.length; i++) {
-                const char = str[i];
-                const charWidth = context.measureText(char).width;
-                const angleSpan = charWidth / radius;
-                
-                context.save();
-                context.translate(centerX, centerY);
-                context.rotate(currentAngle + angleSpan / 2);
-                context.translate(0, -radius);
-                context.fillText(char, 0, 0);
-                context.restore();
-                
-                currentAngle += angleSpan;
-            }
-            context.restore();
         }
 
         // Draw Continuous Normal ECG Line
@@ -843,7 +816,7 @@
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
                         title: 'World Heart Day 2026',
-                        text: `${curvedSloganText} - ${currentRotatingSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
+                        text: `${bannerSloganText} - ${currentRotatingSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
                         files: [file]
                     });
                 } else {
@@ -861,7 +834,7 @@
                     try {
                         await navigator.share({
                             title: 'World Heart Day 2026 Video Clip',
-                            text: `${curvedSloganText} - ${currentRotatingSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
+                            text: `${bannerSloganText} - ${currentRotatingSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
                             files: [videoFile]
                         });
                     } catch (err) {
