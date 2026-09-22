@@ -92,9 +92,9 @@
     }
 
     .app-header h1 {
-      font-size: 1rem;
+      font-size: 1.15rem;
       font-weight: 800;
-      letter-spacing: -0.1em;
+      letter-spacing: -0.02em;
       color: #7a0010;
       line-height: 1.2;
     }
@@ -637,6 +637,130 @@
       let mascotSide = 'right';
       let lastDrawTime = 0;
 
+      // ===== ANIMATION STATE (video mode) =====
+      // Each text element gets a random animation chosen when video mode starts
+      let textAnimations = {
+        title: null,
+        curvedSlogan: null,
+        rotatingSlogan: null,
+        hashtags: null,
+        name: null,
+        credit: null
+      };
+
+      // Animation pool — pick randomly for each text element
+      const animationPool = [
+        'fadeIn', 'slideFromLeft', 'slideFromRight', 'slideFromTop',
+        'slideFromBottom', 'scaleUp', 'scaleDown', 'wave', 'pulse',
+        'typewriter', 'glow', 'rotateIn', 'bounceIn', 'flipIn'
+      ];
+
+      // Pick a random animation for each text element
+      function randomizeTextAnimations() {
+        const pick = () => animationPool[Math.floor(Math.random() * animationPool.length)];
+        textAnimations.title = pick();
+        textAnimations.curvedSlogan = pick();
+        textAnimations.rotatingSlogan = pick();
+        textAnimations.hashtags = pick();
+        textAnimations.name = pick();
+        textAnimations.credit = pick();
+      }
+
+      // Helper: get progress (0..1) for a text animation given elapsed time
+      // Each element starts at its own delay and lasts a duration.
+      function getAnimProgress(elapsed, delay, duration) {
+        if (elapsed < delay) return 0;
+        const t = Math.min(1, (elapsed - delay) / duration);
+        return t;
+      }
+
+      // Apply animation transform + alpha for a given element
+      // Returns { alpha, offsetX, offsetY, scale, rotate, glow }
+      function getAnimState(animName, progress) {
+        const state = { alpha: 1, offsetX: 0, offsetY: 0, scale: 1, rotate: 0, glow: 0 };
+        const p = progress;
+
+        switch (animName) {
+          case 'fadeIn':
+            state.alpha = p;
+            break;
+
+          case 'slideFromLeft':
+            state.offsetX = -180 * (1 - p);
+            state.alpha = p;
+            break;
+
+          case 'slideFromRight':
+            state.offsetX = 180 * (1 - p);
+            state.alpha = p;
+            break;
+
+          case 'slideFromTop':
+            state.offsetY = -120 * (1 - p);
+            state.alpha = p;
+            break;
+
+          case 'slideFromBottom':
+            state.offsetY = 120 * (1 - p);
+            state.alpha = p;
+            break;
+
+          case 'scaleUp':
+            state.scale = 0.3 + 0.7 * p;
+            state.alpha = p;
+            break;
+
+          case 'scaleDown':
+            state.scale = 1.6 - 0.6 * p;
+            state.alpha = p;
+            break;
+
+          case 'wave':
+            state.offsetY = Math.sin(p * Math.PI * 4) * 18 * (1 - p);
+            state.alpha = Math.min(1, p * 2);
+            break;
+
+          case 'pulse':
+            state.scale = 1 + Math.sin(p * Math.PI * 6) * 0.12 * (1 - p);
+            state.alpha = Math.min(1, p * 1.5);
+            break;
+
+          case 'typewriter':
+            // handled separately (character count)
+            state.alpha = 1;
+            break;
+
+          case 'glow':
+            state.glow = Math.sin(p * Math.PI * 5) * 22;
+            state.alpha = Math.min(1, p * 2);
+            break;
+
+          case 'rotateIn':
+            state.rotate = -Math.PI * 0.6 * (1 - p);
+            state.scale = 0.4 + 0.6 * p;
+            state.alpha = p;
+            break;
+
+          case 'bounceIn':
+            // overshoot bounce
+            if (p < 0.7) {
+              const t = p / 0.7;
+              state.scale = 0.3 + 1.0 * t - 0.3 * Math.sin(t * Math.PI);
+            } else {
+              state.scale = 1;
+            }
+            state.alpha = Math.min(1, p * 1.8);
+            break;
+
+          case 'flipIn':
+            state.scale = 0.1 + 0.9 * p;
+            state.rotate = Math.PI * (1 - p);
+            state.alpha = p;
+            break;
+        }
+        return state;
+      }
+
       // ===== ASSETS =====
       const hospitalLogo = new Image();
       hospitalLogo.src = 'shah_logo.png';
@@ -720,25 +844,28 @@
         mascotSide = Math.random() > 0.5 ? 'right' : 'left';
       }
 
-      // ===== CURVED TEXT ALONG CIRCLE ARC =====
-      function drawCurvedText(text, cx, cy, radius, options) {
+      // ===== CURVED TEXT (with optional animation state) =====
+      function drawCurvedText(text, cx, cy, radius, options, animState) {
         const {
-          fontSize = 30,
+          fontSize = 54,
           fontWeight = '900',
           fontFamily = '-apple-system, sans-serif',
           fillStyle = '#ffe3e3',
-          shadowColor = 'rgba(0,0,0,0.85)',
-          shadowBlur = 10,
-          letterSpacing = 0
+          shadowColor = 'rgba(0,0,0,0.9)',
+          shadowBlur = 16,
+          letterSpacing = 4
         } = options || {};
 
+        const state = animState || { alpha: 1, offsetX: 0, offsetY: 0, scale: 1, rotate: 0, glow: 0 };
+
         ctx.save();
+        ctx.globalAlpha = state.alpha;
         ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = fillStyle;
         ctx.shadowColor = shadowColor;
-        ctx.shadowBlur = shadowBlur;
+        ctx.shadowBlur = shadowBlur + (state.glow || 0);
 
         const chars = text.split('');
         const charWidths = chars.map(ch => {
@@ -748,9 +875,7 @@
         const totalWidth = charWidths.reduce((a, b) => a + b, 0);
 
         const circumference = 2 * Math.PI * radius;
-        const stringArcLength = totalWidth;
-        const stringAngleSpan = (stringArcLength / circumference) * (2 * Math.PI);
-
+        const stringAngleSpan = (totalWidth / circumference) * (2 * Math.PI);
         const stringCenterAngle = -Math.PI / 2;
         const stringStartAngle = stringCenterAngle - stringAngleSpan / 2;
 
@@ -761,12 +886,13 @@
           const chAngleSpan = (chWidth / circumference) * (2 * Math.PI);
           const charAngle = currentAngle + chAngleSpan / 2;
 
-          const x = cx + radius * Math.cos(charAngle);
-          const y = cy + radius * Math.sin(charAngle);
+          const x = cx + radius * Math.cos(charAngle) + (state.offsetX || 0);
+          const y = cy + radius * Math.sin(charAngle) + (state.offsetY || 0);
 
           ctx.save();
           ctx.translate(x, y);
-          ctx.rotate(charAngle + Math.PI / 2);
+          ctx.rotate(charAngle + Math.PI / 2 + (state.rotate || 0));
+          if (state.scale !== 1) ctx.scale(state.scale, state.scale);
           ctx.fillText(ch, 0, 0);
           ctx.restore();
 
@@ -776,6 +902,18 @@
         ctx.restore();
       }
 
+      // ===== DRAW TEXT WITH ANIMATION =====
+      // Generic helper: applies animation state around a draw callback
+      function withAnimation(animName, elapsed, delay, duration, drawFn) {
+        if (currentMode !== 'video' || !animName) {
+          drawFn({ alpha: 1, offsetX: 0, offsetY: 0, scale: 1, rotate: 0, glow: 0 });
+          return;
+        }
+        const progress = getAnimProgress(elapsed, delay, duration);
+        const state = getAnimState(animName, progress);
+        drawFn(state);
+      }
+
       // ===== MAIN DRAW =====
       function drawCanvas(elapsedTime) {
         const w = canvas.width;
@@ -783,6 +921,9 @@
         const now = performance.now();
         if (now - lastDrawTime < 16 && elapsedTime === 0) return;
         lastDrawTime = now;
+
+        const isVideo = (currentMode === 'video');
+        const t = elapsedTime || 0;
 
         ctx.clearRect(0, 0, w, h);
 
@@ -879,10 +1020,16 @@
           ctx.fill();
           ctx.restore();
 
+          // Mascot also gets a subtle fade-in in video mode
+          if (isVideo) {
+            const mp = getAnimProgress(t, 800, 700);
+            ctx.globalAlpha = mp;
+          }
           ctx.drawImage(activeMascot, mX, mY, mWidth, mHeight);
+          ctx.globalAlpha = 1;
         }
 
-        // 7. Header — LARGER TITLE
+        // ===== 7. HEADER — TITLE (ANIMATED IN VIDEO MODE) =====
         const headerY = 22;
         let logoWidthRightEdge = 175;
 
@@ -896,6 +1043,12 @@
           const pillX = 35;
           const pillY = headerY;
 
+          // Logo also fades in during video mode
+          if (isVideo) {
+            const lp = getAnimProgress(t, 0, 500);
+            ctx.globalAlpha = lp;
+          }
+
           ctx.save();
           ctx.fillStyle = 'rgba(255,255,255,0.92)';
           ctx.shadowColor = 'rgba(0,0,0,0.25)';
@@ -907,59 +1060,161 @@
 
           ctx.drawImage(hospitalLogo, pillX + pillPaddingX, pillY + pillPaddingY, logoWidth, targetLogoHeight);
           logoWidthRightEdge = pillX + pillWidth + 18;
+          ctx.globalAlpha = 1;
         }
 
         const textStartX = logoWidthRightEdge;
-        ctx.textAlign = 'left';
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '900 52px -apple-system, sans-serif';   // ← INCREASED from 38px
-        ctx.shadowColor = 'rgba(0,0,0,0.8)';
-        ctx.shadowBlur = 14;
-        ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 52);
-        ctx.shadowBlur = 0;
 
-        // 8. === CURVED SLOGAN — LARGER FONT ===
-        const sloganRadius = circleRadius + 48;
-        drawCurvedText(bannerSloganText, circleX, circleY, sloganRadius, {
-          fontSize: 54,                                    // ← INCREASED from 38px
-          fontWeight: '900',
-          fontFamily: '-apple-system, sans-serif',
-          fillStyle: '#ffe3e3',
-          shadowColor: 'rgba(0,0,0,0.9)',
-          shadowBlur: 16,
-          letterSpacing: 4
+        // Title — animated
+        withAnimation(textAnimations.title, t, 100, 900, (state) => {
+          ctx.save();
+          ctx.globalAlpha = state.alpha;
+          const ox = state.offsetX, oy = state.offsetY;
+          const sc = state.scale;
+          const rot = state.rotate;
+          const glow = state.glow;
+
+          if (sc !== 1 || rot !== 0) {
+            ctx.translate(textStartX, headerY + 52);
+            ctx.rotate(rot);
+            ctx.scale(sc, sc);
+            ctx.translate(-textStartX, -(headerY + 52));
+          }
+
+          ctx.textAlign = 'left';
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '900 52px -apple-system, sans-serif';
+          ctx.shadowColor = 'rgba(0,0,0,0.8)';
+          ctx.shadowBlur = 14 + glow;
+          ctx.fillText('WORLD HEART DAY 2026', textStartX + ox, headerY + 52 + oy);
+          ctx.restore();
         });
 
-        // 9. Name
+        // ===== 8. CURVED SLOGAN (ANIMATED IN VIDEO MODE) =====
+        const sloganRadius = circleRadius + 48;
+        withAnimation(textAnimations.curvedSlogan, t, 500, 1000, (state) => {
+          drawCurvedText(bannerSloganText, circleX, circleY, sloganRadius, {
+            fontSize: 54,
+            fontWeight: '900',
+            fontFamily: '-apple-system, sans-serif',
+            fillStyle: '#ffe3e3',
+            shadowColor: 'rgba(0,0,0,0.9)',
+            shadowBlur: 16,
+            letterSpacing: 4
+          }, state);
+        });
+
+        // ===== 9. NAME (ANIMATED IN VIDEO MODE) =====
         const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
         if (nameText) {
-          ctx.textAlign = 'center';
-          ctx.fillStyle = '#fff0f3';
-          ctx.font = '900 32px -apple-system, sans-serif';  // ← INCREASED from 28px
-          ctx.shadowColor = 'rgba(0,0,0,0.6)';
-          ctx.shadowBlur = 8;
-          ctx.fillText(nameText, canvas.width / 2, 490, 650);
-          ctx.shadowBlur = 0;
+          withAnimation(textAnimations.name, t, 1000, 800, (state) => {
+            ctx.save();
+            ctx.globalAlpha = state.alpha;
+            const ox = state.offsetX, oy = state.offsetY;
+            const sc = state.scale;
+            const rot = state.rotate;
+            const glow = state.glow;
+
+            if (sc !== 1 || rot !== 0) {
+              ctx.translate(canvas.width / 2, 490);
+              ctx.rotate(rot);
+              ctx.scale(sc, sc);
+              ctx.translate(-canvas.width / 2, -490);
+            }
+
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#fff0f3';
+            ctx.font = '900 32px -apple-system, sans-serif';
+            ctx.shadowColor = 'rgba(0,0,0,0.6)';
+            ctx.shadowBlur = 8 + glow;
+            ctx.fillText(nameText, canvas.width / 2 + ox, 490 + oy, 650);
+            ctx.restore();
+          });
         }
 
-        // 10. Rotating Slogan — LARGER
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '900 42px -apple-system, sans-serif';    // ← INCREASED from 36px
-        ctx.textAlign = 'center';
-        ctx.shadowColor = 'rgba(0,0,0,0.9)';
-        ctx.shadowBlur = 14;
-        wrapText(ctx, currentRotatingSlogan, canvas.width / 2, 838, 800, 48);
+        // ===== 10. ROTATING SLOGAN (ANIMATED IN VIDEO MODE) =====
+        withAnimation(textAnimations.rotatingSlogan, t, 1500, 900, (state) => {
+          ctx.save();
+          ctx.globalAlpha = state.alpha;
+          const ox = state.offsetX, oy = state.offsetY;
+          const sc = state.scale;
+          const rot = state.rotate;
+          const glow = state.glow;
 
-        // 11. Hashtags
-        ctx.fillStyle = '#ffe3e3';
-        ctx.font = '900 32px -apple-system, sans-serif';    // ← INCREASED from 28px
-        ctx.fillText('#DontMissABeat   #UseHeart', canvas.width / 2, 916);
-        ctx.shadowBlur = 0;
+          if (sc !== 1 || rot !== 0) {
+            ctx.translate(canvas.width / 2, 838);
+            ctx.rotate(rot);
+            ctx.scale(sc, sc);
+            ctx.translate(-canvas.width / 2, -838);
+          }
 
-        // 12. Credit
-        ctx.fillStyle = 'rgba(255,255,255,0.85)';
-        ctx.font = '300 16px -apple-system, sans-serif';    // ← INCREASED from 15px
-        ctx.fillText('Developed by: Ahmed Shareef for Shaviyani Atoll Hospital', canvas.width / 2, 972);
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '900 42px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.shadowColor = 'rgba(0,0,0,0.9)';
+          ctx.shadowBlur = 14 + glow;
+
+          // Wave effect on individual characters for extra flair
+          if (textAnimations.rotatingSlogan === 'wave' || textAnimations.rotatingSlogan === 'pulse') {
+            // character-level animation
+            const words = currentRotatingSlogan.split(' ');
+            const fullText = currentRotatingSlogan;
+            const totalW = ctx.measureText(fullText).width;
+            let startX = canvas.width / 2 - totalW / 2 + ox;
+            const y = 838 + oy;
+            for (let i = 0; i < fullText.length; i++) {
+              const ch = fullText[i];
+              const chW = ctx.measureText(ch).width;
+              const waveY = Math.sin((t / 200) + i * 0.5) * 8;
+              ctx.fillText(ch, startX, y + waveY);
+              startX += chW;
+            }
+          } else {
+            wrapText(ctx, currentRotatingSlogan, canvas.width / 2 + ox, 838 + oy, 800, 48);
+          }
+          ctx.restore();
+        });
+
+        // ===== 11. HASHTAGS (ANIMATED IN VIDEO MODE) =====
+        withAnimation(textAnimations.hashtags, t, 2000, 800, (state) => {
+          ctx.save();
+          ctx.globalAlpha = state.alpha;
+          const ox = state.offsetX, oy = state.offsetY;
+          const sc = state.scale;
+          const rot = state.rotate;
+          const glow = state.glow;
+
+          if (sc !== 1 || rot !== 0) {
+            ctx.translate(canvas.width / 2, 916);
+            ctx.rotate(rot);
+            ctx.scale(sc, sc);
+            ctx.translate(-canvas.width / 2, -916);
+          }
+
+          ctx.fillStyle = '#ffe3e3';
+          ctx.font = '900 32px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.shadowColor = 'rgba(0,0,0,0.8)';
+          ctx.shadowBlur = 10 + glow;
+          ctx.fillText('#DontMissABeat   #UseHeart', canvas.width / 2 + ox, 916 + oy);
+          ctx.restore();
+        });
+
+        // ===== 12. CREDIT (ANIMATED IN VIDEO MODE) =====
+        withAnimation(textAnimations.credit, t, 2400, 700, (state) => {
+          ctx.save();
+          ctx.globalAlpha = state.alpha;
+          const ox = state.offsetX, oy = state.offsetY;
+          const glow = state.glow;
+
+          ctx.fillStyle = 'rgba(255,255,255,0.85)';
+          ctx.font = '300 16px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.shadowColor = 'rgba(0,0,0,0.5)';
+          ctx.shadowBlur = 6 + glow;
+          ctx.fillText('Developed by: Ahmed Shareef for Shaviyani Atoll Hospital', canvas.width / 2 + ox, 972 + oy);
+          ctx.restore();
+        });
       }
 
       // ===== ECG =====
@@ -1151,8 +1406,10 @@
           if (userVideo) { userVideo.pause(); userVideo = null; }
           scheduleDraw();
         } else {
+          // Pick fresh random animations for this video take
+          randomizeTextAnimations();
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 10s Video · Original audio preserved';
+          videoStatus.textContent = '🎥 10s Video · Animated text · Original audio preserved';
           actionDownloadBtn.textContent = '📥 Export MP4';
           actionShareBtn.textContent = '📤 Share MP4';
           uploadBtnText.textContent = '🎬 Record / Select Video';
@@ -1197,8 +1454,11 @@
             return;
           }
 
+          // Re-randomize animations at export so the exported video gets fresh effects
+          randomizeTextAnimations();
+
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 Recording 10s video with original audio... Please wait.';
+          videoStatus.textContent = '🎥 Recording 10s video with animated text... Please wait.';
 
           recordingStartTime = performance.now();
           const canvasStream = canvas.captureStream(30);
@@ -1242,7 +1502,7 @@
               if (audioCtx) audioCtx.close().catch(() => {});
               lastRecordedVideoBlob = new Blob(chunks, { type: 'video/mp4' });
               downloadVideoBlob(lastRecordedVideoBlob);
-              videoStatus.textContent = '✅ 10s video saved with original audio!';
+              videoStatus.textContent = '✅ 10s video saved with animated text!';
             };
 
             recorder.start();
@@ -1329,6 +1589,7 @@
 
       // ===== INIT =====
       randomizeMascot();
+      randomizeTextAnimations();
       scheduleDraw();
 
       window.addEventListener('load', () => {
