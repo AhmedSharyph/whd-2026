@@ -380,7 +380,7 @@
             }
         }
 
-        // --- Core Canvas Renderer with Refined Typography & Layout ---
+        // --- Core Canvas Renderer ---
         function drawCanvas(pulse = 0) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -392,42 +392,12 @@
             ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Ambient lighting glow
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-            ctx.beginPath();
-            ctx.arc(500, 500, 450, 0, Math.PI * 2);
-            ctx.fill();
+            // 2. Maximized Central Circular Photo/Video Frame
+            const circleRadius = 370;
+            const circleX = 500;
+            const circleY = 550;
 
-            // 2. Centered Logo on Top
-            if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
-                const logoHeight = 65;
-                const logoWidth = (hospitalLogo.width / hospitalLogo.height) * logoHeight;
-                ctx.drawImage(hospitalLogo, (canvas.width - logoWidth) / 2, 28, logoWidth, logoHeight);
-            }
-
-            // 3. Larger Title Full Width Below Logo: "WORLD HEART DAY 2026"
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '900 44px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
-            ctx.shadowBlur = 10;
-            ctx.fillText('WORLD HEART DAY 2026', canvas.width / 2, 132);
-
-            // 4. Larger Fixed Sub-Banner Slogan: "DON'T MISS A BEAT"
-            ctx.font = '900 28px sans-serif';
-            ctx.fillStyle = '#ffe3e3';
-            ctx.fillText(fixedBannerSlogan, canvas.width / 2, 172);
-            ctx.shadowBlur = 0;
-
-            // 5. Left Circular Photo Frame Configuration
-            const circleRadius = 220;
-            const circleX = circleRadius + 20;
-            const circleY = 480; // shifted slightly higher to leave ample room below
-
-            // 6. Draw ECG Heartbeat Line starting precisely from the right edge of the circle
-            drawEcgLine(circleX + circleRadius, pulse);
-
-            // 7. Draw User Media (Video or Photo) inside the Circle
+            // Draw User Media (Video or Photo) filling the large circle first
             ctx.save();
             ctx.beginPath();
             ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
@@ -447,11 +417,24 @@
                 ctx.fillStyle = '#ffffff';
                 ctx.fill();
                 ctx.fillStyle = '#d90429';
-                ctx.font = 'bold 24px sans-serif';
+                ctx.font = 'bold 30px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('Tap below', circleX, circleY - 10);
-                ctx.fillText('to upload media', circleX, circleY + 25);
+                ctx.fillText('Tap below to', circleX, circleY - 15);
+                ctx.fillText('upload media', circleX, circleY + 30);
             }
+            ctx.restore();
+
+            // Semi-transparent overlay gradient across the circle so text and heartbeat pop brilliantly
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
+            ctx.clip();
+            const overlayGrad = ctx.createLinearGradient(0, circleY - circleRadius, 0, circleY + circleRadius);
+            overlayGrad.addColorStop(0, 'rgba(122, 0, 16, 0.45)');
+            overlayGrad.addColorStop(0.5, 'rgba(217, 4, 41, 0.25)');
+            overlayGrad.addColorStop(1, 'rgba(122, 0, 16, 0.55)');
+            ctx.fillStyle = overlayGrad;
+            ctx.fill();
             ctx.restore();
 
             // Glass-styled Circle Border Frame
@@ -461,53 +444,103 @@
             ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
             ctx.stroke();
 
-            // 8. Rotating Related Slogans Below the Circle (Easy to read, centered)
+            // 3. Draw ECG Heartbeat Line running across the center/over the image
+            drawEcgLine(pulse);
+
+            // 4. Centered Logo on Top inside a clean Frosted White Glass Pill Badge
+            if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
+                const logoHeight = 55;
+                const logoWidth = (hospitalLogo.width / hospitalLogo.height) * logoHeight;
+                const pillPaddingX = 20;
+                const pillPaddingY = 10;
+                const pillWidth = logoWidth + pillPaddingX * 2;
+                const pillHeight = logoHeight + pillPaddingY * 2;
+                const pillX = (canvas.width - pillWidth) / 2;
+                const pillY = 22;
+
+                ctx.save();
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.roundRect(pillX, pillY, pillWidth, pillHeight, 16);
+                ctx.fill();
+                ctx.restore();
+
+                ctx.drawImage(hospitalLogo, pillX + pillPaddingX, pillY + pillPaddingY, logoWidth, logoHeight);
+            }
+
+            // 5. Larger Title Full Width: "WORLD HEART DAY 2026"
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '900 44px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+            ctx.shadowBlur = 12;
+            ctx.fillText('WORLD HEART DAY 2026', canvas.width / 2, 125);
+
+            // 6. Fixed Sub-Banner Slogan: "DON'T MISS A BEAT"
+            ctx.font = '900 26px sans-serif';
+            ctx.fillStyle = '#ffe3e3';
+            ctx.fillText(fixedBannerSlogan, canvas.width / 2, 162);
+
+            // 7. Rotating Related Slogans Over/Below the image center
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 30px sans-serif';
             ctx.textAlign = 'center';
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-            ctx.shadowBlur = 8;
-            wrapText(ctx, currentRotatingSlogan, canvas.width / 2, 770, 900, 40);
+            wrapText(ctx, currentRotatingSlogan, canvas.width / 2, 510, 620, 40);
 
-            // 9. Custom Name or Team (if entered)
+            // 8. Custom Name or Team (if entered)
             const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
             if (nameText) {
                 ctx.fillStyle = '#fff0f3';
                 ctx.font = 'bold 24px sans-serif';
-                ctx.fillText(nameText, canvas.width / 2, 840, 900);
+                ctx.fillText(nameText, canvas.width / 2, 580, 620);
             }
             ctx.shadowBlur = 0;
 
-            // 10. Fixed Hashtags at the Bottom
+            // 9. Fixed Hashtags
             ctx.fillStyle = '#ffe3e3';
-            ctx.font = 'bold 24px sans-serif';
-            ctx.fillText("#DontMissABeat   #UseHeart", canvas.width / 2, 920);
+            ctx.font = 'bold 22px sans-serif';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+            ctx.shadowBlur = 8;
+            ctx.fillText("#DontMissABeat   #UseHeart", canvas.width / 2, 895);
+            ctx.shadowBlur = 0;
+
+            // 10. Developer Credit at the Very Bottom in Thin Small Font
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+            ctx.font = '300 15px sans-serif';
+            ctx.fillText("Developed by: Ahmed Shareef for Shaviyani Atoll Hospital", canvas.width / 2, 970);
         }
 
-        // Draw ECG Line starting right from the circle's right edge
-        function drawEcgLine(startX, pulse = 0) {
+        // Draw Full Healthy Rhythm ECG Line across canvas
+        function drawEcgLine(pulse = 0) {
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 6;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
-            ctx.shadowBlur = 10;
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+            ctx.shadowBlur = 12;
             ctx.beginPath();
             
-            const ecgY = 480; // matches circleY
-            ctx.moveTo(startX, ecgY);
-            
-            const step = (1000 - startX) / 2.5;
-            const beat1X = startX + step * 0.7;
-
-            ctx.lineTo(beat1X - 50, ecgY);
-            ctx.lineTo(beat1X - 30, ecgY - 15);
-            ctx.lineTo(beat1X - 10, ecgY);
-            ctx.lineTo(beat1X,     ecgY + 25);
-            ctx.lineTo(beat1X + 25, ecgY - (200 + pulse * 20));
-            ctx.lineTo(beat1X + 50, ecgY + 70);
-            ctx.lineTo(beat1X + 75, ecgY);
-            ctx.lineTo(beat1X + 110, ecgY - 45);
+            const ecgY = 700;
+            ctx.moveTo(0, ecgY);
+            ctx.lineTo(150, ecgY);
+            ctx.lineTo(180, ecgY - 15);
+            ctx.lineTo(210, ecgY);
+            ctx.lineTo(230, ecgY + 25);
+            ctx.lineTo(260, ecgY - (210 + pulse * 20));
+            ctx.lineTo(290, ecgY + 70);
+            ctx.lineTo(320, ecgY);
+            ctx.lineTo(360, ecgY - 45);
+            ctx.lineTo(500, ecgY);
+            ctx.lineTo(640, ecgY);
+            ctx.lineTo(670, ecgY - 15);
+            ctx.lineTo(700, ecgY);
+            ctx.lineTo(720, ecgY + 25);
+            ctx.lineTo(750, ecgY - (210 + pulse * 20));
+            ctx.lineTo(780, ecgY + 70);
+            ctx.lineTo(810, ecgY);
+            ctx.lineTo(850, ecgY - 45);
             ctx.lineTo(1000, ecgY);
             ctx.stroke();
             ctx.shadowBlur = 0;
