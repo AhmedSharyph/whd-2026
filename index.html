@@ -566,7 +566,7 @@
                 ctx.drawImage(activeMascot, mX, mY, mWidth, mHeight);
             }
 
-            // 5. Header: Logo on Left, Title & "DON'T MISS A BEAT" Slogan on Right
+            // 5. Header: Logo on Left, Title & Expanded Slogan on Right
             const headerY = 22;
             let logoWidthRightEdge = 175;
 
@@ -603,10 +603,10 @@
             ctx.shadowBlur = 12;
             ctx.fillText('WORLD HEART DAY 2026', textStartX, headerY + 42);
 
-            // Slogan: DON'T MISS A BEAT (Placed directly below the main title)
-            ctx.font = '900 28px sans-serif';
+            // Slogan: DON'T MISS A BEAT (Expanded font size & letter spacing to match the full title length)
+            ctx.font = '900 35px sans-serif';
             ctx.fillStyle = '#ffe3e3';
-            ctx.fillText(bannerSloganText, textStartX, headerY + 78);
+            ctx.fillText(bannerSloganText, textStartX, headerY + 82);
             ctx.shadowBlur = 0;
 
             // 6. Custom Name
