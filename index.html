@@ -90,14 +90,15 @@
         .file-upload-btn {
             background: #ffe3e3;
             border: 2px dashed var(--primary-red);
-            padding: 10px;
+            padding: 12px;
             border-radius: 10px;
             cursor: pointer;
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--primary-red);
             text-align: center;
             transition: background 0.2s;
+            display: block;
         }
 
         .file-upload-btn:active {
@@ -174,9 +175,11 @@
 
         <!-- Controls -->
         <div class="controls">
+            <!-- Fixed Android/iOS Camera & Gallery Selector -->
             <label class="file-upload-btn">
-                📷 Tap to Choose or Take Photo
-                <input type="file" id="imageUpload" accept="image/*">
+                📸 Take Selfie or Choose Photo
+                <!-- capture="user" forces Android/iOS to open front camera directly while allowing gallery choice depending on device -->
+                <input type="file" id="imageUpload" accept="image/*" capture="user">
             </label>
 
             <label class="field-label" for="zoomRange">Adjust Photo Zoom</label>
@@ -207,7 +210,7 @@
         let userImage = null;
         let photoScale = 1;
 
-        // 1. Load Frame Background Image
+        // Load Frame Background Image
         const frameBg = new Image();
         frameBg.src = 'frame-bg.png';
         frameBg.onload = () => drawCanvas();
@@ -216,7 +219,7 @@
             drawCanvas();
         };
 
-        // 2. Load Hospital Logo
+        // Load Hospital Logo
         const hospitalLogo = new Image();
         hospitalLogo.src = 'shah_logo.png';
         hospitalLogo.onload = () => drawCanvas();
@@ -231,7 +234,7 @@
         ];
         let currentSlogan = campaignThemes[0];
 
-        // Handle Photo Upload
+        // Handle Photo Upload / Camera Capture
         imageUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -262,11 +265,24 @@
             drawCanvas();
         });
 
+        // Helper: Artistic Heart Path Geometry (Centered on Canvas)
+        function getArtisticHeartPath() {
+            const path = new Path2D();
+            // Perfectly proportioned centered artistic heart path
+            path.moveTo(500, 315);
+            path.bezierCurveTo(400, 170, 230, 200, 230, 375);
+            path.bezierCurveTo(230, 535, 500, 720, 500, 720);
+            path.bezierCurveTo(500, 720, 770, 535, 770, 375);
+            path.bezierCurveTo(770, 200, 600, 170, 500, 315);
+            path.closePath();
+            return path;
+        }
+
         // Core Canvas Renderer
         function drawCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Layer 1: Draw Frame Background Image (or solid red fallback if image is missing)
+            // Layer 1: Draw Frame Background Image (or solid red fallback)
             if (frameBg.complete && frameBg.naturalHeight !== 0) {
                 ctx.drawImage(frameBg, 0, 0, canvas.width, canvas.height);
             } else {
@@ -274,41 +290,33 @@
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
 
-            // Layer 2: Define Photo Box Dimensions (Transparent cutout area where photo sits)
-            const boxX = 120;
-            const boxY = 120;
-            const boxSize = 540;
-            const radius = 24;
-
-            // Save state for clipping the user image inside the rounded box
+            // Layer 2: Artistic Heart Shape Clipping Path for User Photo
             ctx.save();
-            ctx.beginPath();
-            ctx.roundRect(boxX, boxY, boxSize, boxSize, radius);
-            ctx.clip();
+            const heartPath = getArtisticHeartPath();
+            ctx.clip(heartPath);
 
             if (userImage) {
-                const baseSize = boxSize * photoScale;
-                const x = boxX + (boxSize - baseSize) / 2;
-                const y = boxY + (boxSize - baseSize) / 2;
+                const baseSize = 600 * photoScale;
+                const x = (canvas.width - baseSize) / 2;
+                const y = (canvas.height - baseSize) / 2 - 20;
                 ctx.drawImage(userImage, x, y, baseSize, baseSize);
             } else {
+                // Placeholder background inside the heart shape
                 ctx.fillStyle = '#f8f9fa';
-                ctx.fillRect(boxX, boxY, boxSize, boxSize);
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 ctx.fillStyle = '#8d0801';
                 ctx.font = 'bold 30px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('Tap below to', canvas.width / 2, boxY + 250);
-                ctx.fillText('upload your photo', canvas.width / 2, boxY + 295);
+                ctx.fillText('Tap below to take', canvas.width / 2, 430);
+                ctx.fillText('your selfie photo', canvas.width / 2, 475);
             }
             ctx.restore();
 
-            // Layer 3: White Border Frame Around the Photo Box
+            // Layer 3: Clean White Border Stroke around the Artistic Heart
             ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 10;
-            ctx.beginPath();
-            ctx.roundRect(boxX, boxY, boxSize, boxSize, radius);
-            ctx.stroke();
+            ctx.lineWidth = 12;
+            ctx.stroke(heartPath);
 
             // Layer 4: Draw Hospital Logo (Top Left Corner)
             if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
@@ -327,13 +335,13 @@
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 28px sans-serif';
             ctx.textAlign = 'center';
-            wrapText(ctx, currentSlogan, canvas.width / 2, 735, canvas.width - 80, 38);
+            wrapText(ctx, currentSlogan, canvas.width / 2, 775, canvas.width - 80, 38);
 
             // Custom Name or Hashtags
             const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "#DontMissABeat #UseHeart";
             ctx.fillStyle = '#ffe3e3';
             ctx.font = 'bold 22px sans-serif';
-            ctx.fillText(nameText, canvas.width / 2, 845);
+            ctx.fillText(nameText, canvas.width / 2, 870);
         }
 
         // Text Wrapping Utility
