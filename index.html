@@ -1,1157 +1,297 @@
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<!-- Tailwind CSS for modern dashboard styling -->
-<script src="https://cdn.tailwindcss.com"></script>
-<!-- html2canvas and jspdf for Exporting PDF & Image features -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<div class="bg-gray-100 font-mono min-h-screen p-6">
-
-  <!-- DASHBOARD HEADER -->
-  <div class="bg-white shadow rounded-lg p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
-    <div>
-      <div class="flex items-center gap-2">
-        <h1 class="font-bold text-xl text-gray-800">Deworming and Vitamin A Stock Dashboard</h1>
-        <span id="cacheStatusBadge" class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gray-200 text-gray-700">Checking Cache...</span>
-      </div>
-      <p class="text-xs text-gray-500 mt-0.5">Facility: SHAH-PHU Inventory & Batch Control | <span id="lastSyncLabel">Never Synced</span></p>
-    </div>
-    <div class="flex flex-wrap gap-3">
-      <button id="openTransactionModal" class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 shadow flex items-center gap-2">
-        <span>+ Submit Transaction</span>
-      </button>
-      <button id="openBatchModal" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow flex items-center gap-2">
-        <span>+ Add New Batch (Info)</span>
-      </button>
-      <button id="openCacheModal" class="bg-purple-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700 shadow flex items-center gap-2" title="Advanced Cache Settings">
-        <span>⚙️ Cache Manager</span>
-      </button>
-      <button id="refreshBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 shadow">Reload Page</button>
-    </div>
-  </div>
-
-  <!-- MAIN CONTENT PANEL -->
-  <div class="bg-white p-6 rounded-lg shadow">
-    <div class="flex border-b mb-4 justify-between items-center flex-wrap gap-2">
-      <div class="flex flex-wrap">
-        <button id="btnStockTab" class="px-6 py-2 border-b-2 border-blue-500 font-bold text-blue-600">Current Stock</button>
-        <button id="btnHistoryTab" class="px-6 py-2 border-b-2 border-transparent font-semibold text-gray-500 hover:text-blue-500">History Log</button>
-        <button id="btnReportTab" class="px-6 py-2 border-b-2 border-transparent font-semibold text-gray-500 hover:text-blue-500">Reports</button>
-        <button id="btnBatchesTab" class="px-6 py-2 border-b-2 border-transparent font-semibold text-gray-500 hover:text-blue-500">Batch Master</button>
-      </div>
-      <input id="searchInput" type="text" placeholder="Search inventory or history..." class="border p-2 rounded-lg text-sm w-72 bg-gray-50">
-    </div>
-
-    <!-- STOCK VIEW -->
-    <div id="stockView" class="overflow-x-auto">
-      <table id="resultsTable" class="min-w-full border text-left text-sm">
-        <thead class="bg-gray-100 text-gray-700">
-          <tr>
-            <th class="border p-3">Medicine</th>
-            <th class="border p-3">Manufacturer</th>
-            <th class="border p-3">Batch</th>
-            <th class="border p-3">Expiry</th>
-            <th class="border p-3">Days Left</th>
-            <th class="border p-3">Balance</th>
-          </tr>
-        </thead>
-        <tbody><tr><td colspan="6" class="p-4 text-center text-gray-500">Syncing stock data...</td></tr></tbody>
-      </table>
-    </div>
-
-    <!-- HISTORY VIEW -->
-    <div id="historyView" class="hidden overflow-x-auto">
-      <table id="historyTable" class="min-w-full border text-left text-xs">
-        <thead class="bg-gray-100 text-gray-700">
-          <tr>
-            <th class="border p-2">Date</th>
-            <th class="border p-2">Type</th>
-            <th class="border p-2">Details</th>
-            <th class="border p-2">Medicine</th>
-            <th class="border p-2">Manufacturer</th>
-            <th class="border p-2">Batch</th>
-            <th class="border p-2">Expiry</th>
-            <th class="border p-2">Qty</th>
-            <th class="border p-2">Remarks</th>
-            <th class="border p-2">Staff</th>
-            <th class="border p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody><tr><td colspan="11" class="p-4 text-center">Loading history...</td></tr></tbody>
-      </table>
-    </div>
-
-    <!-- REPORT VIEW -->
-    <div id="reportView" class="hidden space-y-4">
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-gray-50 p-4 rounded-lg border items-end">
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Start Date</label>
-          <input type="text" id="reportStartDate" class="border p-2 rounded-lg text-sm bg-white w-full custom-date" placeholder="YYYY-MM-DD">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">End Date</label>
-          <input type="text" id="reportEndDate" class="border p-2 rounded-lg text-sm bg-white w-full custom-date" placeholder="YYYY-MM-DD">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Transaction Type</label>
-          <select id="reportTypeFilter" class="border p-2 rounded-lg text-sm bg-white w-full">
-            <option value="">All Types</option>
-            <option value="Stock In">Stock In (Received)</option>
-            <option value="Stock Out">Stock Out (Dispatch)</option>
-            <option value="Physical Inventory">Physical Inventory</option>
-            <option value="Damaged">Damaged</option>
-            <option value="Expired">Expired</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Facility / Details Filter</label>
-          <select id="reportFacilityFilter" class="border p-2 rounded-lg text-sm bg-white w-full">
-            <option value="">All Facilities / Details</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Item / Medicine Filter</label>
-          <select id="reportItemFilter" class="border p-2 rounded-lg text-sm bg-white w-full">
-            <option value="">All Medicines</option>
-          </select>
-        </div>
-        <div class="md:col-span-5 flex justify-between items-center pt-2">
-          <button id="generateReportBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 shadow">Generate Report</button>
-          
-          <div id="exportActionBtns" class="hidden gap-2">
-            <button id="exportPdfBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700 shadow flex items-center gap-1">📥 Export PDF</button>
-            <button id="exportImgBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-purple-700 shadow flex items-center gap-1">🖼️ Export Image</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Printable Tabular Report Container -->
-      <div id="printableReportArea" class="bg-white p-6 rounded-lg border space-y-4 shadow-sm">
-        <div class="border-b pb-3">
-          <h2 class="font-bold text-lg text-gray-800">Inventory Movement Tabular Report</h2>
-          <p id="reportCriteriaLabel" class="text-xs text-gray-500 mt-1">Facility: SHAH-PHU | Period: Select dates and click Generate</p>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table id="reportResultsTable" class="min-w-full border text-left text-xs">
-            <thead class="bg-gray-100 text-gray-700">
-              <tr>
-                <th class="border p-2">Date</th>
-                <th class="border p-2">Type</th>
-                <th class="border p-2">Details / Facility</th>
-                <th class="border p-2">Medicine Name</th>
-                <th class="border p-2">Batch</th>
-                <th class="border p-2">Quantity</th>
-                <th class="border p-2">Remarks</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td colspan="7" class="p-4 text-center text-gray-500">No report generated yet. Choose filters above and click Generate Report.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- BATCH MASTER VIEW -->
-    <div id="batchesMasterView" class="hidden overflow-x-auto space-y-4">
-      <div class="flex justify-between items-center mb-2">
-        <h2 class="font-bold text-lg text-gray-800">Master Batch Directory (Info Sheet)</h2>
-        <p class="text-xs text-gray-500">Manage, correct, or remove registered manufacturer batches and expiry dates.</p>
-      </div>
-      <table id="batchesMasterTable" class="min-w-full border text-left text-xs">
-        <thead class="bg-gray-100 text-gray-700">
-          <tr>
-            <th class="border p-2">Medicine Name</th>
-            <th class="border p-2">Manufacturer</th>
-            <th class="border p-2">Batch Number</th>
-            <th class="border p-2">Expiry Date</th>
-            <th class="border p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody><tr><td colspan="5" class="p-4 text-center">Loading batch master directory...</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-
-</div>
-
-<!-- MODAL: ADVANCED CACHE MANAGER -->
-<div id="cacheManagerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
-  <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
-    <div class="flex justify-between items-center border-b pb-3">
-      <h2 class="font-bold text-lg text-gray-800 flex items-center gap-2">⚙️ Advanced Cache Manager</h2>
-      <button id="closeCacheModal" class="text-gray-400 hover:text-gray-600 font-bold text-xl">&times;</button>
-    </div>
-
-    <div class="space-y-3 text-sm">
-      <div class="bg-gray-50 p-3 rounded-lg border space-y-1">
-        <p class="flex justify-between"><span class="text-gray-600 font-semibold">Cache Status:</span> <span id="modalCacheStatus" class="font-bold text-blue-600">Active</span></p>
-        <p class="flex justify-between"><span class="text-gray-600 font-semibold">Last Sync Time:</span> <span id="modalCacheTime" class="font-mono text-gray-800">-</span></p>
-        <p class="flex justify-between"><span class="text-gray-600 font-semibold">Storage Size:</span> <span id="modalCacheSize" class="font-mono text-gray-800">0 KB</span></p>
-      </div>
-      <p class="text-xs text-gray-500">Local caching keeps your dashboard instant and offline-ready without touching or modifying raw data on your Google Sheets backend.</p>
-    </div>
-
-    <div class="flex flex-col gap-2 pt-3 border-t">
-      <button id="modalForceSyncBtn" class="bg-purple-600 text-white px-4 py-2.5 rounded-lg font-bold hover:bg-purple-700 shadow text-sm flex items-center justify-center gap-2">
-        <span>🔄 Force Sync from Google Sheets</span>
-      </button>
-      <button id="modalClearCacheBtn" class="bg-red-500 text-white px-4 py-2.5 rounded-lg font-bold hover:bg-red-600 shadow text-sm flex items-center justify-center gap-2">
-        <span>🗑️ Clear Local Cache Only</span>
-      </button>
-      <button id="cancelCacheModal" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-300">Close Manager</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL 1: SUBMIT TRANSACTION -->
-<div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
-  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
-    <div class="flex justify-between items-center border-b pb-3 mb-4">
-      <h2 class="font-bold text-lg text-gray-700">Submit Transaction</h2>
-      <button id="closeTransactionModal" class="text-gray-400 hover:text-gray-600 font-bold text-xl">&times;</button>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Heart Day 2026 - Creator</title>
     
-    <form id="medicineForm" class="space-y-3">
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Transaction Date</label>
-        <input type="text" id="date_of_transaction" name="date_of_transaction" class="w-full border p-2 rounded-lg text-sm custom-date" placeholder="YYYY-MM-DD" required>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Type</label>
-        <select id="transaction_type" name="transaction_type" class="w-full border p-2 rounded-lg text-sm" required>
-          <option value="">Select Type</option>
-          <option value="Stock In">Stock In</option>
-          <option value="Stock Out">Stock Out</option>
-          <option value="Damaged">Damaged</option>
-          <option value="Expired">Expired</option>
-          <option value="Physical Inventory">Physical Inventory</option>
-        </select>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Details</label>
-        <select id="transaction_details" name="transaction_details" class="w-full border p-2 rounded-lg text-sm bg-gray-100 cursor-not-allowed" disabled required>
-          <option value="">Select Type First</option>
-        </select>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Medicine Name</label>
-        <select id="medicine_name" name="medicine_name" class="w-full border p-2 rounded-lg text-sm" required>
-          <option value="">Loading...</option>
-        </select>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Manufacturer</label>
-        <select id="manufacturer_name" name="manufacturer" class="w-full border p-2 rounded-lg text-sm" required disabled>
-          <option value="">Select Medicine First</option>
-        </select>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Batch Number</label>
-        <select id="batch_number" name="batch_number" class="w-full border p-2 rounded-lg text-sm" required disabled>
-          <option value="">Select Manufacturer First</option>
-        </select>
-        <p id="batchStockInfo" class="text-xs text-blue-600 font-bold mt-1 hidden"></p>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Expiry Date</label>
-        <input type="text" id="expiry_date" name="expiry_date" class="w-full border p-2 rounded-lg text-sm bg-gray-50 custom-date" placeholder="YYYY-MM-DD" required readonly>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Amount</label>
-        <input type="number" name="amount" min="1" class="w-full border p-2 rounded-lg text-sm" required>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Remarks</label>
-        <textarea id="remarks" name="remarks" rows="2" class="w-full border p-2 rounded-lg text-sm" placeholder="Optional notes..."></textarea>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Staff</label>
-        <select id="staff" name="staff" class="w-full border p-2 rounded-lg text-sm" required>
-          <option value="">Select Staff</option>
-        </select>
-      </div>
-      <div class="flex gap-3 pt-4 border-t">
-        <button type="submit" id="submitTransactionBtn" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-bold text-sm flex items-center justify-center gap-2">
-          <span class="btn-text">Submit Transaction</span>
-          <span class="spinner hidden animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
-        </button>
-        <button type="button" id="clearForm" class="bg-gray-200 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-300">Clear</button>
-      </div>
-    </form>
-  </div>
-</div>
+    <!-- PWA & Mobile Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WHD Creator">
+    <link rel="apple-touch-icon" href="icon-192.png">
 
-<!-- MODAL 2: ADD NEW BATCH -->
-<div id="batchModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
-  <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
-    <div class="flex justify-between items-center border-b pb-3 mb-4">
-      <h2 class="font-bold text-lg text-gray-700">Add New Batch to Info Master</h2>
-      <button id="closeBatchModal" class="text-gray-400 hover:text-gray-600 font-bold text-xl">&times;</button>
-    </div>
-    <form id="newBatchForm" class="space-y-4">
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Medicine Name</label>
-        <select id="new_medicine_name" name="medicine_name" class="w-full border p-2 rounded-lg text-sm" required>
-          <option value="">Loading Medicines...</option>
-        </select>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Manufacturer</label>
-        <input type="text" id="new_manufacturer" name="manufacturer" placeholder="Enter Manufacturer Name" class="w-full border p-2 rounded-lg text-sm" required>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Batch Number</label>
-        <input type="text" id="new_batch" name="batch" placeholder="Enter Batch Number" class="w-full border p-2 rounded-lg text-sm" required>
-        <p id="duplicateWarning" class="text-red-500 text-xs mt-1 hidden font-semibold">⚠️ This batch already exists!</p>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Expiry Date</label>
-        <input type="text" id="new_expiry" name="expiry" class="w-full border p-2 rounded-lg text-sm custom-date" placeholder="YYYY-MM-DD" required>
-      </div>
-      <div class="flex gap-3 pt-4 border-t">
-        <button type="submit" id="saveBatchBtn" class="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-bold text-sm flex items-center justify-center gap-2">
-          <span class="btn-text">Save Batch</span>
-          <span class="spinner hidden animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
-        </button>
-        <button type="button" id="cancelBatchModal" class="bg-gray-200 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-300">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- MODAL 3: EDIT TRANSACTION -->
-<div id="editTransactionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
-  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
-    <div class="flex justify-between items-center border-b pb-3 mb-4">
-      <h2 class="font-bold text-lg text-gray-700">Edit Transaction</h2>
-      <button id="closeEditModal" class="text-gray-400 hover:text-gray-600 font-bold text-xl">&times;</button>
-    </div>
-    <form id="editForm" class="space-y-3">
-      <input type="hidden" id="edit_row_index" name="row_index">
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Transaction Date</label>
-        <input type="text" id="edit_date_of_transaction" name="date_of_transaction" class="w-full border p-2 rounded-lg text-sm custom-date" required>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Type</label>
-        <select id="edit_transaction_type" name="transaction_type" class="w-full border p-2 rounded-lg text-sm" required>
-          <option value="Stock In">Stock In</option>
-          <option value="Stock Out">Stock Out</option>
-          <option value="Damaged">Damaged</option>
-          <option value="Expired">Expired</option>
-          <option value="Physical Inventory">Physical Inventory</option>
-        </select>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Details</label>
-        <input type="text" id="edit_transaction_details" name="transaction_details" class="w-full border p-2 rounded-lg text-sm">
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Medicine Name</label>
-        <input type="text" id="edit_medicine_name" name="medicine_name" class="w-full border p-2 rounded-lg text-sm bg-gray-50" readonly>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Manufacturer</label>
-        <input type="text" id="edit_manufacturer" name="manufacturer" class="w-full border p-2 rounded-lg text-sm bg-gray-50" readonly>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Batch Number</label>
-        <input type="text" id="edit_batch_number" name="batch_number" class="w-full border p-2 rounded-lg text-sm bg-gray-50" readonly>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Expiry Date</label>
-        <input type="text" id="edit_expiry_date" name="expiry_date" class="w-full border p-2 rounded-lg text-sm bg-gray-50" readonly>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Amount</label>
-        <input type="number" id="edit_amount" name="amount" min="1" class="w-full border p-2 rounded-lg text-sm" required>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Remarks</label>
-        <textarea id="edit_remarks" name="remarks" rows="2" class="w-full border p-2 rounded-lg text-sm"></textarea>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Staff</label>
-        <input type="text" id="edit_staff" name="staff" class="w-full border p-2 rounded-lg text-sm">
-      </div>
-      <div class="flex gap-3 pt-4 border-t">
-        <button type="submit" id="updateTransactionBtn" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-bold text-sm flex items-center justify-center gap-2">
-          <span class="btn-text">Update Transaction</span>
-          <span class="spinner hidden animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
-        </button>
-        <button type="button" id="cancelEditModal" class="bg-gray-200 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-300">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- MODAL 4: EDIT BATCH MASTER INFO -->
-<div id="editBatchMasterModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
-  <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
-    <div class="flex justify-between items-center border-b pb-3 mb-4">
-      <h2 class="font-bold text-lg text-gray-700">Edit Batch Master Info</h2>
-      <button id="closeEditBatchModal" class="text-gray-400 hover:text-gray-600 font-bold text-xl">&times;</button>
-    </div>
-    <form id="editBatchMasterForm" class="space-y-4">
-      <input type="hidden" id="edit_batch_row_index" name="row_index">
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Medicine Name</label>
-        <input type="text" id="edit_master_medicine_name" name="medicine_name" class="w-full border p-2 rounded-lg text-sm bg-gray-50" readonly required>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Manufacturer</label>
-        <input type="text" id="edit_master_manufacturer" name="manufacturer" class="w-full border p-2 rounded-lg text-sm" required>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Batch Number</label>
-        <input type="text" id="edit_master_batch" name="batch" class="w-full border p-2 rounded-lg text-sm" required>
-      </div>
-      <div>
-        <label class="block mb-1 font-semibold text-sm">Expiry Date</label>
-        <input type="text" id="edit_master_expiry" name="expiry" class="w-full border p-2 rounded-lg text-sm custom-date" placeholder="YYYY-MM-DD" required>
-      </div>
-      <div class="flex gap-3 pt-4 border-t">
-        <button type="submit" id="updateBatchMasterBtn" class="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-bold text-sm flex items-center justify-center gap-2">
-          <span class="btn-text">Update Batch</span>
-          <span class="spinner hidden animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
-        </button>
-        <button type="button" id="cancelEditBatchModal" class="bg-gray-200 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-300">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script>
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby7PQ77-YWBNFJtPJZNlzXWQj1nr353DBvFz0IHgjFFWIGAFm0y53Tu-u3skOe3xmae1g/exec";
-  const selectedFacility = "SHAH-PHU";
-  let globalStock = [];
-  let infoMasterData = [];
-  let settingsDetailsList = [];
-  let uniqueMedicinesList = [];
-  let globalTransactions = [];
-
-  function formatLocalDate(utcString) {
-    if (!utcString) return '';
-    const d = new Date(utcString);
-    if (isNaN(d.getTime())) return utcString; 
-    const localTime = new Date(d.getTime() + 5*60*60*1000); 
-    const yyyy = localTime.getFullYear();
-    const mm = String(localTime.getMonth() + 1).padStart(2, '0');
-    const dd = String(localTime.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-  }
-
-  // --- MODAL CONTROLS ---
-  $("#openTransactionModal").click(() => $("#transactionModal").removeClass("hidden"));
-  $("#closeTransactionModal, #clearForm").click(() => {
-    $("#transactionModal").addClass("hidden");
-    $("#batchStockInfo").addClass("hidden");
-  });
-  
-  $("#openBatchModal").click(() => {
-    $("#batchModal").removeClass("hidden");
-    loadUniqueMedicinesForBatchModal();
-  });
-
-  $("#closeBatchModal, #cancelBatchModal").click(() => {
-    $("#batchModal").addClass("hidden");
-    $("#newBatchForm")[0].reset();
-    $("#duplicateWarning").addClass("hidden");
-  });
-
-  $("#closeEditModal, #cancelEditModal").click(() => $("#editTransactionModal").addClass("hidden"));
-  $("#closeEditBatchModal, #cancelEditBatchModal").click(() => $("#editBatchMasterModal").addClass("hidden"));
-
-  // --- ADVANCED CACHE MANAGER MODAL CONTROLS ---
-  $("#openCacheModal").click(() => {
-    updateCacheModalStats();
-    $("#cacheManagerModal").removeClass("hidden");
-  });
-
-  $("#closeCacheModal, #cancelCacheModal").click(() => {
-    $("#cacheManagerModal").addClass("hidden");
-  });
-
-  function updateCacheModalStats() {
-    const cachedData = localStorage.getItem('shah_phu_master_sync');
-    const cachedTime = localStorage.getItem('shah_phu_sync_time');
-
-    if (cachedData) {
-      const sizeBytes = new Blob([cachedData]).size;
-      const sizeKB = (sizeBytes / 1024).toFixed(2) + " KB";
-      $("#modalCacheSize").text(sizeKB);
-      $("#modalCacheStatus").text("Active / Cached").removeClass("text-amber-600 text-red-600").addClass("text-green-600");
-    } else {
-      $("#modalCacheSize").text("0 KB");
-      $("#modalCacheStatus").text("Empty / Not Cached").removeClass("text-green-600 text-amber-600").addClass("text-red-600");
-    }
-
-    if (cachedTime) {
-      $("#modalCacheTime").text(new Date(Number(cachedTime)).toLocaleString());
-    } else {
-      $("#modalCacheTime").text("Never");
-    }
-  }
-
-  // --- TABS & VIEWS SWITCHING ---
-  function switchTab(activeBtnId) {
-    ["#btnStockTab", "#btnHistoryTab", "#btnReportTab", "#btnBatchesTab"].forEach(id => {
-      if (id === activeBtnId) {
-        $(id).addClass("border-blue-500 text-blue-600 font-bold").removeClass("border-transparent text-gray-500 font-semibold");
-      } else {
-        $(id).addClass("border-transparent text-gray-500 font-semibold").removeClass("border-blue-500 text-blue-600 font-bold");
-      }
-    });
-  }
-
-  $("#btnStockTab").click(() => {
-    switchTab("#btnStockTab");
-    $("#stockView").removeClass("hidden");
-    $("#historyView, #reportView, #batchesMasterView").addClass("hidden");
-  });
-
-  $("#btnHistoryTab").click(() => {
-    switchTab("#btnHistoryTab");
-    $("#historyView").removeClass("hidden");
-    $("#stockView, #reportView, #batchesMasterView").addClass("hidden");
-    renderHistoryLog();
-  });
-
-  $("#btnReportTab").click(() => {
-    switchTab("#btnReportTab");
-    $("#reportView").removeClass("hidden");
-    $("#stockView, #historyView, #batchesMasterView").addClass("hidden");
-    populateReportDropdowns();
-  });
-
-  $("#btnBatchesTab").click(() => {
-    switchTab("#btnBatchesTab");
-    $("#batchesMasterView").removeClass("hidden");
-    $("#stockView, #historyView, #reportView").addClass("hidden");
-    renderBatchMasterDirectory();
-  });
-
-  // --- ADVANCED CACHE SYNCHRONIZATION ENGINE ---
-  async function initMasterSync(forceRefresh = false) {
-    const cacheKey = 'shah_phu_master_sync';
-    const timeKey = 'shah_phu_sync_time';
-
-    try {
-      if (!forceRefresh) {
-        const cachedData = localStorage.getItem(cacheKey);
-        const cachedTime = localStorage.getItem(timeKey);
-
-        if (cachedData && cachedTime) {
-          const parsed = JSON.parse(cachedData);
-          globalStock = parsed.balances;
-          infoMasterData = parsed.info;
-          globalTransactions = parsed.transactions;
-          uniqueMedicinesList = parsed.medicines;
-
-          renderAllViews();
-          loadSettingsDropdown();
-          fetchStaffList();
-
-          $("#cacheStatusBadge").text("Loaded from Cache").removeClass("bg-green-200 text-green-800").addClass("bg-amber-200 text-amber-800");
-          $("#lastSyncLabel").text(`Last Cached: ${new Date(Number(cachedTime)).toLocaleTimeString()}`);
-          return;
+    <style>
+        :root {
+            --primary-color: #e63946;
+            --secondary-color: #2b2d42;
+            --bg-color: #f8f9fa;
         }
-      }
 
-      $("#cacheStatusBadge").text("Syncing from Sheets...").removeClass("bg-amber-200 text-amber-800").addClass("bg-blue-200 text-blue-800");
-
-      const res = await fetch(`${WEB_APP_URL}?sync=true&t=${Date.now()}`);
-      const payload = await res.json();
-
-      globalStock = payload.balances;
-      infoMasterData = payload.info;
-      globalTransactions = payload.transactions;
-      uniqueMedicinesList = payload.medicines;
-
-      const now = Date.now();
-      localStorage.setItem(cacheKey, JSON.stringify(payload));
-      localStorage.setItem(timeKey, now);
-
-      renderAllViews();
-      loadSettingsDropdown();
-      fetchStaffList();
-
-      $("#cacheStatusBadge").text("Synced Live").removeClass("bg-blue-200 text-blue-800 bg-amber-200 text-amber-800").addClass("bg-green-200 text-green-800");
-      $("#lastSyncLabel").text(`Synced At: ${new Date(now).toLocaleTimeString()}`);
-
-      if (forceRefresh) {
-        alert("Cache updated successfully from Google Sheets!");
-        updateCacheModalStats();
-      }
-    } catch (err) {
-      console.error("Master synchronization error:", err);
-      $("#cacheStatusBadge").text("Sync Failed (Using Cache)").removeClass("bg-green-200 text-green-800").addClass("bg-red-200 text-red-800");
-      
-      const cachedData = localStorage.getItem(cacheKey);
-      if (cachedData) {
-        const parsed = JSON.parse(cachedData);
-        globalStock = parsed.balances;
-        infoMasterData = parsed.info;
-        globalTransactions = parsed.transactions;
-        uniqueMedicinesList = parsed.medicines;
-        renderAllViews();
-      }
-    }
-  }
-
-  function renderAllViews() {
-    renderStockTable(globalStock);
-    renderBatchMasterDirectory();
-    renderHistoryLog();
-    updateMedicineDropdowns();
-  }
-
-  function updateMedicineDropdowns() {
-    const medSel = $("#medicine_name").empty().append('<option value="">Select Medicine</option>');
-    uniqueMedicinesList.forEach(m => medSel.append(new Option(m, m)));
-  }
-
-  function loadUniqueMedicinesForBatchModal() {
-    const newMedSel = $("#new_medicine_name").empty().append('<option value="">Select Medicine</option>');
-    uniqueMedicinesList.forEach(m => newMedSel.append(new Option(m, m)));
-  }
-
-  function renderStockTable(data) {
-    const tbody = $("#resultsTable tbody").empty();
-    const today = new Date();
-    today.setHours(0,0,0,0);
-
-    if (!data || data.length === 0) {
-      tbody.html('<tr><td colspan="6" class="p-4 text-center text-gray-500">No active stock available.</td></tr>');
-      return;
-    }
-
-    data.forEach(prod => {
-      prod.batches.forEach(b => {
-        if (b.balance > 0) {
-          const expDate = b.expiry ? new Date(b.expiry) : null;
-          const diffDays = expDate ? Math.ceil((expDate - today) / 86400000) : null;
-          const isExpired = diffDays !== null && diffDays <= 0;
-
-          const daysLeftDisplay = expDate 
-            ? (isExpired ? '<span class="text-red-600 font-bold">Expired</span>' : `${diffDays} days`) 
-            : 'N/A';
-
-          tbody.append(`
-            <tr class="border-b hover:bg-gray-50">
-              <td class="p-3 font-mono">${b.medicine}</td>
-              <td class="p-3 font-mono">${b.manufacturer}</td>
-              <td class="p-3 font-mono">${b.batch}</td>
-              <td class="p-3 font-mono">${formatLocalDate(b.expiry)}</td>
-              <td class="p-3 font-mono">${daysLeftDisplay}</td>
-              <td class="p-3 font-mono font-bold">
-                ${b.balance} 
-                ${isExpired ? '<span class="ml-2 px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded uppercase">EXPIRED</span>' : '<span class="ml-2 text-green-700 text-xs">OK</span>'}
-              </td>
-            </tr>`);
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
-      });
-    });
-  }
 
-  function renderBatchMasterDirectory() {
-    const tbody = $("#batchesMasterTable tbody").empty();
-    if (!infoMasterData || infoMasterData.length === 0) {
-      tbody.html('<tr><td colspan="5" class="p-4 text-center text-gray-500">No batches registered in info master.</td></tr>');
-      return;
-    }
+        .creator-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            box-sizing: border-box;
+            text-align: center;
+        }
 
-    infoMasterData.forEach(b => {
-      tbody.append(`
-        <tr class="border-b hover:bg-gray-50" data-row='${JSON.stringify(b)}'>
-          <td class="p-2 font-mono font-semibold">${b.medicine_name || ''}</td>
-          <td class="p-2 font-mono">${b.manufacturer || ''}</td>
-          <td class="p-2 font-mono font-semibold">${b.batch || ''}</td>
-          <td class="p-2 font-mono">${formatLocalDate(b.expiry)}</td>
-          <td class="p-2 whitespace-nowrap">
-            <button class="edit-batch-btn bg-blue-500 text-white px-2 py-1 rounded text-xs mr-1 hover:bg-blue-600">Edit</button>
-            <button class="delete-batch-btn bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">Delete</button>
-          </td>
-        </tr>`);
-    });
-  }
+        h2 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            color: var(--secondary-color);
+            font-size: 1.4rem;
+        }
 
-  function renderHistoryLog() {
-    const tbody = $("#historyTable tbody").empty();
-    if (!globalTransactions || globalTransactions.length === 0) {
-      tbody.html('<tr><td colspan="11" class="p-4 text-center text-gray-500">No transaction logs found.</td></tr>');
-      return;
-    }
+        p.subtitle {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
 
-    globalTransactions.slice(0, 50).forEach(tr => {
-      tbody.append(`
-        <tr class="border-b hover:bg-gray-50" data-row='${JSON.stringify(tr)}'>
-          <td class="p-2 whitespace-nowrap">${tr.date_of_transaction || ''}</td>
-          <td class="p-2">
-            <span class="px-2 py-1 rounded text-[10px] uppercase font-bold ${tr.transaction_type === 'Stock In' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}">
-              ${tr.transaction_type || ''}
-            </span>
-          </td>
-          <td class="p-2 font-mono font-semibold">${tr.transaction_details || ''}</td>
-          <td class="p-2 font-mono font-semibold">${tr.medicine_name || ''}</td>
-          <td class="p-2 font-mono font-semibold">${tr.manufacturer || ''}</td>
-          <td class="p-2 font-mono font-semibold">${tr.batch_number || ''}</td>
-          <td class="p-2 font-mono font-semibold">${formatLocalDate(tr.expiry_date)}</td>
-          <td class="p-2 font-mono font-bold">${tr.amount || ''}</td>
-          <td class="p-2 font-mono text-gray-600">${tr.remarks || ''}</td>
-          <td class="p-2 font-mono">${tr.staff || ''}</td>
-          <td class="p-2 whitespace-nowrap">
-            <button class="edit-btn bg-blue-500 text-white px-2 py-1 rounded text-xs mr-1 hover:bg-blue-600">Edit</button>
-            <button class="delete-btn bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">Delete</button>
-          </td>
-        </tr>`);
-    });
-  }
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
 
-  function populateReportDropdowns() {
-    const detailsSet = [...new Set(globalTransactions.map(tr => tr.transaction_details).filter(Boolean))];
-    const detailSel = $("#reportFacilityFilter").empty().append('<option value="">All Facilities / Details</option>');
-    detailsSet.forEach(d => detailSel.append(new Option(d, d)));
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
 
-    const medSet = [...new Set(globalTransactions.map(tr => tr.medicine_name).filter(Boolean))];
-    const medSel = $("#reportItemFilter").empty().append('<option value="">All Medicines</option>');
-    medSet.forEach(m => medSel.append(new Option(m, m)));
-  }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
-  // --- BATCH MASTER EDIT & DELETE ACTIONS ---
-  $(document).on("click", ".edit-batch-btn", function() {
-    const bData = JSON.parse($(this).closest("tr").attr("data-row"));
-    $("#edit_batch_row_index").val(bData.row_index);
-    $("#edit_master_medicine_name").val(bData.medicine_name || "");
-    $("#edit_master_manufacturer").val(bData.manufacturer || "");
-    $("#edit_master_batch").val(bData.batch || "");
-    $("#edit_master_expiry").val(formatLocalDate(bData.expiry) || "");
-    $("#editBatchMasterModal").removeClass("hidden");
-  });
+        .file-upload-label {
+            background: #f1f3f5;
+            border: 2px dashed #ced4da;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #495057;
+            transition: all 0.2s;
+        }
 
-  $(document).on("click", ".delete-batch-btn", async function() {
-    const bData = JSON.parse($(this).closest("tr").attr("data-row"));
-    if (!confirm(`Are you sure you want to delete batch "${bData.batch}" for ${bData.medicine_name}?`)) return;
+        .file-upload-label:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
 
-    const formData = new URLSearchParams();
-    formData.append("action", "delete_info_batch");
-    formData.append("row_index", bData.row_index);
+        input[type="file"] {
+            display: none;
+        }
 
-    try {
-      await fetch(WEB_APP_URL, { method: "POST", body: formData, mode: "no-cors" });
-      alert("Batch removed successfully!");
-      localStorage.removeItem('shah_phu_master_sync');
-      localStorage.removeItem('shah_phu_sync_time');
-      setTimeout(() => location.reload(), 500);
-    } catch (err) {
-      alert("Failed to delete batch.");
-    }
-  });
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
 
-  // --- TRANSACTION EDIT & DELETE ACTIONS ---
-  $(document).on("click", ".edit-btn", function() {
-    const trData = JSON.parse($(this).closest("tr").attr("data-row"));
-    $("#edit_row_index").val(trData.row_index);
-    $("#edit_date_of_transaction").val(trData.date_of_transaction || "");
-    $("#edit_transaction_type").val(trData.transaction_type || "");
-    $("#edit_transaction_details").val(trData.transaction_details || "");
-    $("#edit_medicine_name").val(trData.medicine_name || "");
-    $("#edit_manufacturer").val(trData.manufacturer || "");
-    $("#edit_batch_number").val(trData.batch_number || "");
-    $("#edit_expiry_date").val(formatLocalDate(trData.expiry_date) || "");
-    $("#edit_amount").val(trData.amount || "");
-    $("#edit_remarks").val(trData.remarks || "");
-    $("#edit_staff").val(trData.staff || "");
-    $("#editTransactionModal").removeClass("hidden");
-  });
+        .btn:active {
+            opacity: 0.85;
+        }
 
-  $(document).on("click", ".delete-btn", async function() {
-    const trData = JSON.parse($(this).closest("tr").attr("data-row"));
-    if (!confirm(`Are you sure you want to delete this transaction for ${trData.medicine_name} (Batch: ${trData.batch_number})?`)) return;
+        .btn-shuffle {
+            background: #457b9d;
+            color: white;
+        }
 
-    const formData = new URLSearchParams();
-    formData.append("action", "delete_transaction");
-    formData.append("row_index", trData.row_index);
+        .btn-download {
+            background: var(--secondary-color);
+            color: white;
+        }
 
-    try {
-      await fetch(WEB_APP_URL, { method: "POST", body: formData, mode: "no-cors" });
-      alert("Transaction deleted successfully!");
-      localStorage.removeItem('shah_phu_master_sync');
-      localStorage.removeItem('shah_phu_sync_time');
-      setTimeout(() => location.reload(), 500);
-    } catch (err) {
-      alert("Failed to delete transaction.");
-    }
-  });
+        .btn-share {
+            background: var(--primary-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
 
-  async function fetchStaffList() {
-    const staffUrl = "https://script.google.com/macros/s/AKfycbyaBLAkJtS1lH0uJXZxmpLoHwb6kM51lQWyMuLlvDGXIdfovZhl8ag3MnMDL_aeq-oGmA/exec";
-    const staffSelect = document.getElementById("staff");
-    try {
-      const res = await fetch(staffUrl);
-      const data = await res.json();
-      staffSelect.innerHTML = '<option value="">Select Staff</option>';
-      data.filter(s => s.Hcf === selectedFacility).forEach(item => {
-        staffSelect.add(new Option(item["Staff Name and Designation"], item["Staff Name and Designation"]));
-      });
-      staffSelect.add(new Option("Not in list: Register", "not_in_list"));
-    } catch (err) { console.error("Staff fetch error", err); }
-  }
+    <div class="creator-card">
+        <h2>World Heart Day 2026</h2>
+        <p class="subtitle">Create & Share Campaign Card</p>
+        
+        <!-- Canvas Preview Area -->
+        <div class="canvas-wrapper">
+            <canvas id="creatorCanvas" width="1000" height="1000"></canvas>
+        </div>
 
-  $("#searchInput").on("keyup", function() {
-    const value = $(this).val().toLowerCase();$("table:visible tbody tr").filter(function() {
-      $(this).toggle($(this).text().toLowerCase().includes(value));
-    });
-  });
+        <!-- Controls -->
+        <div class="controls">
+            <label class="file-upload-label">
+                📷 Choose / Take Photo
+                <input type="file" id="imageUpload" accept="image/*">
+            </label>
 
-  function resetSelect(id, placeholder, enabled = false) {
-    $(`#${id}`).empty().append(`<option value="">${placeholder}</option>`).prop('disabled', !enabled);
-  }
+            <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Theme Message</button>
+            <button class="btn btn-download" id="downloadBtn">💾 Save Image to Device</button>
+            <button class="btn btn-share" id="shareBtn">📤 Share to Social Media</button>
+        </div>
+    </div>
 
-  function getBatchBalance(batchNo) {
-    for (let p of globalStock) {
-      const match = p.batches.find(b => String(b.batch).trim().toLowerCase() === String(batchNo).trim().toLowerCase());
-      if (match) return Number(match.balance) || 0;
-    }
-    return 0;
-  }
+    <script>
+        const canvas = document.getElementById('creatorCanvas');
+        const ctx = canvas.getContext('2d');
+        const imageUpload = document.getElementById('imageUpload');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const shareBtn = document.getElementById('shareBtn');
 
-  function setButtonLoading(buttonElement, isLoading) {
-    const btnText = buttonElement.find('.btn-text');
-    const spinner = buttonElement.find('.spinner');
-    if (isLoading) {
-      buttonElement.prop('disabled', true).addClass('opacity-60 cursor-not-allowed');
-      btnText.text('Processing...');
-      spinner.removeClass('hidden');
-    } else {
-      buttonElement.prop('disabled', false).removeClass('opacity-60 cursor-not-allowed');
-      spinner.addClass('hidden');
-    }
-  }
+        let userImage = null;
+        const frameImage = new Image();
+        
+        // Load optional template frame overlay (falls back cleanly if file doesn't exist yet)
+        frameImage.src = 'campaign-frame.png'; 
+        frameImage.onload = () => drawCanvas();
+        frameImage.onerror = () => drawCanvas(); // Handles missing frame smoothly during testing
 
-  $(document).ready(() => {
-    initMasterSync(false);
+        // Official World Heart Day Campaign Messages
+        const campaignMessages = [
+            "Don't Miss a Beat: See the Signs",
+            "Heart Disease Can Hide in Plain Sight",
+            "Protect Your Heart: Act Early",
+            "Keep the Beat: Move More, Eat Healthier",
+            "Use Heart for Action: Know Your Risks"
+        ];
 
-    $("#transaction_type").change(function() {
-      const selectedType = this.value;
-      const detailsSelect = $("#transaction_details");
+        let currentMessage = campaignMessages[Math.floor(Math.random() * campaignMessages.length)];
 
-      if (!selectedType) {
-        detailsSelect.empty().append('<option value="">Select Type First</option>').prop("disabled", true).addClass("bg-gray-100 cursor-not-allowed");
-        return;
-      }
-
-      detailsSelect.prop("disabled", false).removeClass("bg-gray-100 cursor-not-allowed").empty();
-
-      if (selectedType === "Physical Inventory") {
-        detailsSelect.append(new Option("Physical Inventory", "Physical Inventory"));
-        detailsSelect.val("Physical Inventory");
-      } else if (selectedType === "Expired") {
-        detailsSelect.append(new Option("Expired", "Expired"));
-        detailsSelect.val("Expired");
-      } else if (selectedType === "Damaged") {
-        detailsSelect.append(new Option("Loss and Damage", "Loss and Damage"));
-        detailsSelect.val("Loss and Damage");
-      } else {
-        detailsSelect.append(new Option("Select Details", ""));
-        settingsDetailsList.forEach(item => {
-          if (!item.toLowerCase().includes("detail") && !item.toLowerCase().includes("physical inventory") && !item.toLowerCase().includes("expired")) {
-            detailsSelect.append(new Option(item, item));
-          }
+        // Handle Photo Upload
+        imageUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    userImage = new Image();
+                    userImage.src = event.target.result;
+                    userImage.onload = () => drawCanvas();
+                };
+                reader.readAsDataURL(file);
+            }
         });
-      }
-    });
 
-    $("#medicine_name").change(function() {
-      const selectedMed = this.value;
-      resetSelect("manufacturer_name", "Select Manufacturer", !!selectedMed);
-      if (selectedMed) {
-        const matchingInfos = infoMasterData.filter(i => i.medicine_name === selectedMed);
-        [...new Set(matchingInfos.map(i => i.manufacturer))].forEach(m => $("#manufacturer_name").append(new Option(m, m)));
-      }
-      resetSelect("batch_number", "Select Batch");
-      $("#expiry_date").val("");
-      $("#batchStockInfo").addClass("hidden");
-    });
+        // Shuffle Theme Slogan
+        shuffleBtn.addEventListener('click', () => {
+            currentMessage = campaignMessages[Math.floor(Math.random() * campaignMessages.length)];
+            drawCanvas();
+        });
 
-    $("#manufacturer_name").change(function() {
-      const selectedManufacturer = this.value;
-      const selectedMed = $("#medicine_name").val();
-      resetSelect("batch_number", "Select Batch", !!selectedManufacturer);
+        // Core Canvas Draw Logic
+        function drawCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const matchingBatches = infoMasterData.filter(i => i.medicine_name === selectedMed && i.manufacturer === selectedManufacturer);
-      matchingBatches.forEach(b => {
-        const balance = getBatchBalance(b.batch);
-        $("#batch_number").append(new Option(`${b.batch} (Bal: ${balance})`, b.batch));
-      });
+            // 1. Draw User Image (Scaled to cover square canvas properly)
+            if (userImage) {
+                const size = Math.min(userImage.width, userImage.height);
+                const startX = (userImage.width - size) / 2;
+                const startY = (userImage.height - size) / 2;
+                ctx.drawImage(userImage, startX, startY, size, size, 0, 0, canvas.width, canvas.height);
+            } else {
+                // Placeholder background if no image is uploaded
+                ctx.fillStyle = '#e9ecef';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#868e96';
+                ctx.font = 'bold 36px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Tap above to upload photo', canvas.width / 2, canvas.height / 2);
+            }
 
-      $("#expiry_date").val("");
-      $("#batchStockInfo").addClass("hidden");
-    });
+            // 2. Draw Frame Overlay (if available)
+            if (frameImage.complete && frameImage.naturalHeight !== 0) {
+                ctx.drawImage(frameImage, 0, 0, canvas.width, canvas.height);
+            }
 
-    $("#batch_number").change(function() {
-      const selectedBatch = this.value;
-      const selectedManufacturer = $("#manufacturer_name").val();
-      const selectedMed = $("#medicine_name").val();
-      const infoMatch = infoMasterData.find(i => i.medicine_name === selectedMed && i.manufacturer === selectedManufacturer && i.batch === selectedBatch);
+            // 3. Draw Bottom Banner & Active Slogan Text
+            const bannerHeight = 140;
+            ctx.fillStyle = 'rgba(230, 57, 70, 0.9)'; // Campaign red strip
+            ctx.fillRect(0, canvas.height - bannerHeight, canvas.width, bannerHeight);
 
-      if (infoMatch && infoMatch.expiry) {
-        $("#expiry_date").val(formatLocalDate(infoMatch.expiry));
-      } else {
-        $("#expiry_date").val("");
-      }
-
-      if (selectedBatch) {
-        const balance = getBatchBalance(selectedBatch);
-        $("#batchStockInfo").text(`Available Stock Balance: ${balance} units`).removeClass("hidden");
-      } else {
-        $("#batchStockInfo").addClass("hidden");
-      }
-    });
-
-    // --- FORM SUBMISSIONS WITH SPINNERS & CACHE INVALIDATION ---
-    $("#medicineForm").submit(async function(e) {
-      e.preventDefault();
-      const submitBtn = $("#submitTransactionBtn");
-      setButtonLoading(submitBtn, true);
-      
-      const detailsSelect = $("#transaction_details");
-      const wasDisabled = detailsSelect.prop("disabled");
-      detailsSelect.prop("disabled", false);
-
-      const formData = new URLSearchParams(new FormData(this));
-      if (wasDisabled) detailsSelect.prop("disabled", true);
-
-      try {
-        await fetch(WEB_APP_URL, { method: "POST", body: formData, mode: "no-cors" });
-        alert("Transaction submitted successfully!");
-        $("#transactionModal").addClass("hidden");
-        this.reset();
-        localStorage.removeItem('shah_phu_master_sync');
-        localStorage.removeItem('shah_phu_sync_time');
-        setTimeout(() => location.reload(), 600);
-      } catch (err) {
-        alert("Error saving transaction.");
-        setButtonLoading(submitBtn, false);
-        submitBtn.find('.btn-text').text('Submit Transaction');
-      }
-    });
-
-    $("#newBatchForm").submit(async function(e) {
-      e.preventDefault();
-      const submitBtn = $("#saveBatchBtn");
-      setButtonLoading(submitBtn, true);
-
-      const formData = new URLSearchParams(new FormData(this));
-      formData.append("action", "add_info_batch");
-
-      try {
-        await fetch(WEB_APP_URL, { method: "POST", body: formData, mode: "no-cors" });
-        alert("New batch successfully added to info master!");
-        $("#batchModal").addClass("hidden");
-        this.reset();
-        localStorage.removeItem('shah_phu_master_sync');
-        localStorage.removeItem('shah_phu_sync_time');
-        setTimeout(() => location.reload(), 500);
-      } catch (err) {
-        alert("Error saving batch.");
-        setButtonLoading(submitBtn, false);
-        submitBtn.find('.btn-text').text('Save Batch');
-      }
-    });
-
-    $("#editForm").submit(async function(e) {
-      e.preventDefault();
-      const submitBtn = $("#updateTransactionBtn");
-      setButtonLoading(submitBtn, true);
-
-      const formData = new URLSearchParams(new FormData(this));
-      formData.append("action", "edit_transaction");
-
-      try {
-        await fetch(WEB_APP_URL, { method: "POST", body: formData, mode: "no-cors" });
-        alert("Transaction updated successfully!");
-        $("#editTransactionModal").addClass("hidden");
-        localStorage.removeItem('shah_phu_master_sync');
-        localStorage.removeItem('shah_phu_sync_time');
-        setTimeout(() => location.reload(), 500);
-      } catch (err) {
-        alert("Failed to update transaction.");
-        setButtonLoading(submitBtn, false);
-        submitBtn.find('.btn-text').text('Update Transaction');
-      }
-    });
-
-    $("#editBatchMasterForm").submit(async function(e) {
-      e.preventDefault();
-      const submitBtn = $("#updateBatchMasterBtn");
-      setButtonLoading(submitBtn, true);
-
-      const formData = new URLSearchParams(new FormData(this));
-      formData.append("action", "edit_info_batch");
-
-      try {
-        await fetch(WEB_APP_URL, { method: "POST", body: formData, mode: "no-cors" });
-        alert("Batch master info updated successfully!");
-        $("#editBatchMasterModal").addClass("hidden");
-        localStorage.removeItem('shah_phu_master_sync');
-        localStorage.removeItem('shah_phu_sync_time');
-        setTimeout(() => location.reload(), 500);
-      } catch (err) {
-        alert("Failed to update batch.");
-        setButtonLoading(submitBtn, false);
-        submitBtn.find('.btn-text').text('Update Batch');
-      }
-    });
-
-    $("#generateReportBtn").click(() => {
-      const startDate = $("#reportStartDate").val();
-      const endDate = $("#reportEndDate").val();
-      const typeFilter = $("#reportTypeFilter").val();
-      const facilityFilter = $("#reportFacilityFilter").val();
-      const itemFilter = $("#reportItemFilter").val();
-
-      if (!startDate || !endDate) {
-        alert("Please select both a Start Date and an End Date.");
-        return;
-      }
-
-      const reportTbody = $("#reportResultsTable tbody").empty();
-      let matchCount = 0;
-
-      globalTransactions.forEach(tr => {
-        const txDate = tr.date_of_transaction;
-        if (!txDate) return;
-
-        if (txDate >= startDate && txDate <= endDate) {
-          const trType = String(tr.transaction_type || "").trim();
-          
-          if (typeFilter && trType !== typeFilter) return;
-          if (facilityFilter && tr.transaction_details !== facilityFilter) return;
-          if (itemFilter && tr.medicine_name !== itemFilter) return;
-
-          const qty = Number(tr.amount) || 0;
-          const typeLower = trType.toLowerCase();
-
-          matchCount++;
-          reportTbody.append(`
-            <tr class="border-b hover:bg-gray-50">
-              <td class="p-2 whitespace-nowrap">${tr.date_of_transaction || ''}</td>
-              <td class="p-2">
-                <span class="px-2 py-1 rounded text-[10px] uppercase font-bold ${typeLower === 'stock in' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}">
-                  ${trType}
-                </span>
-              </td>
-              <td class="p-2 font-mono font-semibold">${tr.transaction_details || ''}</td>
-              <td class="p-2 font-mono font-semibold">${tr.medicine_name || ''}</td>
-              <td class="p-2 font-mono">${tr.batch_number || ''}</td>
-              <td class="p-2 font-mono font-bold">${qty}</td>
-              <td class="p-2 font-mono text-gray-600">${tr.remarks || ''}</td>
-            </tr>
-          `);
-        }
-      });
-
-      if (matchCount === 0) {
-        reportTbody.html('<tr><td colspan="7" class="p-4 text-center text-gray-500">No transactions found matching the selected criteria.</td></tr>');
-      }
-
-      $("#reportCriteriaLabel").text(`Type: ${typeFilter || 'All'} | Facility: ${facilityFilter || 'All'} | Item: ${itemFilter || 'All'} | Period: ${startDate} to ${endDate}`);
-      $("#exportActionBtns").removeClass("hidden").addClass("flex");
-    });
-
-    $("#exportPdfBtn").click(() => {
-      const { jsPDF } = window.jspdf;
-      const reportElement = document.getElementById("printableReportArea");
-
-      html2canvas(reportElement, { scale: 2 }).then(canvas => {
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF("p", "mm", "a4");
-        const imgWidth = 190; 
-        const pageHeight = 295;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 10;
-
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 38px sans-serif';
+            ctx.textAlign = 'center';
+            
+            // Text positioning
+            wrapText(ctx, currentMessage, canvas.width / 2, canvas.height - 85, canvas.width - 80, 46);
         }
 
-        pdf.save(`Stock_Report_${$("#reportStartDate").val()}_to_${$("#reportEndDate").val()}.pdf`);
-      });
-    });
+        // Multi-line text wrapping helper
+        function wrapText(context, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            let currentY = y;
 
-    $("#exportImgBtn").click(() => {
-      const reportElement = document.getElementById("printableReportArea");
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                const metrics = context.measureText(testLine);
+                const testWidth = metrics.width;
+                if (testWidth > maxWidth && n > 0) {
+                    context.fillText(line, x, currentY);
+                    line = words[n] + ' ';
+                    currentY += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            context.fillText(line, x, currentY);
+        }
 
-      html2canvas(reportElement, { scale: 2 }).then(canvas => {
-        const link = document.createElement("a");
-        link.download = `Stock_Report_${$("#reportStartDate").val()}_to_${$("#reportEndDate").val()}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      });
-    });
+        // Download functionality
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'world-heart-day-2026.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
 
-    function checkBatchDuplicate() {
-      const med = $("#new_medicine_name").val().trim().toLowerCase();
-      const mfg = $("#new_manufacturer").val().trim().toLowerCase();
-      const batch = $("#new_batch").val().trim().toLowerCase();
-      if (!med || !mfg || !batch) return;
+        // Native Share functionality (Android/iOS Web Share API)
+        shareBtn.addEventListener('click', async () => {
+            try {
+                const dataUrl = canvas.toDataURL('image/png');
+                const blob = await (await fetch(dataUrl)).blob();
+                const file = new File([blob], 'world-heart-day-2026.png', { type: 'image/png' });
 
-      const exists = infoMasterData.some(i => i.medicine_name.toLowerCase() === med && i.manufacturer.toLowerCase() === mfg && i.batch.toLowerCase() === batch);
-      if (exists) {
-        $("#duplicateWarning").removeClass("hidden");
-        $("#saveBatchBtn").prop("disabled", true).addClass("opacity-55 cursor-not-allowed");
-      } else {
-        $("#duplicateWarning").addClass("hidden");
-        $("#saveBatchBtn").prop("disabled", false).removeClass("opacity-55 cursor-not-allowed");
-      }
-    }
-
-    $("#new_medicine_name, #new_manufacturer, #new_batch").on("input change", checkBatchDuplicate);
-
-    $("#staff").change(function() {
-      if (this.value === "not_in_list") {
-        window.open(`https://shaviyanipublichealth.blogspot.com/p/register-new.html?hcf=${encodeURIComponent(selectedFacility)}`, "_blank");
-        this.value = "";
-      }
-    });
-
-    // Cache Manager Modal Action Buttons
-    $("#modalForceSyncBtn").click(() => {
-      $("#cacheManagerModal").addClass("hidden");
-      localStorage.removeItem('shah_phu_master_sync');
-      localStorage.removeItem('shah_phu_sync_time');
-      initMasterSync(true);
-    });
-
-    $("#modalClearCacheBtn").click(() => {
-      if (confirm("Are you sure you want to clear local cache? The app will reload fresh from Google Sheets.")) {
-        localStorage.removeItem('shah_phu_master_sync');
-        localStorage.removeItem('shah_phu_sync_time');
-        location.reload();
-      }
-    });
-
-    $("#refreshBtn").click(() => {
-      location.reload();
-    });
-  });
-
-  async function loadSettingsDropdown() {
-    try {
-      const res = await fetch(`${WEB_APP_URL}?column=A&gid=589979108`);
-      settingsDetailsList = await res.json();
-    } catch (err) {
-      console.error("Error loading details dropdown", err);
-    }
-  }
-</script>
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: 'World Heart Day 2026',
+                        text: currentMessage,
+                        files: [file]
+                    });
+                } else {
+                    alert("Direct file sharing isn't supported on this browser/desktop view. Please use 'Save Image to Device' instead.");
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error("Sharing error:", err);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
