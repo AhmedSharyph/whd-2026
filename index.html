@@ -230,7 +230,7 @@
             <label class="field-label" for="userName">Your Name or Team (Optional)</label>
             <input type="text" id="userName" placeholder="e.g. Community Health Team" maxlength="28">
 
-            <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Official Theme</button>
+            <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Heartbeat Theme Slogan</button>
             
             <div id="videoStatus">Recording 10s Video Clip... Please wait.</div>
 
@@ -254,7 +254,7 @@
 
         let userImage = null;
         let photoScale = 1;
-        let currentMode = 'image'; // 'image' or 'video'
+        let currentMode = 'image';
         let animationId = null;
         let pulsePhase = 0;
 
@@ -263,15 +263,16 @@
         hospitalLogo.src = 'shah_logo.png';
         hospitalLogo.onload = () => { if (currentMode === 'image') drawStaticCanvas(); };
 
-        // Official World Heart Day Themes & Slogans
-        const campaignThemes = [
-            "DON'T MISS A BEAT",
-            "USE HEART FOR ACTION",
-            "SEE THE SIGNS, PROTECT YOUR HEART",
-            "LOVE YOUR HEART BEFORE IT HURT",
-            "KEEP THE BEAT: ACT EARLY"
+        // Fixed Slogan & Rotating Related Heartbeat Slogans
+        const fixedBannerSlogan = "DON'T MISS A BEAT";
+        const rotatingHeartbeatSlogans = [
+            "ACT EARLY, PROTECT YOUR LIFE",
+            "KNOW YOUR RISK FACTORS TODAY",
+            "KEEP YOUR HEART HEALTHY & STRONG",
+            "HEART DISEASE CAN HIDE IN PLAIN SIGHT",
+            "USE HEART TO CONNECT & CARE"
         ];
-        let currentSlogan = campaignThemes[0];
+        let currentRotatingSlogan = rotatingHeartbeatSlogans[0];
 
         // Handle Photo Upload / Gallery Selection
         imageUpload.addEventListener('change', (e) => {
@@ -299,16 +300,15 @@
         });
 
         shuffleBtn.addEventListener('click', () => {
-            const currentIndex = campaignThemes.indexOf(currentSlogan);
+            const currentIndex = rotatingHeartbeatSlogans.indexOf(currentRotatingSlogan);
             let nextIndex;
             do {
-                nextIndex = Math.floor(Math.random() * campaignThemes.length);
+                nextIndex = Math.floor(Math.random() * rotatingHeartbeatSlogans.length);
             } while (nextIndex === currentIndex);
-            currentSlogan = campaignThemes[nextIndex];
+            currentRotatingSlogan = rotatingHeartbeatSlogans[nextIndex];
             if (currentMode === 'image') drawStaticCanvas();
         });
 
-        // Mode Switcher Logic
         function switchMode(mode) {
             currentMode = mode;
             if (animationId) cancelAnimationFrame(animationId);
@@ -330,37 +330,41 @@
             }
         }
 
-        // --- Core Rendering for Static Image ---
+        // --- Core Rendering Function ---
         function drawStaticCanvas(pulse = 0) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 1. Red Background
+            // 1. Red Campaign Background
             ctx.fillStyle = '#d90429';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // 2. ECG Heartbeat Line with optional pulse scaling
-            drawEcgLine(pulse);
-
-            // 3. Hospital Logo
+            // 2. Centered Logo on Top
             if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
-                const logoHeight = 60;
+                const logoHeight = 65;
                 const logoWidth = (hospitalLogo.width / hospitalLogo.height) * logoHeight;
-                ctx.drawImage(hospitalLogo, 50, 40, logoWidth, logoHeight);
+                ctx.drawImage(hospitalLogo, (canvas.width - logoWidth) / 2, 30, logoWidth, logoHeight);
             }
 
-            // 4. Header Title
+            // 3. Title Full Width Below Logo: "WORLD HEART DAY 2026"
             ctx.fillStyle = '#ffffff';
-            ctx.font = '900 44px sans-serif';
+            ctx.font = '900 38px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('WORLD HEART DAY', canvas.width / 2, 120);
-            ctx.font = '900 34px sans-serif';
-            ctx.fillText('2026', canvas.width / 2, 170);
+            ctx.fillText('WORLD HEART DAY 2026', canvas.width / 2, 130);
 
-            // 5. Left-Aligned Circle Photo Frame
-            const circleRadius = 210 + (pulse > 0 ? pulse * 4 : 0); // subtle heartbeat scale effect
-            const circleX = circleRadius + 40;
-            const circleY = 560;
+            // 4. Fixed Sub-Banner Slogan: "DON'T MISS A BEAT"
+            ctx.font = 'bold 22px sans-serif';
+            ctx.fillStyle = '#ffe3e3';
+            ctx.fillText(fixedBannerSlogan, canvas.width / 2, 165);
 
+            // 5. Larger Left Circular Photo Frame (Touching Left Margin)
+            const circleRadius = 230;
+            const circleX = circleRadius + 15;
+            const circleY = 570;
+
+            // 6. Draw ECG Heartbeat Line starting precisely from the right edge of the circle
+            drawEcgLine(circleX + circleRadius, pulse);
+
+            // 7. Draw User Image inside the Circle
             ctx.save();
             ctx.beginPath();
             ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
@@ -375,61 +379,72 @@
                 ctx.fillStyle = '#ffffff';
                 ctx.fill();
                 ctx.fillStyle = '#d90429';
-                ctx.font = 'bold 26px sans-serif';
+                ctx.font = 'bold 24px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText('Tap below', circleX, circleY - 10);
                 ctx.fillText('to take selfie', circleX, circleY + 25);
             }
             ctx.restore();
 
-            // Circle Border
+            // Circle Border Frame
             ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 12;
+            ctx.lineWidth = 14;
             ctx.beginPath();
             ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
             ctx.stroke();
 
-            // 6. Theme Slogan & Name
+            // 8. Rotating Related Slogans Over the Heartbeat Area (Right Side)
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 32px sans-serif';
+            ctx.font = 'bold 26px sans-serif';
             ctx.textAlign = 'center';
-            wrapText(ctx, currentSlogan, 700, 420, 500, 42);
+            wrapText(ctx, currentRotatingSlogan, 730, 420, 480, 36);
 
-            const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "#DontMissABeat #UseHeart";
+            // 9. Custom Name or Team (Middle Right)
+            const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
+            if (nameText) {
+                ctx.fillStyle = '#fff0f3';
+                ctx.font = 'bold 22px sans-serif';
+                ctx.fillText(nameText, 730, 710, 480);
+            }
+
+            // 10. Fixed Hashtags at the Bottom
             ctx.fillStyle = '#ffe3e3';
-            ctx.font = 'bold 24px sans-serif';
-            ctx.fillText(nameText, 700, 740, 520);
+            ctx.font = 'bold 22px sans-serif';
+            ctx.fillText("#DontMissABeat   #UseHeart", canvas.width / 2, 935);
         }
 
-        // Draw ECG Line Helper
-        function drawEcgLine(pulse = 0) {
+        // Draw ECG Line starting right from the circle's right edge
+        function drawEcgLine(startX, pulse = 0) {
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 6;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             ctx.beginPath();
             
-            const ecgY = 560;
-            ctx.moveTo(0, ecgY);
-            ctx.lineTo(100, ecgY);
-            ctx.lineTo(120, ecgY - 15);
-            ctx.lineTo(140, ecgY);
-            ctx.lineTo(155, ecgY + 25);
-            ctx.lineTo(180, ecgY - (220 + pulse * 20)); // Dynamic pulse spike
-            ctx.lineTo(205, ecgY + 70);
-            ctx.lineTo(230, ecgY);
-            ctx.lineTo(265, ecgY - 50);
-            ctx.lineTo(300, ecgY);
+            const ecgY = 570;
+            ctx.moveTo(startX, ecgY);
             
-            ctx.lineTo(450, ecgY);
-            ctx.lineTo(470, ecgY - 15);
-            ctx.lineTo(490, ecgY);
-            ctx.lineTo(505, ecgY + 25);
-            ctx.lineTo(530, ecgY - (220 + pulse * 20));
-            ctx.lineTo(555, ecgY + 70);
-            ctx.lineTo(580, ecgY);
-            ctx.lineTo(615, ecgY - 50);
-            ctx.lineTo(750, ecgY);
+            const step = (1000 - startX) / 3;
+            const beat1X = startX + step * 0.5;
+            const beat2X = startX + step * 1.8;
+
+            ctx.lineTo(beat1X - 50, ecgY);
+            ctx.lineTo(beat1X - 30, ecgY - 15); // P wave
+            ctx.lineTo(beat1X - 10, ecgY);     // baseline
+            ctx.lineTo(beat1X,     ecgY + 25); // Q dip
+            ctx.lineTo(beat1X + 25, ecgY - (210 + pulse * 20)); // R peak
+            ctx.lineTo(beat1X + 50, ecgY + 70); // S wave
+            ctx.lineTo(beat1X + 75, ecgY);     // baseline
+            ctx.lineTo(beat1X + 110, ecgY - 45); // T wave
+            ctx.lineTo(beat2X - 40, ecgY);
+
+            ctx.lineTo(beat2X - 20, ecgY - 15); // P wave
+            ctx.lineTo(beat2X,      ecgY);
+            ctx.lineTo(beat2X + 10, ecgY + 25); // Q dip
+            ctx.lineTo(beat2X + 35, ecgY - (210 + pulse * 20)); // R peak
+            ctx.lineTo(beat2X + 60, ecgY + 70); // S wave
+            ctx.lineTo(beat2X + 85, ecgY);
+            ctx.lineTo(beat2X + 120, ecgY - 45); // T wave
             ctx.lineTo(1000, ecgY);
             ctx.stroke();
         }
@@ -438,7 +453,7 @@
         function startVideoPreviewLoop() {
             function loop(timestamp) {
                 if (currentMode !== 'video') return;
-                pulsePhase = Math.sin(timestamp / 200) > 0.8 ? 1 : 0; // Heartbeat trigger pulse
+                pulsePhase = Math.sin(timestamp / 200) > 0.8 ? 1 : 0;
                 drawStaticCanvas(pulsePhase);
                 animationId = requestAnimationFrame(loop);
             }
@@ -470,7 +485,6 @@
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             } else {
-                // Video Recording Mode using MediaRecorder (10 seconds)
                 if (!window.MediaRecorder) {
                     alert("Video recording is not supported on this browser.");
                     return;
@@ -479,20 +493,18 @@
                 videoStatus.style.display = 'block';
                 videoStatus.textContent = '🎥 Recording 10s video clip with audio simulation... Please wait.';
                 
-                const stream = canvas.captureStream(30); // 30 FPS canvas stream
+                const stream = canvas.captureStream(30);
                 
-                // Add synthetic heartbeat audio tone using Web Audio API
                 try {
                     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                     const dest = audioCtx.createMediaStreamDestination();
                     
-                    // Periodic soft heartbeat beep simulation
                     const interval = setInterval(() => {
                         if (audioCtx.state === 'suspended') audioCtx.resume();
                         const osc = audioCtx.createOscillator();
                         const gain = audioCtx.createGain();
                         osc.type = 'sine';
-                        osc.frequency.setValueAtTime(120, audioCtx.currentTime); // low thump tone
+                        osc.frequency.setValueAtTime(120, audioCtx.currentTime);
                         gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
                         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
                         osc.connect(gain);
@@ -501,7 +513,6 @@
                         osc.stop(audioCtx.currentTime + 0.15);
                     }, 800);
 
-                    // Combine video stream and audio destination
                     const combinedStream = new MediaStream([
                         ...stream.getVideoTracks(),
                         ...dest.stream.getAudioTracks()
@@ -525,7 +536,7 @@
                     recorder.start();
                     setTimeout(() => {
                         recorder.stop();
-                    }, 10000); // exactly 10 seconds
+                    }, 10000);
 
                 } catch (err) {
                     console.error(err);
@@ -543,7 +554,7 @@
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     title: 'World Heart Day 2026',
-                    text: `${currentSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
+                    text: `${fixedBannerSlogan} - ${currentRotatingSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
                     files: [file]
                 });
             } else {
