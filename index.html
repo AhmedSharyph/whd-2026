@@ -28,7 +28,7 @@
       width: 100%;
       overflow: hidden;
       touch-action: manipulation;
-      background: #2a0006;
+      background: #fafafa;
     }
 
     body {
@@ -50,52 +50,10 @@
       -moz-osx-font-smoothing: grayscale;
       overscroll-behavior: none;
       -webkit-overflow-scrolling: touch;
-      background: radial-gradient(circle at 50% 30%, #b3001b 0%, #4a000b 60%, #1a0004 100%);
+      background: #fafafa;
     }
 
-    /* ===== HEART CASCADE BACKGROUND ===== */
-    .hearts-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: 0;
-    }
-
-    .hearts-bg .heart {
-      position: absolute;
-      top: -40px;
-      font-size: 18px;
-      opacity: 0;
-      animation: heartFall linear infinite;
-      will-change: transform, opacity;
-      filter: drop-shadow(0 0 4px rgba(255, 100, 120, 0.6));
-    }
-
-    @keyframes heartFall {
-      0% {
-        transform: translateY(-40px) translateX(0) rotate(0deg) scale(0.7);
-        opacity: 0;
-      }
-      10% {
-        opacity: 0.85;
-      }
-      50% {
-        opacity: 0.7;
-      }
-      90% {
-        opacity: 0.4;
-      }
-      100% {
-        transform: translateY(110vh) translateX(var(--drift, 30px)) rotate(360deg) scale(1);
-        opacity: 0;
-      }
-    }
-
-    /* ===== APP SHELL — GLASSY FRAME OVER HEARTS ===== */
+    /* ===== APP SHELL (clean, full device fit) ===== */
     .app {
       position: fixed;
       top: 0;
@@ -107,77 +65,47 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      background: rgba(255, 255, 255, 0.14);
-      backdrop-filter: blur(28px) saturate(160%);
-      -webkit-backdrop-filter: blur(28px) saturate(160%);
-      border-radius: 0;
-      box-shadow:
-        inset 0 0 0 1px rgba(255, 255, 255, 0.25),
-        inset 0 0 60px rgba(255, 200, 210, 0.1);
+      background: #fafafa;
       z-index: 1;
     }
 
-    /* Glassy scroll area */
+    /* ===== SCROLL AREA ===== */
     .scroll-area {
       flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
-      padding: 20px 16px 32px;
+      padding: 16px 16px 28px;
       display: flex;
       flex-direction: column;
       gap: 14px;
       scroll-behavior: smooth;
       overscroll-behavior: contain;
-      background: linear-gradient(
-        160deg,
-        rgba(255, 255, 255, 0.18) 0%,
-        rgba(255, 255, 255, 0.08) 40%,
-        rgba(255, 240, 245, 0.12) 100%
-      );
-      position: relative;
-    }
-
-    /* Frosted inner card for content clarity */
-    .glass-card {
-      background: rgba(255, 255, 255, 0.72);
-      backdrop-filter: blur(20px) saturate(150%);
-      -webkit-backdrop-filter: blur(20px) saturate(150%);
-      border-radius: 22px;
-      padding: 18px 16px;
-      box-shadow:
-        0 8px 32px rgba(120, 0, 20, 0.18),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9),
-        0 0 0 1px rgba(255, 255, 255, 0.4);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+      background: #fafafa;
     }
 
     /* ===== HEADER ===== */
     .app-header {
       text-align: center;
-      padding: 2px 0 0;
+      padding: 4px 0 2px;
       flex-shrink: 0;
     }
 
     .app-header h1 {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       font-weight: 800;
       letter-spacing: -0.02em;
       color: #7a0010;
       line-height: 1.2;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
     }
 
     .app-header .sub {
       font-size: 0.62rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #a33;
-      margin-top: 3px;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.1em;
+      color: #9a5a5a;
+      margin-top: 2px;
     }
 
     /* ===== MODE TABS ===== */
@@ -185,11 +113,10 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 4px;
-      background: rgba(120, 0, 20, 0.08);
+      background: rgba(0, 0, 0, 0.05);
       padding: 4px;
-      border-radius: 16px;
+      border-radius: 14px;
       flex-shrink: 0;
-      border: 1px solid rgba(255, 255, 255, 0.5);
     }
 
     .tab-btn {
@@ -198,10 +125,10 @@
       padding: 12px 4px;
       font-size: 0.78rem;
       font-weight: 700;
-      color: #7a3a3a;
-      border-radius: 12px;
+      color: #6a4040;
+      border-radius: 11px;
       cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1);
+      transition: all 0.22s cubic-bezier(0.2, 0.9, 0.4, 1);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -214,33 +141,82 @@
     .tab-btn.active {
       background: #ffffff;
       color: #b3001b;
-      box-shadow: 0 4px 14px rgba(180, 20, 40, 0.2);
+      box-shadow: 0 4px 12px rgba(180, 20, 40, 0.18);
     }
 
     .tab-btn:active {
       transform: scale(0.97);
     }
 
-    /* ===== CANVAS ===== */
-    .canvas-wrap {
+    /* ===== CANVAS FRAME — THE MAIN TOOL FRAME ===== */
+    .canvas-frame {
+      position: relative;
       width: 100%;
       aspect-ratio: 1 / 1;
-      background: #1a0004;
-      border-radius: 20px;
+      border-radius: 22px;
       overflow: hidden;
-      box-shadow:
-        0 12px 30px rgba(0, 0, 0, 0.28),
-        0 0 0 1px rgba(255, 255, 255, 0.4),
-        inset 0 0 20px rgba(0, 0, 0, 0.3);
       flex-shrink: 0;
-      position: relative;
-      touch-action: none;
+      /* Glassy outer frame */
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(22px) saturate(160%);
+      -webkit-backdrop-filter: blur(22px) saturate(160%);
+      border: 1.5px solid rgba(255, 255, 255, 0.75);
+      box-shadow:
+        0 14px 34px rgba(120, 0, 20, 0.22),
+        0 0 0 1px rgba(255, 255, 255, 0.3) inset,
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      padding: 8px;
+      box-sizing: border-box;
     }
 
-    canvas {
+    /* Inner heart-cascade layer (inside the frame) */
+    .canvas-frame .hearts-layer {
+      position: absolute;
+      inset: 8px;
+      border-radius: 16px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .canvas-frame .hearts-layer .heart {
+      position: absolute;
+      top: -30px;
+      font-size: 14px;
+      opacity: 0;
+      animation: heartFall linear infinite;
+      will-change: transform, opacity;
+      filter: drop-shadow(0 0 3px rgba(255, 100, 120, 0.55));
+    }
+
+    @keyframes heartFall {
+      0% {
+        transform: translateY(-30px) translateX(0) rotate(0deg) scale(0.6);
+        opacity: 0;
+      }
+      12% {
+        opacity: 0.9;
+      }
+      50% {
+        opacity: 0.7;
+      }
+      88% {
+        opacity: 0.35;
+      }
+      100% {
+        transform: translateY(110%) translateX(var(--drift, 24px)) rotate(340deg) scale(1);
+        opacity: 0;
+      }
+    }
+
+    /* Canvas sits above hearts */
+    .canvas-frame canvas {
+      position: relative;
+      z-index: 2;
       width: 100%;
       height: 100%;
       display: block;
+      border-radius: 16px;
       touch-action: none;
     }
 
@@ -250,7 +226,7 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      background: linear-gradient(135deg, rgba(255, 240, 243, 0.95), rgba(255, 220, 226, 0.9));
+      background: linear-gradient(135deg, #fff5f6, #ffe4e7);
       border: 2px dashed #c81e1e;
       padding: 16px 14px;
       border-radius: 16px;
@@ -259,7 +235,7 @@
       color: #990011;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 4px 14px rgba(200, 30, 30, 0.1);
+      box-shadow: 0 4px 10px rgba(200, 30, 30, 0.06);
       text-align: center;
       -webkit-user-select: none;
       user-select: none;
@@ -289,7 +265,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.07em;
-      color: #7a3a3a;
+      color: #5e3e3e;
       margin-left: 4px;
       -webkit-user-select: none;
       user-select: none;
@@ -306,13 +282,12 @@
       appearance: none;
       width: 100%;
       height: 8px;
-      background: rgba(200, 150, 160, 0.4);
+      background: #e8d0d0;
       border-radius: 6px;
       outline: none;
       margin: 8px 0 4px;
       touch-action: manipulation;
       cursor: pointer;
-      border: 1px solid rgba(255, 255, 255, 0.5);
     }
 
     input[type="range"]::-webkit-slider-thumb {
@@ -321,9 +296,9 @@
       width: 28px;
       height: 28px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #e02a4a, #a3001a);
+      background: #c81e1e;
       cursor: pointer;
-      box-shadow: 0 3px 12px rgba(200, 30, 30, 0.5);
+      box-shadow: 0 3px 10px rgba(200, 30, 30, 0.4);
       border: 3px solid #fff;
       transition: transform 0.1s;
       touch-action: manipulation;
@@ -337,10 +312,10 @@
       width: 28px;
       height: 28px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #e02a4a, #a3001a);
+      background: #c81e1e;
       cursor: pointer;
       border: 3px solid #fff;
-      box-shadow: 0 3px 12px rgba(200, 30, 30, 0.5);
+      box-shadow: 0 3px 10px rgba(200, 30, 30, 0.4);
     }
 
     /* ===== TEXT INPUT ===== */
@@ -348,13 +323,13 @@
       width: 100%;
       padding: 14px 16px;
       border-radius: 14px;
-      border: 1.5px solid rgba(200, 30, 60, 0.15);
-      background: rgba(255, 255, 255, 0.9);
+      border: 1.5px solid rgba(0, 0, 0, 0.08);
+      background: #fff;
       font-size: 0.9rem;
       font-weight: 500;
       outline: none;
       transition: all 0.2s;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
       -webkit-appearance: none;
       appearance: none;
       touch-action: manipulation;
@@ -363,8 +338,7 @@
 
     input[type="text"]:focus {
       border-color: #c81e1e;
-      box-shadow: 0 0 0 3px rgba(200, 30, 30, 0.12);
-      background: #fff;
+      box-shadow: 0 0 0 3px rgba(200, 30, 30, 0.1);
     }
 
     input[type="text"]::placeholder {
@@ -382,7 +356,7 @@
       font-size: 0.84rem;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.08);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -394,34 +368,24 @@
       appearance: none;
       color: #fff;
       flex-shrink: 0;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0) 60%);
-      pointer-events: none;
     }
 
     .btn:active {
       transform: scale(0.97);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .btn-shuffle {
-      background: linear-gradient(135deg, #2b2b38, #1a1a24);
+      background: #23232e;
       font-size: 0.86rem;
     }
 
     .btn-download {
-      background: linear-gradient(135deg, #222, #000);
+      background: #111;
     }
 
     .btn-share {
-      background: linear-gradient(135deg, #e0223f, #7a0010);
+      background: linear-gradient(135deg, #d90429, #7a0010);
     }
 
     .btn-group {
@@ -435,18 +399,17 @@
     .video-status {
       font-size: 0.72rem;
       font-weight: 600;
-      color: #7a0010;
+      color: #990011;
       text-align: center;
-      background: rgba(255, 240, 245, 0.8);
+      background: rgba(255, 255, 255, 0.85);
       padding: 10px;
       border-radius: 12px;
       display: none;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(200, 30, 30, 0.2);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(200, 30, 30, 0.18);
       flex-shrink: 0;
       line-height: 1.4;
-      box-shadow: 0 2px 8px rgba(180, 20, 40, 0.06);
     }
 
     .video-status.visible {
@@ -457,22 +420,21 @@
     .app-footer {
       text-align: center;
       font-size: 0.58rem;
-      color: rgba(255, 255, 255, 0.75);
+      color: #b09090;
       font-weight: 500;
-      padding: 10px 0 4px;
+      padding: 6px 0 2px;
       flex-shrink: 0;
-      letter-spacing: 0.03em;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+      letter-spacing: 0.02em;
     }
 
     /* ===== SAFE AREA ===== */
     @supports (padding: env(safe-area-inset-bottom)) {
       .scroll-area {
-        padding-bottom: calc(32px + env(safe-area-inset-bottom));
-        padding-top: calc(20px + env(safe-area-inset-top));
+        padding-bottom: calc(28px + env(safe-area-inset-bottom));
+        padding-top: calc(16px + env(safe-area-inset-top));
       }
       .app-footer {
-        padding-bottom: calc(6px + env(safe-area-inset-bottom));
+        padding-bottom: calc(4px + env(safe-area-inset-bottom));
       }
     }
 
@@ -480,18 +442,21 @@
     @media (max-height: 700px) {
       .scroll-area {
         gap: 10px;
-        padding: 14px 12px 22px;
-      }
-      .glass-card {
-        padding: 14px 12px;
-        gap: 10px;
-        border-radius: 18px;
+        padding: 10px 12px 20px;
       }
       .app-header h1 {
-        font-size: 1.05rem;
+        font-size: 1rem;
       }
-      .canvas-wrap {
-        border-radius: 16px;
+      .canvas-frame {
+        border-radius: 18px;
+        padding: 6px;
+      }
+      .canvas-frame .hearts-layer {
+        inset: 6px;
+        border-radius: 13px;
+      }
+      .canvas-frame canvas {
+        border-radius: 13px;
       }
       .upload-btn {
         padding: 13px 12px;
@@ -536,17 +501,13 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .glass-card > * {
-      animation: fadeIn 0.35s ease both;
+    .scroll-area > * {
+      animation: fadeIn 0.3s ease both;
     }
   </style>
 </head>
 <body>
 
-  <!-- ===== CASCADE OF TINY HEARTS (background) ===== -->
-  <div class="hearts-bg" id="heartsBg" aria-hidden="true"></div>
-
-  <!-- ===== APP (glassy frame) ===== -->
   <div class="app" id="app">
     <div class="scroll-area" id="scrollArea">
 
@@ -556,56 +517,52 @@
         <div class="sub">World Heart Day 2026 · Mobile Studio</div>
       </header>
 
-      <!-- GLASS CARD (everything else sits on a frosted inner card) -->
-      <div class="glass-card">
+      <!-- MODE SWITCH -->
+      <div class="mode-tabs" id="modeTabs">
+        <button class="tab-btn active" id="modeImageBtn" onclick="switchMode('image')" aria-label="Photo poster mode">
+          📷 Photo
+        </button>
+        <button class="tab-btn" id="modeVideoBtn" onclick="switchMode('video')" aria-label="10 second video mode">
+          🎥 10s Video
+        </button>
+      </div>
 
-        <!-- MODE SWITCH -->
-        <div class="mode-tabs" id="modeTabs">
-          <button class="tab-btn active" id="modeImageBtn" onclick="switchMode('image')" aria-label="Photo poster mode">
-            📷 Photo
-          </button>
-          <button class="tab-btn" id="modeVideoBtn" onclick="switchMode('video')" aria-label="10 second video mode">
-            🎥 10s Video
-          </button>
+      <!-- CANVAS FRAME (glassy frame with heart cascade) -->
+      <div class="canvas-frame" id="canvasFrame">
+        <div class="hearts-layer" id="heartsLayer" aria-hidden="true"></div>
+        <canvas id="creatorCanvas" width="1000" height="1000"></canvas>
+      </div>
+
+      <!-- UPLOAD -->
+      <label class="upload-btn" id="uploadLabelBtn" for="mediaUpload">
+        <span id="uploadBtnText">📸 Shoot / Select Photo</span>
+        <input type="file" id="mediaUpload" accept="image/*" capture="environment">
+      </label>
+
+      <!-- ZOOM -->
+      <div class="field-group">
+        <div class="field-label">Zoom & drag inside circle</div>
+        <div class="range-wrapper">
+          <input type="range" id="zoomRange" min="0.5" max="3.0" step="0.05" value="1">
         </div>
+      </div>
 
-        <!-- CANVAS -->
-        <div class="canvas-wrap" id="canvasWrap">
-          <canvas id="creatorCanvas" width="1000" height="1000"></canvas>
-        </div>
+      <!-- NAME -->
+      <div class="field-group">
+        <label class="field-label" for="userName">Your name / team (optional)</label>
+        <input type="text" id="userName" placeholder="e.g. Community Health Team" maxlength="28" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
+      </div>
 
-        <!-- UPLOAD -->
-        <label class="upload-btn" id="uploadLabelBtn" for="mediaUpload">
-          <span id="uploadBtnText">📸 Shoot / Select Photo</span>
-          <input type="file" id="mediaUpload" accept="image/*" capture="environment">
-        </label>
+      <!-- SHUFFLE -->
+      <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Slogan & Mascot</button>
 
-        <!-- ZOOM -->
-        <div class="field-group">
-          <div class="field-label">Zoom & drag inside circle</div>
-          <div class="range-wrapper">
-            <input type="range" id="zoomRange" min="0.5" max="3.0" step="0.05" value="1">
-          </div>
-        </div>
+      <!-- VIDEO STATUS -->
+      <div class="video-status" id="videoStatus"></div>
 
-        <!-- NAME -->
-        <div class="field-group">
-          <label class="field-label" for="userName">Your name / team (optional)</label>
-          <input type="text" id="userName" placeholder="e.g. Community Health Team" maxlength="28" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
-        </div>
-
-        <!-- SHUFFLE -->
-        <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Slogan & Mascot</button>
-
-        <!-- VIDEO STATUS -->
-        <div class="video-status" id="videoStatus"></div>
-
-        <!-- ACTION BUTTONS -->
-        <div class="btn-group">
-          <button class="btn btn-download" id="actionDownloadBtn">💾 Save Image</button>
-          <button class="btn btn-share" id="actionShareBtn">📤 Share Card</button>
-        </div>
-
+      <!-- ACTION BUTTONS -->
+      <div class="btn-group">
+        <button class="btn btn-download" id="actionDownloadBtn">💾 Save Image</button>
+        <button class="btn btn-share" id="actionShareBtn">📤 Share Card</button>
       </div>
 
       <!-- FOOTER -->
@@ -618,9 +575,9 @@
     (function() {
       "use strict";
 
-      // ===== HEART CASCADE GENERATOR =====
+      // ===== HEART CASCADE (inside canvas frame) =====
       (function generateHearts() {
-        const container = document.getElementById('heartsBg');
+        const layer = document.getElementById('heartsLayer');
         const heartChars = ['❤', '♥', '❤️', '💗', '💓'];
         const colors = [
           'rgba(255, 180, 190, 0.9)',
@@ -629,17 +586,17 @@
           'rgba(255, 120, 150, 0.75)',
           'rgba(255, 220, 225, 0.7)'
         ];
-        const count = 26;
+        const count = 18;
 
         for (let i = 0; i < count; i++) {
           const heart = document.createElement('span');
           heart.className = 'heart';
           heart.textContent = heartChars[Math.floor(Math.random() * heartChars.length)];
-          const size = 10 + Math.random() * 18;
-          const duration = 9 + Math.random() * 14;
-          const delay = Math.random() * 14;
+          const size = 8 + Math.random() * 14;
+          const duration = 8 + Math.random() * 12;
+          const delay = Math.random() * 12;
           const left = Math.random() * 100;
-          const drift = (Math.random() * 80 - 40).toFixed(0) + 'px';
+          const drift = (Math.random() * 60 - 30).toFixed(0) + 'px';
           const color = colors[Math.floor(Math.random() * colors.length)];
 
           heart.style.left = left + '%';
@@ -648,7 +605,7 @@
           heart.style.animationDuration = duration + 's';
           heart.style.animationDelay = '-' + delay + 's';
           heart.style.setProperty('--drift', drift);
-          container.appendChild(heart);
+          layer.appendChild(heart);
         }
       })();
 
@@ -1296,8 +1253,8 @@
       });
 
       // ===== PREVENT SCROLL BOUNCE ON CANVAS =====
-      document.getElementById('canvasWrap').addEventListener('touchmove', (e) => {
-        e.preventDefault();
+      document.getElementById('canvasFrame').addEventListener('touchmove', (e) => {
+        if (e.target === canvas) e.preventDefault();
       }, { passive: false });
 
       // ===== PREVENT DOUBLE-TAP ZOOM =====
