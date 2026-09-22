@@ -265,7 +265,7 @@
             <label class="field-label" for="userName">Your Name or Team (Optional)</label>
             <input type="text" id="userName" placeholder="e.g. Community Health Team" maxlength="28">
 
-            <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Theme Slogan</button>
+            <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Slogan & Mascot</button>
             
             <div id="videoStatus">Recording 10s Video Clip... Please wait.</div>
 
@@ -300,6 +300,40 @@
         hospitalLogo.src = 'shah_logo.png';
         hospitalLogo.onload = () => { if (currentMode === 'image') drawCanvas(0); };
 
+        // --- Mascot System (All 6 Mascot Images) ---
+        const mascotSources = [
+            'mascot_heart_1.png',
+            'mascot_heart_2.png',
+            'mascot_heart_3.png',
+            'mascot_heart_4.png',
+            'mascot_heart_5.png',
+            'mascot_heart_6.png'
+        ];
+        
+        let loadedMascots = [];
+        let currentMascotIndex = 0;
+        let mascotSide = 'right'; // 'right' or 'left' bottom corner
+
+        mascotSources.forEach((src, idx) => {
+            const img = new Image();
+            img.src = src;
+            img.onload = () => {
+                loadedMascots[idx] = img;
+                if (idx === 0 && currentMode === 'image') drawCanvas(0);
+            };
+        });
+
+        function randomizeMascot() {
+            const availableIndices = loadedMascots.map((img, i) => img && img.complete && img.naturalHeight !== 0 ? i : -1).filter(i => i !== -1);
+            if (availableIndices.length > 0) {
+                currentMascotIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+            } else {
+                currentMascotIndex = Math.floor(Math.random() * mascotSources.length);
+            }
+            mascotSide = Math.random() > 0.5 ? 'right' : 'left';
+        }
+        randomizeMascot();
+
         // Fixed Slogan & Rotating Related Heartbeat Slogans
         const fixedBannerSlogan = "DON'T MISS A BEAT";
         const rotatingHeartbeatSlogans = [
@@ -311,89 +345,8 @@
         ];
         let currentRotatingSlogan = rotatingHeartbeatSlogans[0];
 
-        // Handle Media File Selection (Photos or Gallery/Camera Video Clips)
-        imageUpload.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                if (file.type.startsWith('video/')) {
-                    userImage = null;
-                    userVideo = document.createElement('video');
-                    userVideo.src = URL.createObjectURL(file);
-                    userVideo.loop = true;
-                    userVideo.muted = true;
-                    userVideo.playsInline = true;
-                    userVideo.play();
-                    userVideo.onloadeddata = () => {
-                        if (currentMode === 'image') drawCanvas(0);
-                    };
-                } else {
-                    userVideo = null;
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        userImage = new Image();
-                        userImage.src = event.target.result;
-                        userImage.onload = () => {
-                            if (currentMode === 'image') drawCanvas(0);
-                        };
-                    };
-                    reader.readAsDataURL(file);
-                }
-            }
-        });
-
-        zoomRange.addEventListener('input', (e) => {
-            photoScale = parseFloat(e.target.value);
-            if (currentMode === 'image') drawCanvas(0);
-        });
-
-        userNameInput.addEventListener('input', () => {
-            if (currentMode === 'image') drawCanvas(0);
-        });
-
-        shuffleBtn.addEventListener('click', () => {
-            const currentIndex = rotatingHeartbeatSlogans.indexOf(currentRotatingSlogan);
-            let nextIndex;
-            do {
-                nextIndex = Math.floor(Math.random() * rotatingHeartbeatSlogans.length);
-            } while (nextIndex === currentIndex);
-            currentRotatingSlogan = rotatingHeartbeatSlogans[nextIndex];
-            if (currentMode === 'image') drawCanvas(0);
-        });
-
-        function switchMode(mode) {
-            currentMode = mode;
-            if (animationId) cancelAnimationFrame(animationId);
-
-            document.getElementById('modeImageBtn').classList.toggle('active', mode === 'image');
-            document.getElementById('modeVideoBtn').classList.toggle('active', mode === 'video');
-
-            if (mode === 'image') {
-                videoStatus.style.display = 'none';
-                actionDownloadBtn.textContent = '💾 Save Image';
-                actionShareBtn.textContent = '📤 Share Card';
-                
-                // Set file picker for Images only
-                imageUpload.setAttribute('accept', 'image/*');
-                imageUpload.removeAttribute('capture');
-                uploadLabelBtn.innerHTML = '📸 Select Photo or Selfie <input type="file" id="imageUpload" accept="image/*">';
-                
-                drawCanvas(0);
-            } else {
-                videoStatus.style.display = 'block';
-                videoStatus.textContent = '🎥 Video Clip Mode Active (Marquee ECG & Audio Tone)';
-                actionDownloadBtn.textContent = '📥 Export 10s Video';
-                actionShareBtn.textContent = '📤 Share Video';
-                
-                // Set file picker to accept video clips from gallery or camera recording on Android/iOS
-                imageUpload.setAttribute('accept', 'video/*');
-                uploadLabelBtn.innerHTML = '🎬 Select Video Clip from Gallery / Camera <input type="file" id="imageUpload" accept="video/*">';
-                
-                startVideoPreviewLoop();
-            }
-            
-            // Re-bind listener to newly injected input element
-            document.getElementById('imageUpload').addEventListener('change', handleFileSelect);
-        }
+        // Handle Media File Selection
+        imageUpload.addEventListener('change', handleFileSelect);
 
         function handleFileSelect(e) {
             const file = e.target.files[0];
@@ -424,7 +377,61 @@
             }
         }
 
-        // --- Core Canvas Renderer ---
+        zoomRange.addEventListener('input', (e) => {
+            photoScale = parseFloat(e.target.value);
+            if (currentMode === 'image') drawCanvas(0);
+        });
+
+        userNameInput.addEventListener('input', () => {
+            if (currentMode === 'image') drawCanvas(0);
+        });
+
+        shuffleBtn.addEventListener('click', () => {
+            const currentIndex = rotatingHeartbeatSlogans.indexOf(currentRotatingSlogan);
+            let nextIndex;
+            do {
+                nextIndex = Math.floor(Math.random() * rotatingHeartbeatSlogans.length);
+            } while (nextIndex === currentIndex);
+            currentRotatingSlogan = rotatingHeartbeatSlogans[nextIndex];
+            
+            // Randomize mascot and side on shuffle
+            randomizeMascot();
+
+            if (currentMode === 'image') drawCanvas(0);
+        });
+
+        function switchMode(mode) {
+            currentMode = mode;
+            if (animationId) cancelAnimationFrame(animationId);
+
+            document.getElementById('modeImageBtn').classList.toggle('active', mode === 'image');
+            document.getElementById('modeVideoBtn').classList.toggle('active', mode === 'video');
+
+            if (mode === 'image') {
+                videoStatus.style.display = 'none';
+                actionDownloadBtn.textContent = '💾 Save Image';
+                actionShareBtn.textContent = '📤 Share Card';
+                
+                imageUpload.setAttribute('accept', 'image/*');
+                uploadLabelBtn.innerHTML = '📸 Select Photo or Selfie <input type="file" id="imageUpload" accept="image/*">';
+                
+                drawCanvas(0);
+            } else {
+                videoStatus.style.display = 'block';
+                videoStatus.textContent = '🎥 Video Clip Mode Active (Marquee ECG & Audio Tone)';
+                actionDownloadBtn.textContent = '📥 Export 10s Video';
+                actionShareBtn.textContent = '📤 Share Video';
+                
+                imageUpload.setAttribute('accept', 'video/*');
+                uploadLabelBtn.innerHTML = '🎬 Select Video Clip from Gallery / Camera <input type="file" id="imageUpload" accept="video/*">';
+                
+                startVideoPreviewLoop();
+            }
+            
+            document.getElementById('imageUpload').addEventListener('change', handleFileSelect);
+        }
+
+        // --- Core Canvas Renderer with 6-Mascot & Backlit Glow System ---
         function drawCanvas(offset = 0) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -441,7 +448,7 @@
             const circleX = 500;
             const circleY = 530;
 
-            // Draw User Media (Video or Photo) filling the circle first
+            // Draw User Media filling circle
             ctx.save();
             ctx.beginPath();
             ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
@@ -468,7 +475,7 @@
             }
             ctx.restore();
 
-            // Semi-transparent overlay gradient across the circle
+            // Semi-transparent overlay gradient
             ctx.save();
             ctx.beginPath();
             ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
@@ -491,7 +498,31 @@
             // 3. Draw Marquee-style Scrolling ECG Heartbeat Line
             drawMarqueeEcgLine(offset);
 
-            // 4. Header: Logo on Left, Title & Slogan starting right after the logo side-by-side
+            // 4. Random Mascot with Transparent Backlit Highlight Glow (Bottom Right or Bottom Left)
+            const activeMascot = loadedMascots[currentMascotIndex];
+            if (activeMascot && activeMascot.complete && activeMascot.naturalHeight !== 0) {
+                const mHeight = 210;
+                const mWidth = (activeMascot.width / activeMascot.height) * mHeight;
+                const mX = mascotSide === 'right' ? (canvas.width - mWidth - 55) : 55;
+                const mY = 640;
+
+                // Transparent backlit highlight aura
+                ctx.save();
+                const backLight = ctx.createRadialGradient(mX + mWidth/2, mY + mHeight/2, 20, mX + mWidth/2, mY + mHeight/2, 130);
+                backLight.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+                backLight.addColorStop(0.4, 'rgba(255, 120, 140, 0.5)');
+                backLight.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = backLight;
+                ctx.beginPath();
+                ctx.arc(mX + mWidth/2, mY + mHeight/2, 120, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+
+                // Draw Mascot
+                ctx.drawImage(activeMascot, mX, mY, mWidth, mHeight);
+            }
+
+            // 5. Header: Logo on Left, Title & Slogan starting right after
             const headerY = 40;
             let logoWidthRightEdge = 160;
 
@@ -534,7 +565,7 @@
             ctx.fillText(fixedBannerSlogan, textStartX, headerY + 80);
             ctx.shadowBlur = 0;
 
-            // 5. Custom Name or Team (if entered)
+            // 6. Custom Name or Team (if entered)
             const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
             if (nameText) {
                 ctx.textAlign = 'center';
@@ -543,7 +574,7 @@
                 ctx.fillText(nameText, canvas.width / 2, 490, 600);
             }
 
-            // 6. Rotating Random Slogan positioned right at the bottom of the circle
+            // 7. Rotating Random Slogan positioned right at the bottom of the circle
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 28px sans-serif';
             ctx.textAlign = 'center';
@@ -551,13 +582,13 @@
             ctx.shadowBlur = 10;
             wrapText(ctx, currentRotatingSlogan, canvas.width / 2, 850, 750, 36);
 
-            // 7. Fixed Hashtags below the random slogan
+            // 8. Fixed Hashtags below the random slogan
             ctx.fillStyle = '#ffe3e3';
             ctx.font = 'bold 22px sans-serif';
             ctx.fillText("#DontMissABeat   #UseHeart", canvas.width / 2, 910);
             ctx.shadowBlur = 0;
 
-            // 8. Developer Credit at the Very Bottom in Thin Small Font
+            // 9. Developer Credit at the Very Bottom in Thin Small Font
             ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
             ctx.font = '300 15px sans-serif';
             ctx.fillText("Developed by: Ahmed Shareef for Shaviyani Atoll Hospital", canvas.width / 2, 970);
