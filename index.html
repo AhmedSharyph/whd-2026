@@ -637,8 +637,87 @@
       let mascotSide = 'right';
       let lastDrawTime = 0;
 
+      // ===== MASCOT MOTION (video mode) =====
+      // A timeline of keyframes: each entry { time, x, y, rot, scale }
+      // The mascot will smoothly interpolate between them across the 10s clip.
+      let mascotTimeline = null;
+
+      // Predefined interesting positions (as fractions of canvas)
+      // x, y = top-left position; rot = rotation (radians); scale = size multiplier
+      function buildMascotTimeline() {
+        // Base mascot size on canvas
+        const baseH = 270;
+        const baseW = 240; // will be recalculated per mascot but ~square
+
+        const positions = [
+          // Start: bottom-right (original position)
+          { x: 1.00, y: 1.00, rot: 0, scale: 1.0 },
+          // Slide to bottom-center
+          { x: 0.50, y: 1.02, rot: -0.08, scale: 1.05 },
+          // Bounce to top-right (smaller, peeking from corner)
+          { x: 0.98, y: 0.05, rot: 0.15, scale: 0.75 },
+          // Sweep to top-left
+          { x: 0.02, y: 0.08, rot: -0.2, scale: 0.9 },
+          // Drop to bottom-left
+          { x: 0.02, y: 0.98, rot: 0.1, scale: 1.1 },
+          // Wiggle to bottom-center
+          { x: 0.50, y: 1.00, rot: -0.12, scale: 1.0 },
+          // Rise to mid-right (near circle edge)
+          { x: 0.98, y: 0.55, rot: 0.18, scale: 0.85 },
+          // Final: settle at bottom-right (original-ish)
+          { x: 1.00, y: 1.00, rot: 0, scale: 1.0 }
+        ];
+
+        // Assign times across 10s clip
+        const times = [0, 1.2, 2.6, 4.0, 5.4, 6.8, 8.2, 9.8];
+
+        mascotTimeline = positions.map((p, i) => ({
+          time: times[i] * 1000, // ms
+          x: p.x,
+          y: p.y,
+          rot: p.rot,
+          scale: p.scale
+        }));
+      }
+
+      // Get interpolated mascot state at time t (ms)
+      function getMascotState(t) {
+        if (!mascotTimeline || mascotTimeline.length === 0) {
+          return { x: 1.0, y: 1.0, rot: 0, scale: 1.0 };
+        }
+
+        const tl = mascotTimeline;
+
+        // Before first keyframe
+        if (t <= tl[0].time) return { x: tl[0].x, y: tl[0].y, rot: tl[0].rot, scale: tl[0].scale };
+        // After last keyframe
+        if (t >= tl[tl.length - 1].time) {
+          const last = tl[tl.length - 1];
+          return { x: last.x, y: last.y, rot: last.rot, scale: last.scale };
+        }
+
+        // Find segment
+        for (let i = 0; i < tl.length - 1; i++) {
+          const a = tl[i];
+          const b = tl[i + 1];
+          if (t >= a.time && t <= b.time) {
+            const segT = (t - a.time) / (b.time - a.time);
+            // Smoothstep easing for extra polish
+            const eased = segT * segT * (3 - 2 * segT);
+            return {
+              x: a.x + (b.x - a.x) * eased,
+              y: a.y + (b.y - a.y) * eased,
+              rot: a.rot + (b.rot - a.rot) * eased,
+              scale: a.scale + (b.scale - a.scale) * eased
+            };
+          }
+        }
+
+        // Fallback
+        return { x: 1.0, y: 1.0, rot: 0, scale: 1.0 };
+      }
+
       // ===== ANIMATION STATE (video mode) =====
-      // Each text element gets a random animation chosen when video mode starts
       let textAnimations = {
         title: null,
         curvedSlogan: null,
@@ -648,14 +727,12 @@
         credit: null
       };
 
-      // Animation pool — pick randomly for each text element
       const animationPool = [
         'fadeIn', 'slideFromLeft', 'slideFromRight', 'slideFromTop',
         'slideFromBottom', 'scaleUp', 'scaleDown', 'wave', 'pulse',
-        'typewriter', 'glow', 'rotateIn', 'bounceIn', 'flipIn'
+        'glow', 'rotateIn', 'bounceIn', 'flipIn'
       ];
 
-      // Pick a random animation for each text element
       function randomizeTextAnimations() {
         const pick = () => animationPool[Math.floor(Math.random() * animationPool.length)];
         textAnimations.title = pick();
@@ -666,16 +743,11 @@
         textAnimations.credit = pick();
       }
 
-      // Helper: get progress (0..1) for a text animation given elapsed time
-      // Each element starts at its own delay and lasts a duration.
       function getAnimProgress(elapsed, delay, duration) {
         if (elapsed < delay) return 0;
-        const t = Math.min(1, (elapsed - delay) / duration);
-        return t;
+        return Math.min(1, (elapsed - delay) / duration);
       }
 
-      // Apply animation transform + alpha for a given element
-      // Returns { alpha, offsetX, offsetY, scale, rotate, glow }
       function getAnimState(animName, progress) {
         const state = { alpha: 1, offsetX: 0, offsetY: 0, scale: 1, rotate: 0, glow: 0 };
         const p = progress;
@@ -684,74 +756,56 @@
           case 'fadeIn':
             state.alpha = p;
             break;
-
           case 'slideFromLeft':
             state.offsetX = -180 * (1 - p);
             state.alpha = p;
             break;
-
           case 'slideFromRight':
             state.offsetX = 180 * (1 - p);
             state.alpha = p;
             break;
-
           case 'slideFromTop':
             state.offsetY = -120 * (1 - p);
             state.alpha = p;
             break;
-
           case 'slideFromBottom':
             state.offsetY = 120 * (1 - p);
             state.alpha = p;
             break;
-
           case 'scaleUp':
             state.scale = 0.3 + 0.7 * p;
             state.alpha = p;
             break;
-
           case 'scaleDown':
             state.scale = 1.6 - 0.6 * p;
             state.alpha = p;
             break;
-
           case 'wave':
             state.offsetY = Math.sin(p * Math.PI * 4) * 18 * (1 - p);
             state.alpha = Math.min(1, p * 2);
             break;
-
           case 'pulse':
             state.scale = 1 + Math.sin(p * Math.PI * 6) * 0.12 * (1 - p);
             state.alpha = Math.min(1, p * 1.5);
             break;
-
-          case 'typewriter':
-            // handled separately (character count)
-            state.alpha = 1;
-            break;
-
           case 'glow':
             state.glow = Math.sin(p * Math.PI * 5) * 22;
             state.alpha = Math.min(1, p * 2);
             break;
-
           case 'rotateIn':
             state.rotate = -Math.PI * 0.6 * (1 - p);
             state.scale = 0.4 + 0.6 * p;
             state.alpha = p;
             break;
-
           case 'bounceIn':
-            // overshoot bounce
             if (p < 0.7) {
-              const t = p / 0.7;
-              state.scale = 0.3 + 1.0 * t - 0.3 * Math.sin(t * Math.PI);
+              const tt = p / 0.7;
+              state.scale = 0.3 + 1.0 * tt - 0.3 * Math.sin(tt * Math.PI);
             } else {
               state.scale = 1;
             }
             state.alpha = Math.min(1, p * 1.8);
             break;
-
           case 'flipIn':
             state.scale = 0.1 + 0.9 * p;
             state.rotate = Math.PI * (1 - p);
@@ -844,7 +898,7 @@
         mascotSide = Math.random() > 0.5 ? 'right' : 'left';
       }
 
-      // ===== CURVED TEXT (with optional animation state) =====
+      // ===== CURVED TEXT =====
       function drawCurvedText(text, cx, cy, radius, options, animState) {
         const {
           fontSize = 54,
@@ -902,8 +956,6 @@
         ctx.restore();
       }
 
-      // ===== DRAW TEXT WITH ANIMATION =====
-      // Generic helper: applies animation state around a draw callback
       function withAnimation(animName, elapsed, delay, duration, drawFn) {
         if (currentMode !== 'video' || !animName) {
           drawFn({ alpha: 1, offsetX: 0, offsetY: 0, scale: 1, rotate: 0, glow: 0 });
@@ -912,6 +964,86 @@
         const progress = getAnimProgress(elapsed, delay, duration);
         const state = getAnimState(animName, progress);
         drawFn(state);
+      }
+
+      // ===== DRAW MASCOT WITH MOTION =====
+      function drawMascot(elapsedTime) {
+        const activeMascot = loadedMascots[currentMascotIndex] || fallbackMascot;
+        if (!activeMascot || activeMascot.complete === false) return;
+
+        const isVideo = (currentMode === 'video');
+
+        // Base dimensions
+        const baseHeight = 270;
+        const aspect = (activeMascot.width && activeMascot.height)
+          ? (activeMascot.width / activeMascot.height)
+          : 1;
+        const baseWidth = baseHeight * aspect;
+
+        let finalX, finalY, finalRot, finalScale, alpha;
+
+        if (isVideo && mascotTimeline) {
+          // Animated movement across the clip
+          const state = getMascotState(elapsedTime);
+
+          // Map normalized (0..1) coords to canvas positions
+          // state.x: 0 = left edge, 1 = right edge (anchor = mascot top-left will be placed so that
+          //          state.x = 1 means mascot's right edge touches canvas right edge)
+          // We'll interpret state.x and state.y as "positioning factor" for the mascot's center.
+          // state.x = 0 → mascot center at left edge; state.x = 1 → mascot center at right edge.
+          const cx = state.x * canvas.width;
+          const cy = state.y * canvas.height;
+
+          finalScale = state.scale;
+          finalRot = state.rot;
+          const drawW = baseWidth * finalScale;
+          const drawH = baseHeight * finalScale;
+
+          finalX = cx - drawW / 2;
+          finalY = cy - drawH / 2;
+
+          // Fade in quickly at start
+          const fadeIn = getAnimProgress(elapsedTime, 0, 600);
+          alpha = fadeIn;
+
+        } else {
+          // Photo mode — static position (original logic)
+          const mHeight = baseHeight;
+          const mWidth = baseWidth;
+          finalX = mascotSide === 'right' ? (canvas.width - mWidth - 25) : 25;
+          finalY = 970 - mHeight;
+          finalRot = 0;
+          finalScale = 1;
+          alpha = 1;
+        }
+
+        const drawW = baseWidth * finalScale;
+        const drawH = baseHeight * finalScale;
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+
+        // Backlight glow follows mascot
+        const glowCx = finalX + drawW / 2;
+        const glowCy = finalY + drawH / 2;
+        const backLight = ctx.createRadialGradient(
+          glowCx, glowCy, 20,
+          glowCx, glowCy, 140
+        );
+        backLight.addColorStop(0, 'rgba(255,255,255,0.85)');
+        backLight.addColorStop(0.4, 'rgba(255,120,140,0.55)');
+        backLight.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = backLight;
+        ctx.beginPath();
+        ctx.arc(glowCx, glowCy, 135, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw mascot with rotation around its center
+        ctx.translate(finalX + drawW / 2, finalY + drawH / 2);
+        ctx.rotate(finalRot);
+        ctx.drawImage(activeMascot, -drawW / 2, -drawH / 2, drawW, drawH);
+
+        ctx.restore();
       }
 
       // ===== MAIN DRAW =====
@@ -998,38 +1130,10 @@
         // 5. ECG
         drawContinuousNormalEcg(elapsedTime);
 
-        // 6. Mascot
-        const activeMascot = loadedMascots[currentMascotIndex] || fallbackMascot;
-        if (activeMascot && activeMascot.complete !== false) {
-          const mHeight = 270;
-          const mWidth = (activeMascot.width / activeMascot.height) * mHeight || 200;
-          const mX = mascotSide === 'right' ? (canvas.width - mWidth - 25) : 25;
-          const mY = 970 - mHeight;
+        // 6. Mascot (with motion in video mode)
+        drawMascot(t);
 
-          ctx.save();
-          const backLight = ctx.createRadialGradient(
-            mX + mWidth / 2, mY + mHeight / 2, 20,
-            mX + mWidth / 2, mY + mHeight / 2, 140
-          );
-          backLight.addColorStop(0, 'rgba(255,255,255,0.85)');
-          backLight.addColorStop(0.4, 'rgba(255,120,140,0.55)');
-          backLight.addColorStop(1, 'rgba(255,255,255,0)');
-          ctx.fillStyle = backLight;
-          ctx.beginPath();
-          ctx.arc(mX + mWidth / 2, mY + mHeight / 2, 135, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-
-          // Mascot also gets a subtle fade-in in video mode
-          if (isVideo) {
-            const mp = getAnimProgress(t, 800, 700);
-            ctx.globalAlpha = mp;
-          }
-          ctx.drawImage(activeMascot, mX, mY, mWidth, mHeight);
-          ctx.globalAlpha = 1;
-        }
-
-        // ===== 7. HEADER — TITLE (ANIMATED IN VIDEO MODE) =====
+        // ===== 7. HEADER — TITLE =====
         const headerY = 22;
         let logoWidthRightEdge = 175;
 
@@ -1043,7 +1147,6 @@
           const pillX = 35;
           const pillY = headerY;
 
-          // Logo also fades in during video mode
           if (isVideo) {
             const lp = getAnimProgress(t, 0, 500);
             ctx.globalAlpha = lp;
@@ -1090,7 +1193,7 @@
           ctx.restore();
         });
 
-        // ===== 8. CURVED SLOGAN (ANIMATED IN VIDEO MODE) =====
+        // ===== 8. CURVED SLOGAN =====
         const sloganRadius = circleRadius + 48;
         withAnimation(textAnimations.curvedSlogan, t, 500, 1000, (state) => {
           drawCurvedText(bannerSloganText, circleX, circleY, sloganRadius, {
@@ -1104,7 +1207,7 @@
           }, state);
         });
 
-        // ===== 9. NAME (ANIMATED IN VIDEO MODE) =====
+        // ===== 9. NAME =====
         const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
         if (nameText) {
           withAnimation(textAnimations.name, t, 1000, 800, (state) => {
@@ -1132,7 +1235,7 @@
           });
         }
 
-        // ===== 10. ROTATING SLOGAN (ANIMATED IN VIDEO MODE) =====
+        // ===== 10. ROTATING SLOGAN =====
         withAnimation(textAnimations.rotatingSlogan, t, 1500, 900, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
@@ -1154,10 +1257,7 @@
           ctx.shadowColor = 'rgba(0,0,0,0.9)';
           ctx.shadowBlur = 14 + glow;
 
-          // Wave effect on individual characters for extra flair
           if (textAnimations.rotatingSlogan === 'wave' || textAnimations.rotatingSlogan === 'pulse') {
-            // character-level animation
-            const words = currentRotatingSlogan.split(' ');
             const fullText = currentRotatingSlogan;
             const totalW = ctx.measureText(fullText).width;
             let startX = canvas.width / 2 - totalW / 2 + ox;
@@ -1175,7 +1275,7 @@
           ctx.restore();
         });
 
-        // ===== 11. HASHTAGS (ANIMATED IN VIDEO MODE) =====
+        // ===== 11. HASHTAGS =====
         withAnimation(textAnimations.hashtags, t, 2000, 800, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
@@ -1200,7 +1300,7 @@
           ctx.restore();
         });
 
-        // ===== 12. CREDIT (ANIMATED IN VIDEO MODE) =====
+        // ===== 12. CREDIT =====
         withAnimation(textAnimations.credit, t, 2400, 700, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
@@ -1404,12 +1504,13 @@
           mediaUpload.accept = 'image/*';
           mediaUpload.setAttribute('capture', 'environment');
           if (userVideo) { userVideo.pause(); userVideo = null; }
+          mascotTimeline = null;
           scheduleDraw();
         } else {
-          // Pick fresh random animations for this video take
           randomizeTextAnimations();
+          buildMascotTimeline();
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 10s Video · Animated text · Original audio preserved';
+          videoStatus.textContent = '🎥 10s Video · Animated text & moving mascot';
           actionDownloadBtn.textContent = '📥 Export MP4';
           actionShareBtn.textContent = '📤 Share MP4';
           uploadBtnText.textContent = '🎬 Record / Select Video';
@@ -1454,11 +1555,12 @@
             return;
           }
 
-          // Re-randomize animations at export so the exported video gets fresh effects
+          // Fresh animations and mascot path for the export
           randomizeTextAnimations();
+          buildMascotTimeline();
 
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 Recording 10s video with animated text... Please wait.';
+          videoStatus.textContent = '🎥 Recording 10s video with moving mascot... Please wait.';
 
           recordingStartTime = performance.now();
           const canvasStream = canvas.captureStream(30);
@@ -1502,7 +1604,7 @@
               if (audioCtx) audioCtx.close().catch(() => {});
               lastRecordedVideoBlob = new Blob(chunks, { type: 'video/mp4' });
               downloadVideoBlob(lastRecordedVideoBlob);
-              videoStatus.textContent = '✅ 10s video saved with animated text!';
+              videoStatus.textContent = '✅ 10s video saved with moving mascot!';
             };
 
             recorder.start();
