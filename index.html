@@ -273,6 +273,8 @@
       text-align: center; font-size: 0.56rem; color: #b8a0a5;
       font-weight: 500; padding: 8px 0 4px; flex-shrink: 0; letter-spacing: 0.04em;
     }
+    .app-footer a { color: #d90429; text-decoration: none; font-weight: 700; }
+    .app-footer a:hover { text-decoration: underline; }
 
     @supports (padding: env(safe-area-inset-bottom)) {
       .scroll-area {
@@ -316,7 +318,7 @@
     <p>The World Heart Day 2026 Creator Studio is optimized exclusively for mobile phones and tablets. Please open this link on your smartphone to create and share your campaign story!</p>
   </div>
 
-  <!-- CAMPAIGN EXPIRY BLOCKER -->
+  <!-- CAMPAIGN EXPIRED BLOCKER -->
   <div class="expired-blocker" id="expiredBlocker">
     <div class="icon">❤️</div>
     <h2>Campaign Concluded</h2>
@@ -415,7 +417,7 @@
       </div>
 
       <!-- FOOTER -->
-<div class="app-footer">Developed by <a href="https://www.ahmedshareef.mv/" target="_blank" rel="noopener noreferrer">Ahmed Shareef</a> · Shaviyani Atoll Hospital</div>
+      <div class="app-footer">Developed by <a href="https://www.ahmedshareef.mv/" target="_blank" rel="noopener noreferrer">Ahmed Shareef</a> · Shaviyani Atoll Hospital</div>
 
     </div>
   </div>
@@ -640,22 +642,23 @@
         return Math.max(0.01, Math.min(0.99, t));
       }
 
-      // ============ SMOOTH TEXT ALONG CURVE (Using Arial) ============
+      // ============ SMOOTH TEXT ALONG CURVE (Using Cleaner Non-Bold Font) ============
       function drawTextAlongCurve(text, startT, opts = {}) {
         const {
           aboveOffset = 35,
-          fontSize = 42,
+          fontSize = 44,
           color = '#ffffff',
-          glow = 'rgba(0, 0, 0, 0.5)'
+          glow = 'rgba(0, 0, 0, 0.4)'
         } = opts;
 
         ctx.save();
-        ctx.font = `900 ${fontSize}px Arial, sans-serif`;
+        // Changed from 900 (ultra-bold) to 700 (cleaner, less heavy weight) for better readability
+        ctx.font = `700 ${fontSize}px Arial, sans-serif`;
         ctx.fillStyle = color;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.shadowColor = glow;
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 8;
         ctx.shadowOffsetY = 2;
 
         let currentT = startT;
@@ -839,7 +842,7 @@
           const ox = state.offsetX, oy = state.offsetY;
           const logoX = 50 + ox;
           const logoY = 30 + oy;
-          const logoTargetHeight = 170; // Enlarged logo size
+          const logoTargetHeight = 170;
 
           if (newLogoImg.complete && newLogoImg.naturalHeight !== 0) {
             const lAspect = newLogoImg.width / newLogoImg.height;
@@ -885,26 +888,26 @@
           ctx.restore();
         });
 
-        // 5. Hashtags Side-by-Side on Left Arch (Using Arial for smooth curves)
+        // 5. Hashtags Side-by-Side on Left Arch (Cleaner font-weight 700, size 44px)
         const baseCenterT = 0.1;
-        const primaryTagDistance = -20;
+        const primaryTagDistance = -15;
         const primaryT = findTAtDistance(baseCenterT, primaryTagDistance);
 
         drawTextAlongCurve('#DontMissABeat', primaryT, {
           aboveOffset: 38,
-          fontSize: 50,
+          fontSize: 44,
           color: '#ffffff'
         });
 
-        ctx.font = '900 50px Arial, sans-serif';
+        ctx.font = '700 44px Arial, sans-serif';
         const primaryTextWidth = ctx.measureText('#DontMissABeat').width;
 
-        const secondaryTagDistance = primaryTagDistance + primaryTextWidth + 25;
+        const secondaryTagDistance = primaryTagDistance + primaryTextWidth + 30;
         const secondaryT = findTAtDistance(baseCenterT, secondaryTagDistance);
 
         drawTextAlongCurve('#WorldHeartDay', secondaryT, {
           aboveOffset: 36,
-          fontSize: 50,
+          fontSize: 44,
           color: '#ffffff'
         });
 
@@ -913,7 +916,7 @@
 
         // 7. Mascot (Enlarged Size)
         if (mascotTrImg.complete && mascotTrImg.naturalHeight !== 0) {
-          const targetHeight = 230; // Enlarged mascot size
+          const targetHeight = 230;
           const aspect = mascotTrImg.width / mascotTrImg.height;
           const targetWidth = targetHeight * aspect;
           const mascotX = w - targetWidth - 20;
