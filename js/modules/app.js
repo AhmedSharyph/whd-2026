@@ -1,4 +1,4 @@
-// app.js - Master Application Entry Point integrating all modules
+// app.js - Master Application Entry Point integrating all moodules
 
 import { whdSlogans, defaultTags } from './modules/dataManager.js';
 import { renderHashtags } from './modules/hashtagUI.js';
