@@ -1016,7 +1016,7 @@
         drawFn(getAnimState(animName, progress));
       }
 
-      // ============ DRAW MASCOT (Story 9:16 layout) ============
+      // ============ DRAW MASCOT ============
       function drawMascot() {
         const activeMascot = loadedMascots[currentMascotIndex] || fallbackMascot;
         if (!activeMascot || activeMascot.complete === false) return;
@@ -1034,7 +1034,7 @@
         ctx.restore();
       }
 
-      // ============ MAIN DRAW (1080 x 1920 Story Canvas) ============
+      // ============ MAIN DRAW ============
       function drawCanvas(elapsedTime) {
         const w = canvas.width;
         const h = canvas.height;
@@ -1055,7 +1055,7 @@
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, w, h);
 
-        // 2. Circle frame (Centered higher up for vertical story layout)
+        // 2. Circle frame (Restored circular clipping)
         const circleRadius = 380;
         const circleX = 540;
         const circleY = 780;
@@ -1106,20 +1106,20 @@
         }
         ctx.restore();
 
-        // 3. Border
+        // 3. Circular Border
         ctx.strokeStyle = 'rgba(255,255,255,0.95)';
         ctx.lineWidth = 14;
         ctx.beginPath();
         ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
         ctx.stroke();
 
-        // 4. ECG (Positioned nicely below circle)
+        // 4. ECG
         drawContinuousNormalEcg(elapsedTime);
 
-        // 5. Mascot (Bottom Right Corner)
+        // 5. Mascot
         drawMascot();
 
-        // 6. Header Title & Date (Widened at top)
+        // 6. Header Title & Date
         const headerY = 110;
         const textCenterX = w / 2;
 
@@ -1152,7 +1152,7 @@
         ctx.fillText('29 September 2026', textCenterX, headerY + 74);
         ctx.restore();
 
-        // 7. "DON'T MISS A BEAT" around the circle
+        // 7. "DON'T MISS A BEAT" curved around the circle
         const sloganRadius = circleRadius + 44;
         withAnimation(textAnimations.curvedSlogan, t, 500, 1000, (state) => {
           drawCurvedText(bannerSloganText, circleX, circleY, sloganRadius, {
@@ -1241,7 +1241,7 @@
           ctx.restore();
         });
 
-        // 11. Hospital Logo at Bottom Left (Below hashtags) with white blending pill
+        // 11. Hospital Logo at Bottom Left with white blending pill
         if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
           const targetLogoHeight = 65;
           const logoWidth = (hospitalLogo.width / hospitalLogo.height) * targetLogoHeight;
@@ -1267,7 +1267,7 @@
         // Hidden credit comment: Developed by Ahmed Shareef for Shaviyani Atoll Hospital
       }
 
-      // ============ ECG (Story layout y-position) ============
+      // ============ ECG ============
       function drawContinuousNormalEcg(elapsedTime) {
         ctx.save();
         ctx.strokeStyle = '#ffffff';
