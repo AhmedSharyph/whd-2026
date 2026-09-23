@@ -12,11 +12,29 @@
   <meta name="screen-orientation" content="portrait">
   <meta name="x5-orientation" content="portrait">
   <title>WHD 2026 · Creator Studio</title>
+
+  <!-- UNIVERSAL @FONT-FACE EMBEDDING FOR 100% CROSS-DEVICE CONSISTENCY -->
   <style>
+    @font-face {
+      font-family: 'AppSans';
+      src: url('https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2') format('woff2');
+      font-weight: 700 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'CustomHandwritten';
+      src: url('https://fonts.gstatic.com/s/caveat/v18/WnznvdzGJWBW_KpUuQ.woff2') format('woff2');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html { height: 100%; width: 100%; overflow: hidden; touch-action: manipulation; background: #ffffff; -webkit-text-size-adjust: 100%; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'AppSans', -apple-system, BlinkMacSystemFont, sans-serif;
       height: 100%; width: 100%; overflow: hidden; position: fixed; inset: 0;
       display: flex; flex-direction: column; color: #1a1a1a;
       -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
@@ -646,18 +664,21 @@
         return Math.max(0.01, Math.min(0.99, t));
       }
 
-      // ============ SMOOTH TEXT ALONG CURVE (Expanded Letter Spacing) ============
+      // ============ @FONT-FACE CANVAS NAMES ============
+      const PRIMARY_FONT = 'AppSans';
+      const HANDWRITTEN_FONT = 'CustomHandwritten';
+
+      // ============ DRAW TEXT ALONG CURVE ============
       function drawTextAlongCurve(text, startT, opts = {}) {
         const {
-          aboveOffset = 35,
-          fontSize = 44,
+          aboveOffset = 38,
+          fontSize = 54,
           color = '#ffffff',
-          glow = 'rgba(0, 0, 0, 0.4)',
-          letterSpacing = 1.25 // Expanded letter spacing multiplier (increased from 0.85)
+          glow = 'rgba(0, 0, 0, 0.5)'
         } = opts;
 
         ctx.save();
-        ctx.font = `700 ${fontSize}px Arial, sans-serif`;
+        ctx.font = `700 ${fontSize}px ${HANDWRITTEN_FONT}, cursive`;
         ctx.fillStyle = color;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -683,7 +704,7 @@
           ctx.fillText(char, 0, 0);
           ctx.restore();
 
-          currentT = findTAtDistance(currentT, charWidth * letterSpacing);
+          currentT = findTAtDistance(currentT, charWidth * 1.0);
         }
         ctx.restore();
       }
@@ -826,7 +847,7 @@
           ctx.fillStyle = '#f5f5f7';
           ctx.fillRect(0, 0, w, h);
           ctx.fillStyle = '#d90429';
-          ctx.font = 'bold 42px -apple-system, sans-serif';
+          ctx.font = `bold 42px ${PRIMARY_FONT}, sans-serif`;
           ctx.textAlign = 'center';
           ctx.fillText('Tap below to add your photo or video', w / 2, h / 2);
         }
@@ -858,23 +879,23 @@
             ctx.textAlign = 'left';
             ctx.textBaseline = 'alphabetic';
 
-            ctx.font = '900 32px -apple-system, sans-serif';
+            ctx.font = `900 32px ${PRIMARY_FONT}, sans-serif`;
             ctx.fillText('WORLD', textStartX, 70 + oy);
             ctx.fillText('HEART', textStartX, 108 + oy);
             ctx.fillText('DAY 26', textStartX, 146 + oy);
 
-            ctx.font = '800 20px -apple-system, sans-serif';
+            ctx.font = `800 20px ${PRIMARY_FONT}, sans-serif`;
             ctx.fillText('29 SEP', textStartX, 172 + oy);
           } else {
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'alphabetic';
-            ctx.font = '900 32px -apple-system, sans-serif';
+            ctx.font = `900 32px ${PRIMARY_FONT}, sans-serif`;
             ctx.fillText('WORLD', 60 + ox, 70 + oy);
             ctx.fillText('HEART', 60 + ox, 108 + oy);
             ctx.fillText('DAY 26', 60 + ox, 146 + oy);
 
-            ctx.font = '800 20px -apple-system, sans-serif';
+            ctx.font = `800 20px ${PRIMARY_FONT}, sans-serif`;
             ctx.fillText('29 SEP', 60 + ox, 172 + oy);
           }
           ctx.restore();
@@ -886,36 +907,33 @@
           ctx.globalAlpha = state.alpha;
           const ox = state.offsetX, oy = state.offsetY;
           ctx.fillStyle = '#ffffff';
-          ctx.font = '900 48px -apple-system, sans-serif';
+          ctx.font = `900 48px ${PRIMARY_FONT}, sans-serif`;
           ctx.textAlign = 'left';
           wrapText(ctx, whdSlogans[currentSloganIndex], 500 + ox, 85 + oy, 540, 56);
           ctx.restore();
         });
 
-        // 5. Hashtags Side-by-Side on Left Arch with Expanded Letter Spacing
+        // 5. Hashtags Side-by-Side on Left Arch in Handwritten Font (@font-face)
         const baseCenterT = 0.1;
         const primaryTagDistance = -15;
         const primaryT = findTAtDistance(baseCenterT, primaryTagDistance);
 
         drawTextAlongCurve('#DontMissABeat', primaryT, {
-          aboveOffset: 38,
-          fontSize: 44,
-          color: '#ffffff',
-          letterSpacing: 1.25
+          aboveOffset: 40,
+          fontSize: 54,
+          color: '#ffffff'
         });
 
-        ctx.font = '700 44px Arial, sans-serif';
-        // Compute width considering spacing expansion
-        const primaryTextWidth = ctx.measureText('#DontMissABeat').width * 1.25;
+        ctx.font = `700 54px ${HANDWRITTEN_FONT}, cursive`;
+        const primaryTextWidth = ctx.measureText('#DontMissABeat').width;
 
-        const secondaryTagDistance = primaryTagDistance + primaryTextWidth + 40;
+        const secondaryTagDistance = primaryTagDistance + primaryTextWidth + 35;
         const secondaryT = findTAtDistance(baseCenterT, secondaryTagDistance);
 
         drawTextAlongCurve('#WorldHeartDay', secondaryT, {
-          aboveOffset: 36,
-          fontSize: 44,
-          color: '#ffffff',
-          letterSpacing: 1.25
+          aboveOffset: 38,
+          fontSize: 54,
+          color: '#ffffff'
         });
 
         // 6. ECG
@@ -941,7 +959,7 @@
             ctx.globalAlpha = state.alpha;
             const ox = state.offsetX, oy = state.offsetY;
             ctx.fillStyle = '#fff0f3';
-            ctx.font = '900 30px -apple-system, sans-serif';
+            ctx.font = `900 30px ${PRIMARY_FONT}, sans-serif`;
             ctx.textAlign = 'center';
             ctx.shadowColor = 'rgba(0,0,0,0.6)';
             ctx.shadowBlur = 8;
@@ -1371,10 +1389,17 @@
         lastTouchEnd = now;
       }, { passive: false });
 
-      // ============ INIT ============
+      // ============ INIT WITH FONT LOADING CHECK ============
       randomizeTextAnimations();
-      scheduleDraw();
-      window.addEventListener('load', () => { if (currentMode === 'image') scheduleDraw(); });
+      
+      // Ensure canvas only renders after @font-face files are fully downloaded by browser
+      document.fonts.ready.then(() => {
+        scheduleDraw();
+      });
+      
+      window.addEventListener('load', () => { 
+        if (currentMode === 'image') scheduleDraw(); 
+      });
 
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
