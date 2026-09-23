@@ -6,649 +6,248 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="WHD Creator">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#d90429">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="format-detection" content="telephone=no">
   <meta name="screen-orientation" content="portrait">
   <meta name="x5-orientation" content="portrait">
   <title>WHD 2026 · Creator Studio</title>
   <style>
-    /* ============ RESET ============ */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html {
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      touch-action: manipulation;
-      background: #ffffff;
-      -webkit-text-size-adjust: 100%;
-    }
-
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html { height: 100%; width: 100%; overflow: hidden; touch-action: manipulation; background: #ffffff; -webkit-text-size-adjust: 100%; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      position: fixed;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      padding: 0;
-      margin: 0;
-      color: #1a1a1a;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      overscroll-behavior: none;
-      -webkit-overflow-scrolling: touch;
-      background: #ffffff;
+      height: 100%; width: 100%; overflow: hidden; position: fixed; inset: 0;
+      display: flex; flex-direction: column; color: #1a1a1a;
+      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+      overscroll-behavior: none; -webkit-overflow-scrolling: touch; background: #ffffff;
     }
-
-    /* ============ APP SHELL — CLEAN LIGHT ============ */
     .app {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      display: flex; flex-direction: column; overflow: hidden;
       background: linear-gradient(180deg, #fff8f9 0%, #ffffff 40%, #ffffff 100%);
       z-index: 1;
     }
-
-    /* ============ SCROLL AREA ============ */
     .scroll-area {
-      flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-      padding: 16px 16px 32px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      overscroll-behavior: contain;
-      background: transparent;
-      scrollbar-width: none;
+      flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
+      padding: 16px 16px 32px; display: flex; flex-direction: column; gap: 14px;
+      overscroll-behavior: contain; background: transparent; scrollbar-width: none;
     }
-    .scroll-area::-webkit-scrollbar {
-      display: none;
-    }
+    .scroll-area::-webkit-scrollbar { display: none; }
 
-    /* ============ HEADER ============ */
-    .app-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 4px 4px 8px;
-      flex-shrink: 0;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
+    /* HEADER */
+    .app-header { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 8px; flex-shrink: 0; }
+    .brand { display: flex; align-items: center; gap: 10px; }
     .brand-mark {
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
+      width: 38px; height: 38px; border-radius: 12px;
       background: linear-gradient(135deg, #ff2d55, #d90429);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 19px;
+      display: flex; align-items: center; justify-content: center; font-size: 19px;
       box-shadow: 0 8px 18px rgba(255, 45, 85, 0.25);
     }
-
-    .brand-text h1 {
-      font-size: 0.88rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: #7a0010;
-      line-height: 1.1;
-    }
-
-    .brand-text .sub {
-      font-size: 0.58rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #d90429;
-      margin-top: 2px;
-    }
-
+    .brand-text h1 { font-size: 0.88rem; font-weight: 800; letter-spacing: -0.02em; color: #7a0010; line-height: 1.1; }
+    .brand-text .sub { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #d90429; margin-top: 2px; }
     .live-badge {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      padding: 6px 11px;
-      border-radius: 20px;
-      background: rgba(255, 45, 85, 0.08);
-      border: 1px solid rgba(255, 45, 85, 0.2);
-      font-size: 0.6rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #d90429;
+      display: flex; align-items: center; gap: 5px; padding: 6px 11px; border-radius: 20px;
+      background: rgba(255, 45, 85, 0.08); border: 1px solid rgba(255, 45, 85, 0.2);
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #d90429;
     }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #ff2d55; box-shadow: 0 0 8px rgba(255, 45, 85, 0.6); animation: livePulse 1.6s ease-in-out infinite; }
+    @keyframes livePulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.75); } }
 
-    .live-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #ff2d55;
-      box-shadow: 0 0 8px rgba(255, 45, 85, 0.6);
-      animation: livePulse 1.6s ease-in-out infinite;
-    }
-
-    @keyframes livePulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.75); }
-    }
-
-    /* ============ MODE TABS — LIGHT PILL ============ */
+    /* MODE TABS */
     .mode-tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      background: #f5f5f7;
-      padding: 5px;
-      border-radius: 16px;
-      border: 1px solid rgba(0, 0, 0, 0.04);
-      flex-shrink: 0;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+      background: #f5f5f7; padding: 5px; border-radius: 16px;
+      border: 1px solid rgba(0, 0, 0, 0.04); flex-shrink: 0;
     }
-
     .tab-btn {
-      background: transparent;
-      border: none;
-      padding: 12px 8px;
-      font-size: 0.76rem;
-      font-weight: 700;
-      color: #8a6a70;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.28s cubic-bezier(0.2, 0.9, 0.4, 1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      -webkit-user-select: none;
-      user-select: none;
-      touch-action: manipulation;
-      font-family: inherit;
-      letter-spacing: 0.02em;
+      background: transparent; border: none; padding: 12px 8px;
+      font-size: 0.76rem; font-weight: 700; color: #8a6a70; border-radius: 12px;
+      cursor: pointer; transition: all 0.28s cubic-bezier(0.2, 0.9, 0.4, 1);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      -webkit-user-select: none; user-select: none; touch-action: manipulation;
+      font-family: inherit; letter-spacing: 0.02em;
     }
-
     .tab-btn.active {
-      background: linear-gradient(135deg, #ff2d55, #d90429);
-      color: #ffffff;
+      background: linear-gradient(135deg, #ff2d55, #d90429); color: #ffffff;
       box-shadow: 0 6px 16px rgba(255, 45, 85, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     }
+    .tab-btn:active { transform: scale(0.97); }
 
-    .tab-btn:active {
-      transform: scale(0.97);
-    }
-
-    /* ============ CANVAS FRAME — 9:16 VERTICAL STORY RATIO ============ */
+    /* CANVAS FRAME */
     .canvas-frame {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 9 / 16;
-      border-radius: 26px;
-      overflow: hidden;
-      flex-shrink: 0;
-      background: #ffffff;
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      box-shadow: 
+      position: relative; width: 100%; aspect-ratio: 9 / 16;
+      border-radius: 26px; overflow: hidden; flex-shrink: 0;
+      background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow:
         0 12px 34px rgba(217, 4, 41, 0.12),
         0 2px 6px rgba(0, 0, 0, 0.04),
         inset 0 1px 0 rgba(255, 255, 255, 0.9);
-      padding: 8px;
-      box-sizing: border-box;
-      max-height: 52vh;
-      margin: 0 auto;
+      padding: 8px; box-sizing: border-box; max-height: 52vh; margin: 0 auto;
     }
-
     .canvas-frame .hearts-layer {
-      position: absolute;
-      inset: 8px;
-      border-radius: 19px;
-      overflow: hidden;
-      pointer-events: none;
-      z-index: 1;
+      position: absolute; inset: 8px; border-radius: 19px;
+      overflow: hidden; pointer-events: none; z-index: 1;
     }
-
     .canvas-frame .hearts-layer .heart {
-      position: absolute;
-      top: -30px;
-      font-size: 14px;
-      opacity: 0;
-      animation: heartFall linear infinite;
-      will-change: transform, opacity;
+      position: absolute; top: -30px; font-size: 14px; opacity: 0;
+      animation: heartFall linear infinite; will-change: transform, opacity;
       filter: drop-shadow(0 0 3px rgba(255, 100, 130, 0.5));
     }
-
     @keyframes heartFall {
-      0% {
-        transform: translateY(-30px) translateX(0) rotate(0deg) scale(0.6);
-        opacity: 0;
-      }
-      12% { opacity: 0.9; }
-      50% { opacity: 0.7; }
-      88% { opacity: 0.35; }
-      100% {
-        transform: translateY(110%) translateX(var(--drift, 24px)) rotate(340deg) scale(1);
-        opacity: 0;
-      }
+      0% { transform: translateY(-30px) translateX(0) rotate(0deg) scale(0.6); opacity: 0; }
+      12% { opacity: 0.9; } 50% { opacity: 0.7; } 88% { opacity: 0.35; }
+      100% { transform: translateY(110%) translateX(var(--drift, 24px)) rotate(340deg) scale(1); opacity: 0; }
     }
-
     .canvas-frame canvas {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      height: 100%;
-      display: block;
-      border-radius: 19px;
-      touch-action: none;
+      position: relative; z-index: 2; width: 100%; height: 100%;
+      display: block; border-radius: 19px; touch-action: none;
     }
 
-    /* ============ UPLOAD SECTION — CAMERA + GALLERY ============ */
-    .upload-section {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
-    .upload-label-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 4px;
-    }
-
+    /* UPLOAD */
+    .upload-section { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+    .upload-label-row { display: flex; align-items: center; justify-content: space-between; padding: 0 4px; }
     .upload-label-row .label-text {
-      font-size: 0.62rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #8a6a70;
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #8a6a70;
     }
-
     .upload-label-row .media-type-badge {
-      font-size: 0.58rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #d90429;
-      background: rgba(255, 45, 85, 0.08);
-      border: 1px solid rgba(255, 45, 85, 0.2);
-      padding: 3px 9px;
-      border-radius: 8px;
+      font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      color: #d90429; background: rgba(255, 45, 85, 0.08); border: 1px solid rgba(255, 45, 85, 0.2);
+      padding: 3px 9px; border-radius: 8px;
     }
-
-    .upload-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
+    .upload-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .upload-action-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 16px 10px;
-      border-radius: 18px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; padding: 16px 10px; border-radius: 18px;
       border: 1.5px solid rgba(255, 45, 85, 0.15);
-      background: #ffffff;
-      color: #7a0010;
-      font-weight: 700;
-      font-size: 0.72rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      -webkit-user-select: none;
-      user-select: none;
-      touch-action: manipulation;
-      font-family: inherit;
-      text-align: center;
-      letter-spacing: 0.01em;
-      position: relative;
-      overflow: hidden;
+      background: #ffffff; color: #7a0010; font-weight: 700; font-size: 0.72rem;
+      cursor: pointer; transition: all 0.2s;
+      -webkit-user-select: none; user-select: none; touch-action: manipulation;
+      font-family: inherit; text-align: center; letter-spacing: 0.01em;
+      position: relative; overflow: hidden;
       box-shadow: 0 4px 12px rgba(217, 4, 41, 0.06);
     }
-
     .upload-action-btn .icon-circle {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
+      width: 38px; height: 38px; border-radius: 50%;
       background: linear-gradient(135deg, rgba(255, 45, 85, 0.12), rgba(217, 4, 41, 0.08));
       border: 1px solid rgba(255, 45, 85, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      transition: transform 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; transition: transform 0.2s;
     }
+    .upload-action-btn:active { transform: scale(0.97); background: #fff5f7; border-color: rgba(255, 45, 85, 0.4); }
+    .upload-action-btn:active .icon-circle { transform: scale(1.1); }
+    .upload-action-btn input[type="file"] { display: none; }
 
-    .upload-action-btn:active {
-      transform: scale(0.97);
-      background: #fff5f7;
-      border-color: rgba(255, 45, 85, 0.4);
-    }
-
-    .upload-action-btn:active .icon-circle {
-      transform: scale(1.1);
-    }
-
-    .upload-action-btn input[type="file"] {
-      display: none;
-    }
-
-    /* ============ FIELD GROUPS ============ */
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
+    /* FIELDS */
+    .field-group { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
     .field-label {
-      font-size: 0.62rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #8a6a70;
-      padding: 0 4px;
-      -webkit-user-select: none;
-      user-select: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #8a6a70; padding: 0 4px;
+      -webkit-user-select: none; user-select: none;
+      display: flex; justify-content: space-between; align-items: center;
     }
-
     .field-label .value-badge {
-      font-size: 0.6rem;
-      font-weight: 700;
-      color: #d90429;
-      background: rgba(255, 45, 85, 0.08);
-      padding: 3px 8px;
-      border-radius: 6px;
-      letter-spacing: 0.02em;
-      border: 1px solid rgba(255, 45, 85, 0.15);
+      font-size: 0.6rem; font-weight: 700; color: #d90429;
+      background: rgba(255, 45, 85, 0.08); padding: 3px 8px; border-radius: 6px;
+      letter-spacing: 0.02em; border: 1px solid rgba(255, 45, 85, 0.15);
     }
-
-    /* ============ RANGE SLIDER — LIGHT ============ */
-    .range-wrapper {
-      width: 100%;
-      padding: 0 2px;
-    }
-
+    .range-wrapper { width: 100%; padding: 0 2px; }
     input[type="range"] {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 100%;
-      height: 6px;
-      background: #f0e0e5;
-      border-radius: 6px;
-      outline: none;
-      margin: 4px 0;
-      touch-action: manipulation;
-      cursor: pointer;
-      border: none;
+      -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+      background: #f0e0e5; border-radius: 6px; outline: none;
+      margin: 4px 0; touch-action: manipulation; cursor: pointer; border: none;
     }
-
     input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #ff2d55, #b3001b);
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(255, 45, 85, 0.4), 0 0 0 3px rgba(255, 45, 85, 0.1);
-      border: 2.5px solid #ffffff;
-      transition: transform 0.12s;
-      touch-action: manipulation;
+      -webkit-appearance: none; appearance: none; width: 26px; height: 26px;
+      border-radius: 50%; background: linear-gradient(135deg, #ff2d55, #b3001b);
+      cursor: pointer; box-shadow: 0 4px 12px rgba(255, 45, 85, 0.4), 0 0 0 3px rgba(255, 45, 85, 0.1);
+      border: 2.5px solid #ffffff; transition: transform 0.12s; touch-action: manipulation;
     }
-
-    input[type="range"]::-webkit-slider-thumb:active {
-      transform: scale(1.18);
-    }
-
+    input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.18); }
     input[type="range"]::-moz-range-thumb {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
       background: linear-gradient(135deg, #ff2d55, #b3001b);
-      cursor: pointer;
-      border: 2.5px solid #ffffff;
+      cursor: pointer; border: 2.5px solid #ffffff;
       box-shadow: 0 4px 12px rgba(255, 45, 85, 0.4);
     }
-
-    /* ============ TEXT INPUT — LIGHT ============ */
     input[type="text"] {
-      width: 100%;
-      padding: 15px 16px;
-      border-radius: 16px;
-      border: 1.5px solid rgba(0, 0, 0, 0.06);
-      background: #ffffff;
-      font-size: 0.9rem;
-      font-weight: 500;
-      outline: none;
-      transition: all 0.2s;
-      -webkit-appearance: none;
-      appearance: none;
-      touch-action: manipulation;
-      color: #1a1a1a;
-      font-family: inherit;
+      width: 100%; padding: 15px 16px; border-radius: 16px;
+      border: 1.5px solid rgba(0, 0, 0, 0.06); background: #ffffff;
+      font-size: 0.9rem; font-weight: 500; outline: none; transition: all 0.2s;
+      -webkit-appearance: none; appearance: none; touch-action: manipulation;
+      color: #1a1a1a; font-family: inherit;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
     }
+    input[type="text"]:focus { border-color: #ff2d55; background: #ffffff; box-shadow: 0 0 0 3px rgba(255, 45, 85, 0.1); }
+    input[type="text"]::placeholder { color: #b8a0a5; font-weight: 400; }
 
-    input[type="text"]:focus {
-      border-color: #ff2d55;
-      background: #ffffff;
-      box-shadow: 0 0 0 3px rgba(255, 45, 85, 0.1);
-    }
-
-    input[type="text"]::placeholder {
-      color: #b8a0a5;
-      font-weight: 400;
-    }
-
-    /* ============ BUTTONS ============ */
+    /* BUTTONS */
     .btn {
-      width: 100%;
-      padding: 16px 12px;
-      border-radius: 18px;
-      border: none;
-      font-weight: 700;
-      font-size: 0.84rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      -webkit-user-select: none;
-      user-select: none;
-      touch-action: manipulation;
-      -webkit-appearance: none;
-      appearance: none;
-      color: #ffffff;
-      flex-shrink: 0;
-      font-family: inherit;
-      letter-spacing: 0.01em;
-      position: relative;
-      overflow: hidden;
+      width: 100%; padding: 16px 12px; border-radius: 18px; border: none;
+      font-weight: 700; font-size: 0.84rem; cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      -webkit-user-select: none; user-select: none; touch-action: manipulation;
+      -webkit-appearance: none; appearance: none; color: #ffffff;
+      flex-shrink: 0; font-family: inherit; letter-spacing: 0.01em;
+      position: relative; overflow: hidden;
     }
-
     .btn::before {
-      content: '';
-      position: absolute;
-      inset: 0;
+      content: ''; position: absolute; inset: 0;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 55%);
       pointer-events: none;
     }
-
-    .btn:active {
-      transform: scale(0.97);
-    }
-
+    .btn:active { transform: scale(0.97); }
     .btn-shuffle {
-      background: #ffffff;
-      border: 1.5px solid rgba(255, 45, 85, 0.2);
-      color: #7a0010;
-      font-size: 0.82rem;
-      box-shadow: 0 4px 12px rgba(217, 4, 41, 0.06);
+      background: linear-gradient(135deg, #ff758c, #ff7eb3);
+      box-shadow: 0 6px 16px rgba(255, 117, 140, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     }
-
-    .btn-shuffle::before {
-      background: linear-gradient(180deg, rgba(255, 240, 243, 0.5), transparent 55%);
-    }
-
-    .btn-shuffle:active {
-      background: #fff5f7;
-      border-color: rgba(255, 45, 85, 0.4);
-    }
-
     .btn-download {
       background: linear-gradient(135deg, #2b2b30, #000000);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
     }
-
     .btn-share {
       background: linear-gradient(135deg, #ff2d55, #d90429);
       box-shadow: 0 8px 20px rgba(255, 45, 85, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25);
     }
+    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-shrink: 0; }
 
-    .btn-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      flex-shrink: 0;
-    }
-
-    /* ============ VIDEO STATUS ============ */
     .video-status {
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: #b3001b;
-      text-align: center;
-      background: #fff5f7;
-      padding: 12px 14px;
-      border-radius: 14px;
-      display: none;
-      border: 1px solid rgba(255, 45, 85, 0.18);
-      flex-shrink: 0;
-      line-height: 1.5;
-      letter-spacing: 0.01em;
+      font-size: 0.72rem; font-weight: 600; color: #b3001b; text-align: center;
+      background: #fff5f7; padding: 12px 14px; border-radius: 14px;
+      display: none; border: 1px solid rgba(255, 45, 85, 0.18);
+      flex-shrink: 0; line-height: 1.5; letter-spacing: 0.01em;
     }
+    .video-status.visible { display: block; animation: fadeIn 0.3s ease both; }
 
-    .video-status.visible {
-      display: block;
-      animation: fadeIn 0.3s ease both;
-    }
-
-    /* ============ FOOTER ============ */
     .app-footer {
-      text-align: center;
-      font-size: 0.56rem;
-      color: #b8a0a5;
-      font-weight: 500;
-      padding: 8px 0 4px;
-      flex-shrink: 0;
-      letter-spacing: 0.04em;
+      text-align: center; font-size: 0.56rem; color: #b8a0a5;
+      font-weight: 500; padding: 8px 0 4px; flex-shrink: 0; letter-spacing: 0.04em;
     }
 
-    /* ============ SAFE AREA ============ */
     @supports (padding: env(safe-area-inset-bottom)) {
       .scroll-area {
         padding-bottom: calc(32px + env(safe-area-inset-bottom));
         padding-top: calc(16px + env(safe-area-inset-top));
       }
-      .app-header {
-        padding-top: calc(4px + env(safe-area-inset-top));
-      }
-      .app-footer {
-        padding-bottom: calc(4px + env(safe-area-inset-bottom));
-      }
+      .app-header { padding-top: calc(4px + env(safe-area-inset-top)); }
+      .app-footer { padding-bottom: calc(4px + env(safe-area-inset-bottom)); }
     }
-
-    /* ============ SMALL PHONES ============ */
     @media (max-height: 720px) {
-      .scroll-area {
-        gap: 10px;
-        padding: 12px 14px 24px;
-      }
-      .canvas-frame {
-        border-radius: 20px;
-        padding: 6px;
-        max-height: 44vh;
-      }
-      .canvas-frame .hearts-layer,
-      .canvas-frame canvas {
-        border-radius: 15px;
-      }
-      .upload-action-btn {
-        padding: 13px 8px;
-        font-size: 0.68rem;
-      }
-      .upload-action-btn .icon-circle {
-        width: 32px;
-        height: 32px;
-        font-size: 15px;
-      }
-      .btn {
-        padding: 14px 10px;
-        font-size: 0.8rem;
-      }
-      input[type="text"] {
-        padding: 13px 14px;
-        font-size: 0.86rem;
-      }
-      .tab-btn {
-        padding: 11px 6px;
-        font-size: 0.72rem;
-      }
+      .scroll-area { gap: 10px; padding: 12px 14px 24px; }
+      .canvas-frame { border-radius: 20px; padding: 6px; max-height: 44vh; }
+      .canvas-frame .hearts-layer, .canvas-frame canvas { border-radius: 15px; }
+      .upload-action-btn { padding: 13px 8px; font-size: 0.68rem; }
+      .upload-action-btn .icon-circle { width: 32px; height: 32px; font-size: 15px; }
+      .btn { padding: 14px 10px; font-size: 0.8rem; }
+      input[type="text"] { padding: 13px 14px; font-size: 0.86rem; }
+      .tab-btn { padding: 11px 6px; font-size: 0.72rem; }
     }
-
-    /* ============ TEXT SELECTION ============ */
-    .app, .app * {
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-
-    input[type="text"] {
-      -webkit-user-select: text;
-      -moz-user-select: text;
-      -ms-user-select: text;
-      user-select: text;
-    }
-
-    body {
-      overscroll-behavior-y: none;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .scroll-area > * {
-      animation: fadeIn 0.35s cubic-bezier(0.2, 0.9, 0.4, 1) both;
-    }
-
+    .app, .app * { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+    input[type="text"] { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; }
+    body { overscroll-behavior-y: none; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .scroll-area > * { animation: fadeIn 0.35s cubic-bezier(0.2, 0.9, 0.4, 1) both; }
     .scroll-area > *:nth-child(2) { animation-delay: 0.04s; }
     .scroll-area > *:nth-child(3) { animation-delay: 0.08s; }
     .scroll-area > *:nth-child(4) { animation-delay: 0.12s; }
@@ -689,39 +288,39 @@
         </button>
       </div>
 
-      <!-- CANVAS FRAME — 9:16 VERTICAL RATIO -->
+      <!-- CANVAS FRAME -->
       <div class="canvas-frame" id="canvasFrame">
         <div class="hearts-layer" id="heartsLayer" aria-hidden="true"></div>
         <canvas id="creatorCanvas" width="1080" height="1920"></canvas>
       </div>
 
-      <!-- UPLOAD SECTION — CAMERA + GALLERY (BOTH MODES) -->
+      <!-- UPLOAD -->
       <div class="upload-section">
         <div class="upload-label-row">
           <span class="label-text">Add your media</span>
           <span class="media-type-badge" id="mediaTypeBadge">Photo</span>
         </div>
         <div class="upload-actions">
-          <!-- Camera button -->
           <button class="upload-action-btn" id="cameraBtn" type="button">
             <span class="icon-circle">📸</span>
             <span id="cameraBtnText">Take Photo</span>
           </button>
-          <!-- Gallery button -->
           <button class="upload-action-btn" id="galleryBtn" type="button">
             <span class="icon-circle">🖼️</span>
             <span id="galleryBtnText">Choose Photo</span>
           </button>
         </div>
-        <!-- Hidden file inputs — one for camera, one for gallery -->
         <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
         <input type="file" id="galleryInput" accept="image/*" style="display:none;">
       </div>
 
+      <!-- SHUFFLE -->
+      <button class="btn btn-shuffle" id="shuffleSloganBtn" type="button">🔀 Shuffle Message Slogan</button>
+
       <!-- ZOOM -->
       <div class="field-group">
         <div class="field-label">
-          <span>Zoom & drag inside vertical oval</span>
+          <span>Zoom & drag inside media area</span>
           <span class="value-badge" id="zoomValue">1.0×</span>
         </div>
         <div class="range-wrapper">
@@ -737,13 +336,10 @@
         <input type="text" id="userName" placeholder="e.g. Community Health Team" maxlength="28" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
       </div>
 
-      <!-- SHUFFLE -->
-      <button class="btn btn-shuffle" id="shuffleBtn">🔄 Shuffle Slogan & Mascot</button>
-
       <!-- VIDEO STATUS -->
       <div class="video-status" id="videoStatus"></div>
 
-      <!-- ACTION BUTTONS -->
+      <!-- ACTIONS -->
       <div class="btn-group">
         <button class="btn btn-download" id="actionDownloadBtn">💾 Save Story</button>
         <button class="btn btn-share" id="actionShareBtn">📤 Share Story</button>
@@ -764,15 +360,11 @@
         const layer = document.getElementById('heartsLayer');
         const heartChars = ['❤', '♥', '❤️', '💗', '💓'];
         const colors = [
-          'rgba(255, 160, 180, 0.85)',
-          'rgba(255, 120, 150, 0.8)',
-          'rgba(255, 190, 205, 0.75)',
-          'rgba(255, 100, 130, 0.7)',
+          'rgba(255, 160, 180, 0.85)', 'rgba(255, 120, 150, 0.8)',
+          'rgba(255, 190, 205, 0.75)', 'rgba(255, 100, 130, 0.7)',
           'rgba(255, 210, 220, 0.7)'
         ];
-        const count = 20;
-
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < 20; i++) {
           const heart = document.createElement('span');
           heart.className = 'heart';
           heart.textContent = heartChars[Math.floor(Math.random() * heartChars.length)];
@@ -781,11 +373,9 @@
           const delay = Math.random() * 12;
           const left = Math.random() * 100;
           const drift = (Math.random() * 70 - 35).toFixed(0) + 'px';
-          const color = colors[Math.floor(Math.random() * colors.length)];
-
           heart.style.left = left + '%';
           heart.style.fontSize = size + 'px';
-          heart.style.color = color;
+          heart.style.color = colors[Math.floor(Math.random() * colors.length)];
           heart.style.animationDuration = duration + 's';
           heart.style.animationDelay = '-' + delay + 's';
           heart.style.setProperty('--drift', drift);
@@ -796,11 +386,9 @@
       // ============ DOM REFS ============
       const canvas = document.getElementById('creatorCanvas');
       const ctx = canvas.getContext('2d');
-      const scrollArea = document.getElementById('scrollArea');
       const userNameInput = document.getElementById('userName');
       const zoomRange = document.getElementById('zoomRange');
       const zoomValue = document.getElementById('zoomValue');
-      const shuffleBtn = document.getElementById('shuffleBtn');
       const actionDownloadBtn = document.getElementById('actionDownloadBtn');
       const actionShareBtn = document.getElementById('actionShareBtn');
       const videoStatus = document.getElementById('videoStatus');
@@ -813,6 +401,7 @@
       const galleryBtnText = document.getElementById('galleryBtnText');
       const cameraInput = document.getElementById('cameraInput');
       const galleryInput = document.getElementById('galleryInput');
+      const shuffleSloganBtn = document.getElementById('shuffleSloganBtn');
 
       // ============ STATE ============
       let userImage = null;
@@ -826,157 +415,252 @@
       let lastRecordedVideoBlob = null;
       let isDragging = false;
       let startX = 0, startY = 0;
-      let currentRotatingSlogan = "ACT EARLY, PROTECT YOUR LIFE";
-      let currentMascotIndex = 0;
-      let mascotSide = 'right';
       let lastDrawTime = 0;
 
-      // ============ TEXT ANIMATIONS (video mode) ============
-      let textAnimations = {
-        title: null, curvedSlogan: null, rotatingSlogan: null,
-        hashtags: null, name: null, credit: null
-      };
+      // ============ SLOGANS ============
+      const whdSlogans = [
+        "USE HEART FOR ACTION.",
+        "USE HEART TO CONNECT.",
+        "BEAT CVD, USE HEART.",
+        "POWER YOUR LIFE, USE HEART.",
+        "PROTECT EVERY HEART.",
+        "HEART HEALTH FOR ALL.",
+        "KNOW RISK, TAKE ACTION.",
+        "LIVE LIFE WITH HEART.",
+        "SMALL STEPS, BIG HEART.",
+        "CHOOSE HEALTH, BEAT CVD.",
+        "KEEP THE BEAT ALIVE."
+      ];
+      let currentSloganIndex = Math.floor(Math.random() * whdSlogans.length);
 
+      shuffleSloganBtn.addEventListener('click', () => {
+        let newIndex;
+        do { newIndex = Math.floor(Math.random() * whdSlogans.length); }
+        while (newIndex === currentSloganIndex && whdSlogans.length > 1);
+        currentSloganIndex = newIndex;
+        scheduleDraw();
+      });
+
+      // ============ TEXT ANIMATIONS ============
+      let textAnimations = { title: null, subtitle: null, name: null };
       const animationPool = [
         'fadeIn', 'slideFromLeft', 'slideFromRight', 'slideFromTop',
         'slideFromBottom', 'scaleUp', 'scaleDown', 'wave', 'pulse',
         'glow', 'rotateIn', 'bounceIn', 'flipIn'
       ];
-
       function randomizeTextAnimations() {
         const pick = () => animationPool[Math.floor(Math.random() * animationPool.length)];
         textAnimations.title = pick();
-        textAnimations.curvedSlogan = pick();
-        textAnimations.rotatingSlogan = pick();
-        textAnimations.hashtags = pick();
+        textAnimations.subtitle = pick();
         textAnimations.name = pick();
-        textAnimations.credit = pick();
       }
-
       function getAnimProgress(elapsed, delay, duration) {
         if (elapsed < delay) return 0;
         return Math.min(1, (elapsed - delay) / duration);
       }
-
       function getAnimState(animName, progress) {
         const state = { alpha: 1, offsetX: 0, offsetY: 0, scale: 1, rotate: 0, glow: 0 };
         const p = progress;
         switch (animName) {
-          case 'fadeIn':          state.alpha = p; break;
-          case 'slideFromLeft':   state.offsetX = -180 * (1 - p); state.alpha = p; break;
-          case 'slideFromRight':  state.offsetX = 180 * (1 - p);  state.alpha = p; break;
-          case 'slideFromTop':    state.offsetY = -120 * (1 - p); state.alpha = p; break;
-          case 'slideFromBottom': state.offsetY = 120 * (1 - p);  state.alpha = p; break;
-          case 'scaleUp':         state.scale = 0.3 + 0.7 * p;    state.alpha = p; break;
-          case 'scaleDown':       state.scale = 1.6 - 0.6 * p;    state.alpha = p; break;
-          case 'wave':            state.offsetY = Math.sin(p * Math.PI * 4) * 18 * (1 - p); state.alpha = Math.min(1, p * 2); break;
-          case 'pulse':           state.scale = 1 + Math.sin(p * Math.PI * 6) * 0.12 * (1 - p); state.alpha = Math.min(1, p * 1.5); break;
-          case 'glow':            state.glow = Math.sin(p * Math.PI * 5) * 22; state.alpha = Math.min(1, p * 2); break;
-          case 'rotateIn':        state.rotate = -Math.PI * 0.6 * (1 - p); state.scale = 0.4 + 0.6 * p; state.alpha = p; break;
+          case 'fadeIn':         state.alpha = p; break;
+          case 'slideFromLeft':  state.offsetX = -180 * (1 - p); state.alpha = p; break;
+          case 'slideFromRight': state.offsetX = 180 * (1 - p);  state.alpha = p; break;
+          case 'slideFromTop':   state.offsetY = -120 * (1 - p); state.alpha = p; break;
+          case 'slideFromBottom':state.offsetY = 120 * (1 - p);  state.alpha = p; break;
+          case 'scaleUp':        state.scale = 0.3 + 0.7 * p;    state.alpha = p; break;
+          case 'scaleDown':      state.scale = 1.6 - 0.6 * p;    state.alpha = p; break;
+          case 'wave':           state.offsetY = Math.sin(p * Math.PI * 4) * 18 * (1 - p); state.alpha = Math.min(1, p * 2); break;
+          case 'pulse':          state.scale = 1 + Math.sin(p * Math.PI * 6) * 0.12 * (1 - p); state.alpha = Math.min(1, p * 1.5); break;
+          case 'glow':           state.glow = Math.sin(p * Math.PI * 5) * 22; state.alpha = Math.min(1, p * 2); break;
+          case 'rotateIn':       state.rotate = -Math.PI * 0.6 * (1 - p); state.scale = 0.4 + 0.6 * p; state.alpha = p; break;
           case 'bounceIn':
-            if (p < 0.7) {
-              const tt = p / 0.7;
-              state.scale = 0.3 + 1.0 * tt - 0.3 * Math.sin(tt * Math.PI);
-            } else { state.scale = 1; }
+            if (p < 0.7) { const tt = p / 0.7; state.scale = 0.3 + 1.0 * tt - 0.3 * Math.sin(tt * Math.PI); }
+            else { state.scale = 1; }
             state.alpha = Math.min(1, p * 1.8);
             break;
-          case 'flipIn':          state.scale = 0.1 + 0.9 * p; state.rotate = Math.PI * (1 - p); state.alpha = p; break;
+          case 'flipIn':         state.scale = 0.1 + 0.9 * p; state.rotate = Math.PI * (1 - p); state.alpha = p; break;
         }
         return state;
       }
 
       // ============ ASSETS ============
-      const hospitalLogo = new Image();
-      hospitalLogo.src = 'shah_logo.png';
-      hospitalLogo.onload = () => { if (currentMode === 'image') scheduleDraw(); };
-      hospitalLogo.onerror = () => {};
+      const newLogoImg = new Image();
+      newLogoImg.src = 'https://raw.githubusercontent.com/AhmedSharyph/whd-2026/main/new_logo.png';
+      newLogoImg.crossOrigin = 'anonymous';
+      newLogoImg.onload = () => { if (currentMode === 'image') scheduleDraw(); };
 
-      const mascotSources = [
-        'mascot_heart_1.png', 'mascot_heart_2.png', 'mascot_heart_3.png',
-        'mascot_heart_4.png', 'mascot_heart_5.png', 'mascot_heart_6.png'
-      ];
-      let loadedMascots = [];
-      let mascotLoadCount = 0;
+      const mascotTrImg = new Image();
+      mascotTrImg.src = 'https://raw.githubusercontent.com/AhmedSharyph/whd-2026/main/mascot_tr.png';
+      mascotTrImg.crossOrigin = 'anonymous';
+      mascotTrImg.onload = () => { if (currentMode === 'image') scheduleDraw(); };
 
-      mascotSources.forEach((src, idx) => {
-        const img = new Image();
-        img.src = src;
-        img.onload = () => {
-          loadedMascots[idx] = img;
-          mascotLoadCount++;
-          if (idx === 0 && currentMode === 'image') scheduleDraw();
+      // ============ CURVE CONSTANTS ============
+      const CURVE = {
+        P0: { x: 0,    y: 850 },
+        P1: { x: 360,  y: 480 },
+        P2: { x: 720,  y: 320 },
+        P3: { x: 1080, y: 520 }
+      };
+
+      function bezierPoint(t) {
+        const mt = 1 - t;
+        const { P0, P1, P2, P3 } = CURVE;
+        return {
+          x: mt*mt*mt*P0.x + 3*mt*mt*t*P1.x + 3*mt*t*t*P2.x + t*t*t*P3.x,
+          y: mt*mt*mt*P0.y + 3*mt*mt*t*P1.y + 3*mt*t*t*P2.y + t*t*t*P3.y
         };
-        img.onerror = () => { mascotLoadCount++; };
-      });
+      }
+      function bezierTangentAngle(t) {
+        const mt = 1 - t;
+        const { P0, P1, P2, P3 } = CURVE;
+        const dx = 3*mt*mt*(P1.x-P0.x) + 6*mt*t*(P2.x-P1.x) + 3*t*t*(P3.x-P2.x);
+        const dy = 3*mt*mt*(P1.y-P0.y) + 6*mt*t*(P2.y-P1.y) + 3*t*t*(P3.y-P2.y);
+        return Math.atan2(dy, dx);
+      }
+      function bezierLength(tMax = 1, samples = 200) {
+        let len = 0;
+        let prev = bezierPoint(0);
+        for (let i = 1; i <= samples; i++) {
+          const cur = bezierPoint((i / samples) * tMax);
+          len += Math.hypot(cur.x - prev.x, cur.y - prev.y);
+          prev = cur;
+        }
+        return len;
+      }
 
-      const fallbackMascot = (() => {
-        const c = document.createElement('canvas');
-        c.width = 200; c.height = 200;
-        const cx = c.getContext('2d');
-        cx.fillStyle = '#ffb3b3';
-        cx.beginPath();
-        cx.arc(100, 100, 80, 0, 2 * Math.PI);
-        cx.fill();
-        cx.fillStyle = '#c81e1e';
-        cx.font = 'bold 80px sans-serif';
-        cx.textAlign = 'center';
-        cx.textBaseline = 'middle';
-        cx.fillText('❤️', 100, 100);
-        return c;
-      })();
+      // ============ FIND T AT PIXEL DISTANCE ============
+      function findTAtDistance(centerT, distancePx) {
+        const centerPt = bezierPoint(centerT);
+        const forward = distancePx >= 0;
+        const absDist = Math.abs(distancePx);
+        const step = 0.002;
 
-      const bannerSloganText = "DON'T MISS A BEAT";
-      const rotatingHeartbeatSlogans = [
-        "ACT EARLY, PROTECT YOUR LIFE",
-        "KNOW YOUR RISK FACTORS TODAY",
-        "KEEP YOUR HEART HEALTHY & STRONG",
-        "HEART DISEASE CAN HIDE IN PLAIN SIGHT",
-        "USE HEART TO CONNECT & CARE"
-      ];
+        let t = centerT;
+        let accumulated = 0;
+        let prevPt = centerPt;
 
-      // ============ TILEABLE RED HEART PATTERN ============
-      let heartPatternCanvas = null;
-      function createHeartPattern() {
-        if (heartPatternCanvas) return heartPatternCanvas;
-        const pc = document.createElement('canvas');
-        pc.width = 90;
-        pc.height = 90;
-        const pctx = pc.getContext('2d');
+        for (let i = 0; i < 600; i++) {
+          t += forward ? step : -step;
+          if (t < 0.001 || t > 0.999) break;
+          const pt = bezierPoint(t);
+          accumulated += Math.hypot(pt.x - prevPt.x, pt.y - prevPt.y);
+          prevPt = pt;
+          if (accumulated >= absDist) break;
+        }
+        return Math.max(0.01, Math.min(0.99, t));
+      }
 
-        // Base red tile background
-        pctx.fillStyle = '#d90429';
-        pctx.fillRect(0, 0, 90, 90);
+      // ============ HASHTAG FONT & HELPERS ============
+      const HASHTAG_FONT_TEMPLATE =
+        '200 {SIZE}px "Helvetica Neue", "HelveticaNeue-Thin", "SF Pro Text", "Segoe UI Light", Roboto, Arial, sans-serif';
 
-        // Subtle gradient overlay for depth
-        const grad = pctx.createLinearGradient(0, 0, 90, 90);
-        grad.addColorStop(0, 'rgba(255, 45, 85, 0.35)');
-        grad.addColorStop(1, 'rgba(100, 0, 10, 0.35)');
-        pctx.fillStyle = grad;
-        pctx.fillRect(0, 0, 90, 90);
+      function fitFontSize(text, template, maxWidth, minSize, maxSize) {
+        let size = maxSize;
+        while (size > minSize) {
+          ctx.font = template.replace('{SIZE}', size);
+          if (ctx.measureText(text).width <= maxWidth) break;
+          size -= 2;
+        }
+        return size;
+      }
 
-        // Draw small subtle tiled hearts
-        pctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
-        pctx.font = '22px sans-serif';
-        pctx.textAlign = 'center';
-        pctx.textBaseline = 'middle';
+      // ============ HASHTAG ON CURVE ============
+      function drawHashtagOnCurve(text, t, opts = {}) {
+        const {
+          aboveOffset = 0,
+          maxWidth = 300,
+          minSize = 22,
+          maxSize = 40,
+          angleOffset = 0,
+          color = '#ffffff',
+          glow = 'rgba(0, 0, 0, 0.45)'
+        } = opts;
 
-        // Tiled heart positions
-        const coords = [
-          {x: 22, y: 22, rot: -0.2},
-          {x: 68, y: 22, rot: 0.15},
-          {x: 45, y: 68, rot: 0.05}
-        ];
+        const pt = bezierPoint(t);
+        const angle = bezierTangentAngle(t) + angleOffset;
 
-        coords.forEach(c => {
-          pctx.save();
-          pctx.translate(c.x, c.y);
-          pctx.rotate(c.rot);
-          pctx.fillText('❤', 0, 0);
-          pctx.restore();
-        });
+        const nx = Math.sin(angle);
+        const ny = -Math.cos(angle);
 
-        heartPatternCanvas = pc;
-        return pc;
+        ctx.save();
+        ctx.translate(pt.x + nx * aboveOffset, pt.y + ny * aboveOffset);
+        ctx.rotate(angle);
+
+        const size = fitFontSize(text, HASHTAG_FONT_TEMPLATE, maxWidth, minSize, maxSize);
+        ctx.font = HASHTAG_FONT_TEMPLATE.replace('{SIZE}', size);
+
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = glow;
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetY = 1;
+        ctx.fillText(text, 0, 0);
+        ctx.restore();
+      }
+
+      // ============ BACKGROUND RENDERER ============
+      function drawBackground(w, h) {
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+        bgGrad.addColorStop(0.00, '#8a0018');
+        bgGrad.addColorStop(0.15, '#b3001b');
+        bgGrad.addColorStop(0.35, '#d90429');
+        bgGrad.addColorStop(0.55, '#d90429');
+        bgGrad.addColorStop(0.75, '#a80020');
+        bgGrad.addColorStop(1.00, '#6e0014');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        const glow = ctx.createRadialGradient(
+          w * 0.30, h * 0.06, 0,
+          w * 0.30, h * 0.06, w * 0.9
+        );
+        glow.addColorStop(0,    'rgba(255, 120, 150, 0.35)');
+        glow.addColorStop(0.45, 'rgba(255, 45, 85, 0.12)');
+        glow.addColorStop(1,    'rgba(255, 45, 85, 0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, w, h * 0.5);
+
+        ctx.save();
+        ctx.globalAlpha = 0.06;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        const patternY = 260;
+        const patternStep = 90;
+        for (let row = 0; row < 3; row++) {
+          const yBase = patternY + row * patternStep;
+          ctx.beginPath();
+          for (let x = 0; x <= w; x += 6) {
+            const cycle = 180;
+            const local = (x + row * 40) % cycle;
+            let dy = 0;
+            if (local > 20 && local < 40) dy = -6 * Math.sin(((local - 20) / 20) * Math.PI);
+            else if (local >= 50 && local < 58) dy = 6;
+            else if (local >= 58 && local < 68) dy = -32 * Math.sin(((local - 58) / 10) * Math.PI);
+            else if (local >= 68 && local < 76) dy = 10 * Math.sin(((local - 68) / 8) * Math.PI);
+            else if (local >= 90 && local < 120) dy = -5 * Math.sin(((local - 90) / 30) * Math.PI);
+            const y = yBase + dy;
+            if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        const bottomGrad = ctx.createLinearGradient(0, h - 160, 0, h);
+        bottomGrad.addColorStop(0, '#b3001b');
+        bottomGrad.addColorStop(0.5, '#8a0018');
+        bottomGrad.addColorStop(1, '#5a0010');
+        ctx.fillStyle = bottomGrad;
+        ctx.fillRect(0, h - 160, w, 160);
+
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, h - 160);
+        ctx.lineTo(w, h - 160);
+        ctx.stroke();
+        ctx.restore();
       }
 
       // ============ DRAW SCHEDULER ============
@@ -990,84 +674,6 @@
         });
       }
 
-      // ============ RANDOM MASCOT ============
-      function randomizeMascot() {
-        const available = loadedMascots
-          .map((img, i) => (img && img.complete && img.naturalHeight !== 0) ? i : -1)
-          .filter(i => i !== -1);
-        if (available.length > 0) {
-          currentMascotIndex = available[Math.floor(Math.random() * available.length)];
-        } else {
-          currentMascotIndex = Math.floor(Math.random() * mascotSources.length);
-        }
-        mascotSide = 'right';
-      }
-
-      // ============ VERTICAL OVAL PATH HELPER ============
-      function traceVerticalOvalPath(ctx, cx, cy, rx, ry) {
-        ctx.beginPath();
-        if (ctx.ellipse) {
-          ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-        } else {
-          ctx.save();
-          ctx.translate(cx, cy);
-          ctx.scale(rx / ry, 1);
-          ctx.arc(0, 0, ry, 0, Math.PI * 2);
-          ctx.restore();
-        }
-      }
-
-      // ============ CURVED TEXT AROUND VERTICAL OVAL ============
-      function drawCurvedText(text, cx, cy, rx, ry, options, animState) {
-        const {
-          fontSize = 52, fontWeight = '900',
-          fontFamily = '-apple-system, sans-serif',
-          fillStyle = '#ffe3e3', shadowColor = 'rgba(0,0,0,0.9)',
-          shadowBlur = 16, letterSpacing = 4
-        } = options || {};
-        const state = animState || { alpha: 1, offsetX: 0, offsetY: 0, scale: 1, rotate: 0, glow: 0 };
-
-        ctx.save();
-        ctx.globalAlpha = state.alpha;
-        ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = fillStyle;
-        ctx.shadowColor = shadowColor;
-        ctx.shadowBlur = shadowBlur + (state.glow || 0);
-
-        const chars = text.split('');
-        const charWidths = chars.map(ch => {
-          const w = ctx.measureText(ch).width;
-          return w + (letterSpacing || 0);
-        });
-        const totalWidth = charWidths.reduce((a, b) => a + b, 0);
-        const perimeter = Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry)));
-        const stringAngleSpan = (totalWidth / perimeter) * (2 * Math.PI);
-        const stringCenterAngle = -Math.PI / 2;
-        const stringStartAngle = stringCenterAngle - stringAngleSpan / 2;
-
-        let currentAngle = stringStartAngle;
-        for (let i = 0; i < chars.length; i++) {
-          const ch = chars[i];
-          const chWidth = charWidths[i];
-          const chAngleSpan = (chWidth / perimeter) * (2 * Math.PI);
-          const charAngle = currentAngle + chAngleSpan / 2;
-          
-          const x = cx + rx * Math.cos(charAngle) + (state.offsetX || 0);
-          const y = cy + ry * Math.sin(charAngle) + (state.offsetY || 0);
-
-          ctx.save();
-          ctx.translate(x, y);
-          ctx.rotate(charAngle + Math.PI / 2 + (state.rotate || 0));
-          if (state.scale !== 1) ctx.scale(state.scale, state.scale);
-          ctx.fillText(ch, 0, 0);
-          ctx.restore();
-          currentAngle += chAngleSpan;
-        }
-        ctx.restore();
-      }
-
       function withAnimation(animName, elapsed, delay, duration, drawFn) {
         if (currentMode !== 'video' || !animName) {
           drawFn({ alpha: 1, offsetX: 0, offsetY: 0, scale: 1, rotate: 0, glow: 0 });
@@ -1075,24 +681,6 @@
         }
         const progress = getAnimProgress(elapsed, delay, duration);
         drawFn(getAnimState(animName, progress));
-      }
-
-      // ============ DRAW MASCOT ============
-      function drawMascot() {
-        const activeMascot = loadedMascots[currentMascotIndex] || fallbackMascot;
-        if (!activeMascot || activeMascot.complete === false) return;
-        const baseHeight = 220;
-        const aspect = (activeMascot.width && activeMascot.height)
-          ? (activeMascot.width / activeMascot.height) : 1;
-        const baseWidth = baseHeight * aspect;
-
-        const finalX = canvas.width - baseWidth - 45;
-        const finalY = 1860 - baseHeight;
-
-        ctx.save();
-        ctx.globalAlpha = 1;
-        ctx.drawImage(activeMascot, finalX, finalY, baseWidth, baseHeight);
-        ctx.restore();
       }
 
       // ============ MAIN DRAW ============
@@ -1103,26 +691,19 @@
         if (now - lastDrawTime < 16 && elapsedTime === 0) return;
         lastDrawTime = now;
 
-        const isVideo = (currentMode === 'video');
-        const t = elapsedTime || 0;
-
         ctx.clearRect(0, 0, w, h);
 
-        // 1. Tiled Heart Pattern Background
-        const patternImg = createHeartPattern();
-        const pattern = ctx.createPattern(patternImg, 'repeat');
-        ctx.fillStyle = pattern;
-        ctx.fillRect(0, 0, w, h);
+        // 1. Background
+        drawBackground(w, h);
 
-        // 2. Vertical Oval Dimensions (Shifted slightly upward to give ample space for bottom text & ECG)
-        const ovalRx = 380;
-        const ovalRy = 510;
-        const ovalX = 540;
-        const ovalY = 730;
-
-        // Clip to Vertical Oval
+        // 2. Media clip path
         ctx.save();
-        traceVerticalOvalPath(ctx, ovalX, ovalY, ovalRx, ovalRy);
+        ctx.beginPath();
+        ctx.moveTo(CURVE.P0.x, CURVE.P0.y);
+        ctx.bezierCurveTo(CURVE.P1.x, CURVE.P1.y, CURVE.P2.x, CURVE.P2.y, CURVE.P3.x, CURVE.P3.y);
+        ctx.lineTo(CURVE.P3.x, h - 160);
+        ctx.lineTo(CURVE.P0.x, h - 160);
+        ctx.closePath();
         ctx.clip();
 
         if (userVideo && userVideo.readyState >= 2) {
@@ -1130,221 +711,173 @@
           const vh = userVideo.videoHeight;
           if (vw && vh) {
             const sourceAspect = vw / vh;
-            let drawWidth = ovalRx * 2 * photoScale;
-            let drawHeight = ovalRy * 2 * photoScale;
-            if (sourceAspect > 1) {
-              drawWidth = drawHeight * sourceAspect;
-            } else {
-              drawHeight = drawWidth / sourceAspect;
-            }
-            const vx = ovalX - (drawWidth / 2) + photoOffsetX;
-            const vy = ovalY - (drawHeight / 2) + photoOffsetY;
+            let drawWidth = w * photoScale;
+            let drawHeight = h * photoScale;
+            if (sourceAspect > (w / h)) { drawHeight = drawWidth / sourceAspect; }
+            else { drawWidth = drawHeight * sourceAspect; }
+            const vx = (w / 2) - (drawWidth / 2) + photoOffsetX;
+            const vy = (h / 2) - (drawHeight / 2) + photoOffsetY;
             ctx.drawImage(userVideo, vx, vy, drawWidth, drawHeight);
           }
         } else if (userImage) {
           const iw = userImage.naturalWidth || userImage.width;
           const ih = userImage.naturalHeight || userImage.height;
           const sourceAspect = iw / ih;
-          let drawWidth = ovalRx * 2 * photoScale;
-          let drawHeight = ovalRy * 2 * photoScale;
-          if (sourceAspect > 1) {
-            drawWidth = drawHeight * sourceAspect;
-          } else {
-            drawHeight = drawWidth / sourceAspect;
-          }
-          const x = ovalX - (drawWidth / 2) + photoOffsetX;
-          const y = ovalY - (drawHeight / 2) + photoOffsetY;
+          let drawWidth = w * photoScale;
+          let drawHeight = h * photoScale;
+          if (sourceAspect > (w / h)) { drawHeight = drawWidth / sourceAspect; }
+          else { drawWidth = drawHeight * sourceAspect; }
+          const x = (w / 2) - (drawWidth / 2) + photoOffsetX;
+          const y = (h / 2) - (drawHeight / 2) + photoOffsetY;
           ctx.drawImage(userImage, x, y, drawWidth, drawHeight);
         } else {
-          ctx.fillStyle = '#ffffff';
-          ctx.fill();
+          ctx.fillStyle = '#f5f5f7';
+          ctx.fillRect(0, 0, w, h);
           ctx.fillStyle = '#d90429';
-          ctx.font = 'bold 42px -apple-system, sans-serif';
+          ctx.font = 'bold 48px -apple-system, sans-serif';
           ctx.textAlign = 'center';
-          ctx.fillText('Tap below to', ovalX, ovalY - 20);
-          ctx.fillText('add your media', ovalX, ovalY + 30);
+          ctx.fillText('Tap below to add your photo or video', w / 2, h / 2);
         }
+
+        const vignette = ctx.createRadialGradient(w/2, h/2, h*0.3, w/2, h/2, h*0.75);
+        vignette.addColorStop(0, 'rgba(0,0,0,0)');
+        vignette.addColorStop(1, 'rgba(0,0,0,0.35)');
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, w, h);
+
         ctx.restore();
 
-        // 3. Vertical Oval Border
-        ctx.strokeStyle = 'rgba(255,255,255,0.95)';
-        ctx.lineWidth = 14;
-        traceVerticalOvalPath(ctx, ovalX, ovalY, ovalRx, ovalRy);
-        ctx.stroke();
-
-        // 4. ECG (Positioned safely below the expanded oval base)
-        drawContinuousNormalEcg(elapsedTime);
-
-        // 5. Mascot
-        drawMascot();
-
-        // 6. Header Title & Date
-        const headerY = 110;
-        const textCenterX = w / 2;
-
-        withAnimation(textAnimations.title, t, 100, 900, (state) => {
+        // 3. Top branding
+        withAnimation(textAnimations.title, elapsedTime, 100, 900, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
           const ox = state.offsetX, oy = state.offsetY;
-          const sc = state.scale, rot = state.rotate, glow = state.glow;
-          if (sc !== 1 || rot !== 0) {
-            ctx.translate(textCenterX, headerY + 24);
-            ctx.rotate(rot); ctx.scale(sc, sc);
-            ctx.translate(-textCenterX, -(headerY + 24));
+          const logoX = 70 + ox;
+          const logoY = 65 + oy;
+          const logoTargetHeight = 140;
+
+          if (newLogoImg.complete && newLogoImg.naturalHeight !== 0) {
+            const lAspect = newLogoImg.width / newLogoImg.height;
+            const logoWidth = logoTargetHeight * lAspect;
+            ctx.drawImage(newLogoImg, logoX, logoY, logoWidth, logoTargetHeight);
+
+            const textStartX = logoX + logoWidth + 25;
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'alphabetic';
+
+            ctx.font = '900 38px -apple-system, sans-serif';
+            ctx.fillText('WORLD', textStartX, 105 + oy);
+            ctx.fillText('HEART', textStartX, 150 + oy);
+
+            ctx.font = '800 22px -apple-system, sans-serif';
+            ctx.fillText('DAY 29 SEP', textStartX, 182 + oy);
+          } else {
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'alphabetic';
+            ctx.font = '900 38px -apple-system, sans-serif';
+            ctx.fillText('WORLD', 80 + ox, 105 + oy);
+            ctx.fillText('HEART', 80 + ox, 150 + oy);
+            ctx.font = '800 22px -apple-system, sans-serif';
+            ctx.fillText('DAY 29 SEP', 80 + ox, 182 + oy);
           }
-          ctx.textAlign = 'center';
-          ctx.fillStyle = '#ffffff';
-          ctx.font = '900 58px -apple-system, sans-serif';
-          ctx.shadowColor = 'rgba(0,0,0,0.8)';
-          ctx.shadowBlur = 14 + glow;
-          ctx.fillText('WORLD HEART DAY 2026', textCenterX + ox, headerY + 24 + oy);
           ctx.restore();
         });
 
-        // Date below title
-        ctx.save();
-        ctx.textAlign = 'center';
-        ctx.fillStyle = '#ffe3e3';
-        ctx.font = '700 28px -apple-system, sans-serif';
-        ctx.shadowColor = 'rgba(0,0,0,0.6)';
-        ctx.shadowBlur = 8;
-        ctx.fillText('29 September 2026', textCenterX, headerY + 74);
-        ctx.restore();
-
-        // 7. "DON'T MISS A BEAT" curved around the vertical oval top
-        withAnimation(textAnimations.curvedSlogan, t, 500, 1000, (state) => {
-          drawCurvedText(bannerSloganText, ovalX, ovalY, ovalRx + 44, ovalRy + 44, {
-            fontSize: 48, fontWeight: '900',
-            fontFamily: '-apple-system, sans-serif',
-            fillStyle: '#ffe3e3', shadowColor: 'rgba(0,0,0,0.9)',
-            shadowBlur: 16, letterSpacing: 4
-          }, state);
+        // 4. Slogan
+        withAnimation(textAnimations.subtitle, elapsedTime, 300, 900, (state) => {
+          ctx.save();
+          ctx.globalAlpha = state.alpha;
+          const ox = state.offsetX, oy = state.offsetY;
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '900 64px -apple-system, sans-serif';
+          ctx.textAlign = 'left';
+          wrapText(ctx, whdSlogans[currentSloganIndex], 570 + ox, 105 + oy, 470, 72);
+          ctx.restore();
         });
+
+        // 5. Hashtags — moved #DontMissABeat further down along the left curve
+        const progress = (currentMode === 'video') ? Math.min(1, elapsedTime / 10000) : 1;
+        const ease = 1 - Math.pow(1 - progress, 3);
+
+        const baseCenterT = 0.52;
+        const startCenterT = currentMode === 'video'
+          ? Math.max(0.10, baseCenterT - 0.28)
+          : baseCenterT;
+        const centerT = startCenterT + (baseCenterT - startCenterT) * ease;
+
+        const MIN_PIXEL_GAP  = 110;
+        const LEFT_EXTRA_PX  = 180; // 👈 Pushed further down along the left curve
+
+        const leftDistance  = -(MIN_PIXEL_GAP / 2 + LEFT_EXTRA_PX);
+        const rightDistance =  (MIN_PIXEL_GAP / 2);
+
+        const leftT  = findTAtDistance(centerT, leftDistance);
+        const rightT = findTAtDistance(centerT, rightDistance);
+
+        drawHashtagOnCurve('#DontMissABeat', leftT, {
+          aboveOffset: 28,
+          maxWidth: 300,
+          minSize: 22,
+          maxSize: 40,
+          angleOffset: -0.06
+        });
+
+        drawHashtagOnCurve('#WorldHeartDay', rightT, {
+          aboveOffset: 34,
+          maxWidth: 300,
+          minSize: 22,
+          maxSize: 40,
+          angleOffset: -0.06
+        });
+
+        // 6. ECG
+        drawContinuousNormalEcg(elapsedTime);
+
+        // 7. Mascot
+        if (mascotTrImg.complete && mascotTrImg.naturalHeight !== 0) {
+          const targetHeight = 220;
+          const aspect = mascotTrImg.width / mascotTrImg.height;
+          const targetWidth = targetHeight * aspect;
+          const mascotX = w - targetWidth - 30;
+          const mascotY = h - targetHeight - 20;
+          ctx.save();
+          ctx.drawImage(mascotTrImg, mascotX, mascotY, targetWidth, targetHeight);
+          ctx.restore();
+        }
 
         // 8. Name
         const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
         if (nameText) {
-          withAnimation(textAnimations.name, t, 1000, 800, (state) => {
+          withAnimation(textAnimations.name, elapsedTime, 1000, 800, (state) => {
             ctx.save();
             ctx.globalAlpha = state.alpha;
             const ox = state.offsetX, oy = state.offsetY;
-            const sc = state.scale, rot = state.rotate, glow = state.glow;
-            if (sc !== 1 || rot !== 0) {
-              ctx.translate(w / 2, 670);
-              ctx.rotate(rot); ctx.scale(sc, sc);
-              ctx.translate(-w / 2, -670);
-            }
-            ctx.textAlign = 'center';
             ctx.fillStyle = '#fff0f3';
             ctx.font = '900 36px -apple-system, sans-serif';
+            ctx.textAlign = 'center';
             ctx.shadowColor = 'rgba(0,0,0,0.6)';
-            ctx.shadowBlur = 8 + glow;
-            ctx.fillText(nameText, w / 2 + ox, 670 + oy, 600);
+            ctx.shadowBlur = 8;
+            ctx.fillText(nameText, w / 2 + ox, 1850 + oy, 800);
             ctx.restore();
           });
         }
-
-        // --- BOTTOM ALIGNMENT SETUP ---
-        // Logo bottom edge is at roughly: 1865 px
-        // We anchor hashtags and the random slogan pair down at the bottom matching the logo's baseline.
-        const hashtagY = 1810;
-        const sloganY = 1750;
-
-        // 9. Random Slogan (shifted down above hashtags)
-        withAnimation(textAnimations.rotatingSlogan, t, 1500, 900, (state) => {
-          ctx.save();
-          ctx.globalAlpha = state.alpha;
-          const ox = state.offsetX, oy = state.offsetY;
-          const sc = state.scale, rot = state.rotate, glow = state.glow;
-          if (sc !== 1 || rot !== 0) {
-            ctx.translate(w / 2, sloganY);
-            ctx.rotate(rot); ctx.scale(sc, sc);
-            ctx.translate(-w / 2, -sloganY);
-          }
-          ctx.fillStyle = '#ffffff';
-          ctx.font = '900 40px -apple-system, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.shadowColor = 'rgba(0,0,0,0.9)';
-          ctx.shadowBlur = 14 + glow;
-
-          if (textAnimations.rotatingSlogan === 'wave' || textAnimations.rotatingSlogan === 'pulse') {
-            const fullText = currentRotatingSlogan;
-            const totalW = ctx.measureText(fullText).width;
-            let startX = w / 2 - totalW / 2 + ox;
-            const py = sloganY + oy;
-            for (let i = 0; i < fullText.length; i++) {
-              const ch = fullText[i];
-              const chW = ctx.measureText(ch).width;
-              const waveY = Math.sin((t / 200) + i * 0.5) * 8;
-              ctx.fillText(ch, startX, py + waveY);
-              startX += chW;
-            }
-          } else {
-            wrapText(ctx, currentRotatingSlogan, w / 2 + ox, sloganY + oy, 900, 48);
-          }
-          ctx.restore();
-        });
-
-        // 10. Hashtags (anchored to match logo bottom level)
-        withAnimation(textAnimations.hashtags, t, 2000, 800, (state) => {
-          ctx.save();
-          ctx.globalAlpha = state.alpha;
-          const ox = state.offsetX, oy = state.offsetY;
-          const sc = state.scale, rot = state.rotate, glow = state.glow;
-          if (sc !== 1 || rot !== 0) {
-            ctx.translate(w / 2, hashtagY);
-            ctx.rotate(rot); ctx.scale(sc, sc);
-            ctx.translate(-w / 2, -hashtagY);
-          }
-          ctx.fillStyle = '#ffe3e3';
-          ctx.font = '900 30px -apple-system, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.shadowColor = 'rgba(0,0,0,0.8)';
-          ctx.shadowBlur = 10 + glow;
-          ctx.fillText('#DontMissABeat    #UseHeart', w / 2 + ox, hashtagY + oy);
-          ctx.restore();
-        });
-
-        // 11. Hospital Logo at Bottom Left with white blending pill
-        if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
-          const targetLogoHeight = 65;
-          const logoWidth = (hospitalLogo.width / hospitalLogo.height) * targetLogoHeight;
-          const paddingX = 14;
-          const paddingY = 10;
-          const pillWidth = logoWidth + (paddingX * 2);
-          const pillHeight = targetLogoHeight + (paddingY * 2);
-          const logoX = 45;
-          const logoY = 1865 - targetLogoHeight - paddingY;
-
-          ctx.save();
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
-          ctx.shadowColor = 'rgba(0,0,0,0.3)';
-          ctx.shadowBlur = 10;
-          ctx.beginPath();
-          ctx.roundRect(logoX, logoY, pillWidth, pillHeight, 14);
-          ctx.fill();
-
-          ctx.drawImage(hospitalLogo, logoX + paddingX, logoY + paddingY, logoWidth, targetLogoHeight);
-          ctx.restore();
-        }
-
-        // Hidden credit comment: Developed by Ahmed Shareef for Shaviyani Atoll Hospital
       }
 
       // ============ ECG ============
       function drawContinuousNormalEcg(elapsedTime) {
         ctx.save();
         ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 6;
+        ctx.lineWidth = 5;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.shadowColor = 'rgba(255,255,255,0.95)';
-        ctx.shadowBlur = 14;
+        ctx.shadowColor = 'rgba(255,255,255,0.9)';
+        ctx.shadowBlur = 12;
         ctx.beginPath();
 
-        const ecgY = 1360; // Cleanly separates bottom of vertical oval and upper slogans
-        const totalDuration = 10000;
-        const progress = (currentMode === 'video') ? Math.min(1, elapsedTime / totalDuration) : 1.0;
+        const ecgY = 1840;
+        const progress = (currentMode === 'video') ? Math.min(1, elapsedTime / 10000) : 1.0;
         const maxVisibleX = canvas.width * progress;
 
         function getEcgOffset(t) {
@@ -1352,15 +885,14 @@
           const localT = t % cycleTime;
           let val = 0;
           if (localT > 100 && localT < 220) {
-            val -= 12 * Math.sin(((localT - 100) / 120) * Math.PI);
-          } else if (localT >= 260 && localT < 290) {
-            val += 18;
-          } else if (localT >= 290 && localT < 340) {
-            val -= 195 * Math.sin(((localT - 290) / 50) * Math.PI);
+            val -= 10 * Math.sin(((localT - 100) / 120) * Math.PI);
+          } else if (localT >= 260 && localT < 290) { val += 15; }
+          else if (localT >= 290 && localT < 340) {
+            val -= 160 * Math.sin(((localT - 290) / 50) * Math.PI);
           } else if (localT >= 340 && localT < 380) {
-            val += 45 * Math.sin(((localT - 340) / 40) * Math.PI);
+            val += 35 * Math.sin(((localT - 340) / 40) * Math.PI);
           } else if (localT >= 460 && localT < 640) {
-            val -= 28 * Math.sin(((localT - 460) / 180) * Math.PI);
+            val -= 22 * Math.sin(((localT - 460) / 180) * Math.PI);
           }
           return val;
         }
@@ -1390,9 +922,7 @@
             context.fillText(line, x, currentY);
             line = words[n] + ' ';
             currentY += lineHeight;
-          } else {
-            line = testLine;
-          }
+          } else { line = testLine; }
         }
         context.fillText(line, x, currentY);
       }
@@ -1437,18 +967,10 @@
           galleryInput.value = '';
         }, 500);
       }
-
       cameraInput.addEventListener('change', handleMediaSelect);
       galleryInput.addEventListener('change', handleMediaSelect);
-
-      // ============ CAMERA & GALLERY BUTTONS ============
-      cameraBtn.addEventListener('click', () => {
-        cameraInput.click();
-      });
-
-      galleryBtn.addEventListener('click', () => {
-        galleryInput.click();
-      });
+      cameraBtn.addEventListener('click', () => cameraInput.click());
+      galleryBtn.addEventListener('click', () => galleryInput.click());
 
       // ============ TOUCH DRAG ============
       canvas.addEventListener('touchstart', (e) => {
@@ -1469,11 +991,7 @@
         }
       }, { passive: false });
 
-      canvas.addEventListener('touchend', (e) => {
-        isDragging = false;
-        e.preventDefault();
-      }, { passive: false });
-
+      canvas.addEventListener('touchend', (e) => { isDragging = false; e.preventDefault(); }, { passive: false });
       canvas.addEventListener('touchcancel', () => { isDragging = false; });
 
       canvas.addEventListener('mousedown', (e) => {
@@ -1496,19 +1014,7 @@
         zoomValue.textContent = photoScale.toFixed(1) + '×';
         if (currentMode === 'image') scheduleDraw();
       });
-
       userNameInput.addEventListener('input', () => {
-        if (currentMode === 'image') scheduleDraw();
-      });
-
-      shuffleBtn.addEventListener('click', () => {
-        const currentIndex = rotatingHeartbeatSlogans.indexOf(currentRotatingSlogan);
-        let nextIndex;
-        do {
-          nextIndex = Math.floor(Math.random() * rotatingHeartbeatSlogans.length);
-        } while (nextIndex === currentIndex && rotatingHeartbeatSlogans.length > 1);
-        currentRotatingSlogan = rotatingHeartbeatSlogans[nextIndex];
-        randomizeMascot();
         if (currentMode === 'image') scheduleDraw();
       });
 
@@ -1536,7 +1042,7 @@
         } else {
           randomizeTextAnimations();
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 10s Story Video · Animated text · Original audio preserved';
+          videoStatus.textContent = '🎥 10s Story Video · Static shuffled slogan · Original audio preserved';
           actionDownloadBtn.textContent = '📥 Export MP4';
           actionShareBtn.textContent = '📤 Share MP4';
           cameraBtnText.textContent = 'Record Video';
@@ -1586,7 +1092,6 @@
           }
 
           randomizeTextAnimations();
-
           videoStatus.classList.add('visible');
           videoStatus.textContent = '🎥 Recording 10s vertical video... Please wait.';
 
@@ -1670,7 +1175,7 @@
             try {
               await navigator.share({
                 title: 'World Heart Day 2026 Story',
-                text: `${bannerSloganText} — ${currentRotatingSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
+                text: `${whdSlogans[currentSloganIndex]} #DontMissABeat #WorldHeartDay`,
                 files: [file]
               });
             } catch (err) {
@@ -1690,7 +1195,7 @@
             try {
               await navigator.share({
                 title: 'World Heart Day 2026 Story Video',
-                text: `${bannerSloganText} — ${currentRotatingSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
+                text: `${whdSlogans[currentSloganIndex]} #DontMissABeat #WorldHeartDay`,
                 files: [videoFile]
               });
             } catch (err) {
@@ -1702,31 +1207,23 @@
         }
       });
 
-      // ============ PREVENT SCROLL BOUNCE ON CANVAS ============
+      // ============ GUARDS ============
       document.getElementById('canvasFrame').addEventListener('touchmove', (e) => {
         if (e.target === canvas) e.preventDefault();
       }, { passive: false });
 
-      // ============ PREVENT DOUBLE-TAP ZOOM ============
       let lastTouchEnd = 0;
       document.addEventListener('touchend', (e) => {
         const now = Date.now();
-        if (now - lastTouchEnd <= 300) {
-          e.preventDefault();
-        }
+        if (now - lastTouchEnd <= 300) e.preventDefault();
         lastTouchEnd = now;
       }, { passive: false });
 
       // ============ INIT ============
-      randomizeMascot();
       randomizeTextAnimations();
       scheduleDraw();
+      window.addEventListener('load', () => { if (currentMode === 'image') scheduleDraw(); });
 
-      window.addEventListener('load', () => {
-        if (currentMode === 'image') scheduleDraw();
-      });
-
-      // ============ VISIBILITY CHANGE ============
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
           if (userVideo) userVideo.pause();
