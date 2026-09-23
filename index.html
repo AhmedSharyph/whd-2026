@@ -934,6 +934,51 @@
         "USE HEART TO CONNECT & CARE"
       ];
 
+      // ============ TILEABLE RED HEART PATTERN ============
+      let heartPatternCanvas = null;
+      function createHeartPattern() {
+        if (heartPatternCanvas) return heartPatternCanvas;
+        const pc = document.createElement('canvas');
+        pc.width = 90;
+        pc.height = 90;
+        const pctx = pc.getContext('2d');
+
+        // Base red tile background
+        pctx.fillStyle = '#d90429';
+        pctx.fillRect(0, 0, 90, 90);
+
+        // Subtle gradient overlay for depth
+        const grad = pctx.createLinearGradient(0, 0, 90, 90);
+        grad.addColorStop(0, 'rgba(255, 45, 85, 0.35)');
+        grad.addColorStop(1, 'rgba(100, 0, 10, 0.35)');
+        pctx.fillStyle = grad;
+        pctx.fillRect(0, 0, 90, 90);
+
+        // Draw small subtle tiled hearts
+        pctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+        pctx.font = '22px sans-serif';
+        pctx.textAlign = 'center';
+        pctx.textBaseline = 'middle';
+
+        // Tiled heart positions
+        const coords = [
+          {x: 22, y: 22, rot: -0.2},
+          {x: 68, y: 22, rot: 0.15},
+          {x: 45, y: 68, rot: 0.05}
+        ];
+
+        coords.forEach(c => {
+          pctx.save();
+          pctx.translate(c.x, c.y);
+          pctx.rotate(c.rot);
+          pctx.fillText('❤', 0, 0);
+          pctx.restore();
+        });
+
+        heartPatternCanvas = pc;
+        return pc;
+      }
+
       // ============ DRAW SCHEDULER ============
       let drawScheduled = false;
       function scheduleDraw() {
@@ -1047,15 +1092,13 @@
 
         ctx.clearRect(0, 0, w, h);
 
-        // 1. Background
-        const bgGrad = ctx.createRadialGradient(540, 960, 200, 540, 960, 1200);
-        bgGrad.addColorStop(0, '#f93154');
-        bgGrad.addColorStop(0.6, '#d90429');
-        bgGrad.addColorStop(1, '#7a0010');
-        ctx.fillStyle = bgGrad;
+        // 1. Tiled Heart Pattern Background
+        const patternImg = createHeartPattern();
+        const pattern = ctx.createPattern(patternImg, 'repeat');
+        ctx.fillStyle = pattern;
         ctx.fillRect(0, 0, w, h);
 
-        // 2. Circle frame (Restored circular clipping)
+        // 2. Circle frame (Circular photo area)
         const circleRadius = 380;
         const circleX = 540;
         const circleY = 780;
