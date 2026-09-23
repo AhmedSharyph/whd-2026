@@ -746,14 +746,14 @@
 
         ctx.restore();
 
-        // 3. Top branding
+        // 3. Top branding (Enlarged Logo + Stacked WORLD / HEART / DAY)
         withAnimation(textAnimations.title, elapsedTime, 100, 900, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
           const ox = state.offsetX, oy = state.offsetY;
           const logoX = 50 + ox;
-          const logoY = 45 + oy;
-          const logoTargetHeight = 140;
+          const logoY = 35 + oy;
+          const logoTargetHeight = 170; // Enlarged logo size
 
           if (newLogoImg.complete && newLogoImg.naturalHeight !== 0) {
             const lAspect = newLogoImg.width / newLogoImg.height;
@@ -765,21 +765,18 @@
             ctx.textAlign = 'left';
             ctx.textBaseline = 'alphabetic';
 
-            ctx.font = '900 32px -apple-system, sans-serif';
-            ctx.fillText('WORLD', textStartX, 85 + oy);
-            ctx.fillText('HEART', textStartX, 130 + oy);
-
-            ctx.font = '800 18px -apple-system, sans-serif';
-            ctx.fillText('DAY 29 SEP', textStartX, 160 + oy);
+            ctx.font = '900 36px -apple-system, sans-serif';
+            ctx.fillText('WORLD', textStartX, 75 + oy);
+            ctx.fillText('HEART', textStartX, 115 + oy);
+            ctx.fillText('DAY', textStartX, 155 + oy);
           } else {
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'alphabetic';
-            ctx.font = '900 32px -apple-system, sans-serif';
-            ctx.fillText('WORLD', 60 + ox, 85 + oy);
-            ctx.fillText('HEART', 60 + ox, 130 + oy);
-            ctx.font = '800 18px -apple-system, sans-serif';
-            ctx.fillText('DAY 29 SEP', 60 + ox, 160 + oy);
+            ctx.font = '900 36px -apple-system, sans-serif';
+            ctx.fillText('WORLD', 60 + ox, 75 + oy);
+            ctx.fillText('HEART', 60 + ox, 115 + oy);
+            ctx.fillText('DAY', 60 + ox, 155 + oy);
           }
           ctx.restore();
         });
@@ -796,12 +793,12 @@
           ctx.restore();
         });
 
-        // 5. Hashtags Side-by-Side on Curve (#DontMissABeat in lead, larger font size)
+        // 5. Hashtags Side-by-Side on Left Arch (#DontMissABeat in lead, 50px)
         const baseCenterT = 0.1;
         const primaryTagDistance = -20;
         const primaryT = findTAtDistance(baseCenterT, primaryTagDistance);
 
-        // Draw #DontMissABeat (Primary - Leading & Larger)
+        // Draw #DontMissABeat (Primary - Leading & 50px)
         drawTextAlongCurve('#DontMissABeat', primaryT, {
           aboveOffset: 38,
           fontSize: 50,
@@ -809,13 +806,13 @@
         });
 
         // Measure primary text to place the secondary tag right next to it
-        ctx.font = '900 48px -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif';
+        ctx.font = '900 50px -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif';
         const primaryTextWidth = ctx.measureText('#DontMissABeat').width;
 
         const secondaryTagDistance = primaryTagDistance + primaryTextWidth + 25;
         const secondaryT = findTAtDistance(baseCenterT, secondaryTagDistance);
 
-        // Draw #WorldHeartDay (Secondary - Sitting right next to primary)
+        // Draw #WorldHeartDay (Secondary - Sitting right next to primary, 50px)
         drawTextAlongCurve('#WorldHeartDay', secondaryT, {
           aboveOffset: 36,
           fontSize: 50,
@@ -825,9 +822,9 @@
         // 6. ECG
         drawContinuousNormalEcg(elapsedTime);
 
-        // 7. Mascot
+        // 7. Mascot (Enlarged Size)
         if (mascotTrImg.complete && mascotTrImg.naturalHeight !== 0) {
-          const targetHeight = 230;
+          const targetHeight = 230; // Enlarged mascot size
           const aspect = mascotTrImg.width / mascotTrImg.height;
           const targetWidth = targetHeight * aspect;
           const mascotX = w - targetWidth - 20;
