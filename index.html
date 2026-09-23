@@ -753,7 +753,7 @@
           const ox = state.offsetX, oy = state.offsetY;
           const logoX = 50 + ox;
           const logoY = 45 + oy;
-          const logoTargetHeight = 110;
+          const logoTargetHeight = 140;
 
           if (newLogoImg.complete && newLogoImg.naturalHeight !== 0) {
             const lAspect = newLogoImg.width / newLogoImg.height;
@@ -766,20 +766,20 @@
             ctx.textBaseline = 'alphabetic';
 
             ctx.font = '900 32px -apple-system, sans-serif';
-            ctx.fillText('WORLD', textStartX, 80 + oy);
-            ctx.fillText('HEART', textStartX, 115 + oy);
+            ctx.fillText('WORLD', textStartX, 85 + oy);
+            ctx.fillText('HEART', textStartX, 130 + oy);
 
             ctx.font = '800 18px -apple-system, sans-serif';
-            ctx.fillText('DAY 29 SEP', textStartX, 142 + oy);
+            ctx.fillText('DAY 29 SEP', textStartX, 160 + oy);
           } else {
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'alphabetic';
             ctx.font = '900 32px -apple-system, sans-serif';
-            ctx.fillText('WORLD', 60 + ox, 80 + oy);
-            ctx.fillText('HEART', 60 + ox, 115 + oy);
+            ctx.fillText('WORLD', 60 + ox, 85 + oy);
+            ctx.fillText('HEART', 60 + ox, 130 + oy);
             ctx.font = '800 18px -apple-system, sans-serif';
-            ctx.fillText('DAY 29 SEP', 60 + ox, 142 + oy);
+            ctx.fillText('DAY 29 SEP', 60 + ox, 160 + oy);
           }
           ctx.restore();
         });
@@ -797,14 +797,14 @@
         });
 
         // 5. Hashtags Side-by-Side on Curve (#DontMissABeat in lead, larger font size)
-        const baseCenterT = 0.48;
+        const baseCenterT = 0.1;
         const primaryTagDistance = -20;
         const primaryT = findTAtDistance(baseCenterT, primaryTagDistance);
 
         // Draw #DontMissABeat (Primary - Leading & Larger)
         drawTextAlongCurve('#DontMissABeat', primaryT, {
           aboveOffset: 38,
-          fontSize: 48,
+          fontSize: 50,
           color: '#ffffff'
         });
 
@@ -818,7 +818,7 @@
         // Draw #WorldHeartDay (Secondary - Sitting right next to primary)
         drawTextAlongCurve('#WorldHeartDay', secondaryT, {
           aboveOffset: 36,
-          fontSize: 40,
+          fontSize: 50,
           color: '#ffffff'
         });
 
