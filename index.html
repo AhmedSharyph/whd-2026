@@ -113,7 +113,7 @@
     }
     .scroll-area::-webkit-scrollbar { display: none; }
 
-    /* HEADER (MINIMIZED PADDING) */
+    /* HEADER */
     .app-header { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 4px; flex-shrink: 0; }
     .brand { display: flex; align-items: center; gap: 8px; }
     .brand-mark {
@@ -127,7 +127,7 @@
     .brand-text h1 { font-size: 0.82rem; font-weight: 800; letter-spacing: -0.02em; color: #7a0010; line-height: 1.1; }
     .brand-text .sub { font-size: 0.54rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #d90429; margin-top: 1px; }
 
-    /* MODE TABS (THINNER BUTTON POLICY) */
+    /* MODE TABS */
     .mode-tabs {
       display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
       background: #f0e6e8; padding: 4px; border-radius: 14px;
@@ -186,7 +186,7 @@
       display: block; border-radius: 16px; touch-action: none;
     }
 
-    /* UPLOAD (THINNER BUTTON POLICY) */
+    /* UPLOAD */
     .upload-section { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
     .upload-label-row { display: flex; align-items: center; justify-content: space-between; padding: 0 4px; }
     .upload-label-row .label-text {
@@ -280,7 +280,7 @@
     input[type="text"]:focus { border-color: #ff2d55; background: #ffffff; box-shadow: 0 0 0 3px rgba(255, 45, 85, 0.1); }
     input[type="text"]::placeholder { color: #b8a0a5; font-weight: 400; }
 
-    /* BUTTONS (THINNER BUTTON POLICY) */
+    /* BUTTONS */
     .btn {
       width: 100%; padding: 11px 14px; border-radius: 14px; border: none;
       font-weight: 800; font-size: 0.82rem; cursor: pointer; transition: all 0.2s;
@@ -348,7 +348,7 @@
     input[type="text"] { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; }
     body { overscroll-behavior-y: none; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-    .scroll-area > * { animation: fadeIn 0.3s cubic-bezier(0.2, 0.9, 0.4, 1) both; }
+    .scroll-area > * { animation: fadeIn 0.35s cubic-bezier(0.2, 0.9, 0.4, 1) both; }
     .scroll-area > *:nth-child(2) { animation-delay: 0.03s; }
     .scroll-area > *:nth-child(3) { animation-delay: 0.06s; }
     .scroll-area > *:nth-child(4) { animation-delay: 0.09s; }
@@ -624,48 +624,6 @@
         scheduleDraw();
       });
 
-      // ============ TEXT ANIMATIONS ============
-      let textAnimations = { title: null, subtitle: null, name: null };
-      const animationPool = [
-        'fadeIn', 'slideFromLeft', 'slideFromRight', 'slideFromTop',
-        'slideFromBottom', 'scaleUp', 'scaleDown', 'wave', 'pulse',
-        'glow', 'rotateIn', 'bounceIn', 'flipIn'
-      ];
-      function randomizeTextAnimations() {
-        const pick = () => animationPool[Math.floor(Math.random() * animationPool.length)];
-        textAnimations.title = pick();
-        textAnimations.subtitle = pick();
-        textAnimations.name = pick();
-      }
-      function getAnimProgress(elapsed, delay, duration) {
-        if (elapsed < delay) return 0;
-        return Math.min(1, (elapsed - delay) / duration);
-      }
-      function getAnimState(animName, progress) {
-        const state = { alpha: 1, offsetX: 0, offsetY: 0, scale: 1, rotate: 0, glow: 0 };
-        const p = progress;
-        switch (animName) {
-          case 'fadeIn':         state.alpha = p; break;
-          case 'slideFromLeft':  state.offsetX = -180 * (1 - p); state.alpha = p; break;
-          case 'slideFromRight': state.offsetX = 180 * (1 - p);  state.alpha = p; break;
-          case 'slideFromTop':   state.offsetY = -120 * (1 - p); state.alpha = p; break;
-          case 'slideFromBottom':state.offsetY = 120 * (1 - p);  state.alpha = p; break;
-          case 'scaleUp':        state.scale = 0.3 + 0.7 * p;    state.alpha = p; break;
-          case 'scaleDown':      state.scale = 1.6 - 0.6 * p;    state.alpha = p; break;
-          case 'wave':           state.offsetY = Math.sin(p * Math.PI * 4) * 18 * (1 - p); state.alpha = Math.min(1, p * 2); break;
-          case 'pulse':          state.scale = 1 + Math.sin(p * Math.PI * 6) * 0.12 * (1 - p); state.alpha = Math.min(1, p * 1.5); break;
-          case 'glow':           state.glow = Math.sin(p * Math.PI * 5) * 22; state.alpha = Math.min(1, p * 2); break;
-          case 'rotateIn':       state.rotate = -Math.PI * 0.6 * (1 - p); state.scale = 0.4 + 0.6 * p; state.alpha = p; break;
-          case 'bounceIn':
-            if (p < 0.7) { const tt = p / 0.7; state.scale = 0.3 + 1.0 * tt - 0.3 * Math.sin(tt * Math.PI); }
-            else { state.scale = 1; }
-            state.alpha = Math.min(1, p * 1.8);
-            break;
-          case 'flipIn':         state.scale = 0.1 + 0.9 * p; state.rotate = Math.PI * (1 - p); state.alpha = p; break;
-        }
-        return state;
-      }
-
       // ============ ASSETS ============
       const newLogoImg = new Image();
       newLogoImg.src = 'https://raw.githubusercontent.com/AhmedSharyph/whd-2026/main/new_logo.png';
@@ -701,7 +659,6 @@
         return Math.atan2(dy, dx);
       }
 
-      // ============ FIND T AT PIXEL DISTANCE ============
       function findTAtDistance(centerT, distancePx) {
         const centerPt = bezierPoint(centerT);
         const forward = distancePx >= 0;
@@ -723,12 +680,10 @@
         return Math.max(0.01, Math.min(0.99, t));
       }
 
-      // ============ @FONT-FACE CANVAS NAMES ============
       const PRIMARY_FONT = 'AppSans';
       const SLOGAN_FONT = 'SloganFont';
       const HASHTAG_FONT = 'HashtagFont';
 
-      // ============ DRAW TEXT ALONG CURVE (Using Montserrat) ============
       function drawTextAlongCurve(text, startT, opts = {}) {
         const {
           aboveOffset = 38,
@@ -769,7 +724,6 @@
         ctx.restore();
       }
 
-      // ============ BACKGROUND RENDERER ============
       function drawBackground(w, h) {
         const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
         bgGrad.addColorStop(0.00, '#8a0018');
@@ -833,7 +787,6 @@
         ctx.restore();
       }
 
-      // ============ DRAW SCHEDULER ============
       let drawScheduled = false;
       function scheduleDraw() {
         if (drawScheduled) return;
@@ -842,15 +795,6 @@
           drawScheduled = false;
           drawCanvas(0);
         });
-      }
-
-      function withAnimation(animName, elapsed, delay, duration, drawFn) {
-        if (currentMode !== 'video' || !animName) {
-          drawFn({ alpha: 1, offsetX: 0, offsetY: 0, scale: 1, rotate: 0, glow: 0 });
-          return;
-        }
-        const progress = getAnimProgress(elapsed, delay, duration);
-        drawFn(getAnimState(animName, progress));
       }
 
       // ============ MAIN DRAW ============
@@ -920,79 +864,70 @@
 
         ctx.restore();
 
-        // 3. Top branding (With "29 SEP" expanded to title width)
-        withAnimation(textAnimations.title, elapsedTime, 100, 900, (state) => {
-          ctx.save();
-          ctx.globalAlpha = state.alpha;
-          const ox = state.offsetX, oy = state.offsetY;
-          const logoX = 45 + ox;
-          const logoY = 24 + oy;
-          const logoTargetHeight = 195;
+        // 3. Top branding (Fully visible from frame 1 to final frame)
+        ctx.save();
+        const logoX = 45;
+        const logoY = 24;
+        const logoTargetHeight = 195;
 
-          if (newLogoImg.complete && newLogoImg.naturalHeight !== 0) {
-            const lAspect = newLogoImg.width / newLogoImg.height;
-            const logoWidth = logoTargetHeight * lAspect;
-            ctx.drawImage(newLogoImg, logoX, logoY, logoWidth, logoTargetHeight);
+        if (newLogoImg.complete && newLogoImg.naturalHeight !== 0) {
+          const lAspect = newLogoImg.width / newLogoImg.height;
+          const logoWidth = logoTargetHeight * lAspect;
+          ctx.drawImage(newLogoImg, logoX, logoY, logoWidth, logoTargetHeight);
 
-            const textStartX = logoX + logoWidth + 20;
-            ctx.fillStyle = '#ffffff';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'alphabetic';
-
-            ctx.font = `900 36px ${PRIMARY_FONT}, sans-serif`;
-            ctx.fillText('WORLD', textStartX, 68 + oy);
-            ctx.fillText('HEART', textStartX, 110 + oy);
-            ctx.fillText('DAY 26', textStartX, 152 + oy);
-
-            // Expanded 29 SEP to title width
-            ctx.save();
-            ctx.font = `900 22px ${PRIMARY_FONT}, sans-serif`;
-            const dateStr = "29 SEP";
-            const targetWidth = ctx.measureText("HEART").width; // matches title block width approx
-            const naturalW = ctx.measureText(dateStr).width;
-            const scaleX = targetWidth / naturalW;
-
-            ctx.translate(textStartX, 180 + oy);
-            ctx.scale(scaleX, 1);
-            ctx.fillText(dateStr, 0, 0);
-            ctx.restore();
-          } else {
-            ctx.fillStyle = '#ffffff';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'alphabetic';
-            ctx.font = `900 36px ${PRIMARY_FONT}, sans-serif`;
-            ctx.fillText('WORLD', 50 + ox, 68 + oy);
-            ctx.fillText('HEART', 50 + ox, 110 + oy);
-            ctx.fillText('DAY 26', 50 + ox, 152 + oy);
-
-            ctx.save();
-            ctx.font = `900 22px ${PRIMARY_FONT}, sans-serif`;
-            const dateStr = "29 SEP";
-            const targetWidth = ctx.measureText("HEART").width;
-            const naturalW = ctx.measureText(dateStr).width;
-            const scaleX = targetWidth / naturalW;
-
-            ctx.translate(50 + ox, 180 + oy);
-            ctx.scale(scaleX, 1);
-            ctx.fillText(dateStr, 0, 0);
-            ctx.restore();
-          }
-          ctx.restore();
-        });
-
-        // 4. Slogan (Using Outfit)
-        withAnimation(textAnimations.subtitle, elapsedTime, 300, 900, (state) => {
-          ctx.save();
-          ctx.globalAlpha = state.alpha;
-          const ox = state.offsetX, oy = state.offsetY;
+          const textStartX = logoX + logoWidth + 20;
           ctx.fillStyle = '#ffffff';
-          ctx.font = `900 48px ${SLOGAN_FONT}, sans-serif`;
           ctx.textAlign = 'left';
-          wrapText(ctx, whdSlogans[currentSloganIndex], 500 + ox, 85 + oy, 540, 56);
-          ctx.restore();
-        });
+          ctx.textBaseline = 'alphabetic';
 
-        // 5. Hashtags Side-by-Side on Left Arch (Using Montserrat)
+          ctx.font = `900 36px ${PRIMARY_FONT}, sans-serif`;
+          ctx.fillText('WORLD', textStartX, 68);
+          ctx.fillText('HEART', textStartX, 110);
+          ctx.fillText('DAY 26', textStartX, 152);
+
+          ctx.save();
+          ctx.font = `900 22px ${PRIMARY_FONT}, sans-serif`;
+          const dateStr = "29 SEP";
+          const targetWidth = ctx.measureText("HEART").width;
+          const naturalW = ctx.measureText(dateStr).width;
+          const scaleX = targetWidth / naturalW;
+
+          ctx.translate(textStartX, 180);
+          ctx.scale(scaleX, 1);
+          ctx.fillText(dateStr, 0, 0);
+          ctx.restore();
+        } else {
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'alphabetic';
+          ctx.font = `900 36px ${PRIMARY_FONT}, sans-serif`;
+          ctx.fillText('WORLD', 50, 68);
+          ctx.fillText('HEART', 50, 110);
+          ctx.fillText('DAY 26', 50, 152);
+
+          ctx.save();
+          ctx.font = `900 22px ${PRIMARY_FONT}, sans-serif`;
+          const dateStr = "29 SEP";
+          const targetWidth = ctx.measureText("HEART").width;
+          const naturalW = ctx.measureText(dateStr).width;
+          const scaleX = targetWidth / naturalW;
+
+          ctx.translate(50, 180);
+          ctx.scale(scaleX, 1);
+          ctx.fillText(dateStr, 0, 0);
+          ctx.restore();
+        }
+        ctx.restore();
+
+        // 4. Slogan
+        ctx.save();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = `900 48px ${SLOGAN_FONT}, sans-serif`;
+        ctx.textAlign = 'left';
+        wrapText(ctx, whdSlogans[currentSloganIndex], 500, 85, 540, 56);
+        ctx.restore();
+
+        // 5. Hashtags Side-by-Side on Left Arch
         const baseCenterT = 0.1;
         const primaryTagDistance = -10;
         const primaryT = findTAtDistance(baseCenterT, primaryTagDistance);
@@ -1033,18 +968,14 @@
         // 8. Name
         const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
         if (nameText) {
-          withAnimation(textAnimations.name, elapsedTime, 1000, 800, (state) => {
-            ctx.save();
-            ctx.globalAlpha = state.alpha;
-            const ox = state.offsetX, oy = state.offsetY;
-            ctx.fillStyle = '#fff0f3';
-            ctx.font = `900 30px ${PRIMARY_FONT}, sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.shadowColor = 'rgba(0,0,0,0.6)';
-            ctx.shadowBlur = 8;
-            ctx.fillText(nameText, w / 2 + ox, 1380 + oy, 700);
-            ctx.restore();
-          });
+          ctx.save();
+          ctx.fillStyle = '#fff0f3';
+          ctx.font = `900 30px ${PRIMARY_FONT}, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.shadowColor = 'rgba(0,0,0,0.6)';
+          ctx.shadowBlur = 8;
+          ctx.fillText(nameText, w / 2, 1380, 700);
+          ctx.restore();
         }
       }
 
@@ -1060,8 +991,7 @@
         ctx.beginPath();
 
         const ecgY = 1370;
-        const progress = (currentMode === 'video') ? Math.min(1, elapsedTime / 10000) : 1.0;
-        const maxVisibleX = canvas.width * progress;
+        const timeShift = performance.now() * 0.4;
 
         function getEcgOffset(t) {
           const cycleTime = 750;
@@ -1081,10 +1011,7 @@
         }
 
         let started = false;
-        const timeShift = (currentMode === 'video') ? elapsedTime : (performance.now() * 0.4);
-        const endX = (currentMode === 'video') ? maxVisibleX : canvas.width;
-
-        for (let x = 0; x <= endX; x += 4) {
+        for (let x = 0; x <= canvas.width; x += 4) {
           const t = x * 2.2 + timeShift;
           const y = ecgY + getEcgOffset(t);
           if (!started) { ctx.moveTo(x, y); started = true; }
@@ -1094,7 +1021,6 @@
         ctx.restore();
       }
 
-      // ============ TEXT WRAP ============
       function wrapText(context, text, x, y, maxWidth, lineHeight) {
         const words = text.split(' ');
         let line = '';
@@ -1110,7 +1036,6 @@
         context.fillText(line, x, currentY);
       }
 
-      // ============ MUTE TOGGLE LOGIC ============
       muteToggleBtn.addEventListener('click', () => {
         if (!userVideo) return;
         userVideo.muted = !userVideo.muted;
@@ -1125,7 +1050,6 @@
         }
       });
 
-      // ============ FILE HANDLING WITH SMOOTH VIDEO PRELOAD ============
       function handleMediaSelect(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -1246,7 +1170,6 @@
       });
       window.addEventListener('mouseup', () => { isDragging = false; });
 
-      // ============ UI LISTENERS ============
       zoomRange.addEventListener('input', (e) => {
         photoScale = parseFloat(e.target.value);
         zoomValue.textContent = photoScale.toFixed(1) + '×';
@@ -1256,7 +1179,6 @@
         if (currentMode === 'image') scheduleDraw();
       });
 
-      // ============ MODE SWITCH ============
       window.switchMode = function(mode) {
         currentMode = mode;
         if (animationId) cancelAnimationFrame(animationId);
@@ -1279,9 +1201,8 @@
           if (userVideo) { userVideo.pause(); userVideo = null; }
           scheduleDraw();
         } else {
-          randomizeTextAnimations();
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 10s Story Video · Static shuffled slogan · Audio can be muted';
+          videoStatus.textContent = '🎥 10s Story Video ready with complete design thumbnail';
           actionDownloadBtn.textContent = '📥 Export MP4';
           actionShareBtn.textContent = '📤 Share MP4';
           cameraBtnText.textContent = 'Record Video';
@@ -1302,7 +1223,6 @@
         galleryInput.value = '';
       };
 
-      // ============ VIDEO PREVIEW ============
       function startVideoPreviewLoop() {
         function loop(timestamp) {
           if (currentMode !== 'video') return;
@@ -1317,7 +1237,6 @@
         animationId = requestAnimationFrame(loop);
       }
 
-      // ============ DOWNLOAD ============
       actionDownloadBtn.addEventListener('click', async () => {
         if (currentMode === 'image') {
           const link = document.createElement('a');
@@ -1334,7 +1253,6 @@
             return;
           }
 
-          randomizeTextAnimations();
           videoStatus.classList.add('visible');
           videoStatus.textContent = '🎥 Recording 10s 3:4 video... Please wait.';
 
@@ -1409,7 +1327,6 @@
         setTimeout(() => URL.revokeObjectURL(url), 4000);
       }
 
-      // ============ SHARE ============
       actionShareBtn.addEventListener('click', async () => {
         const customTeam = userNameInput.value.trim();
         const sharePrefix = customTeam ? `${customTeam} · ` : 'World Heart Day 2026 · ';
@@ -1456,7 +1373,6 @@
         }
       });
 
-      // ============ GUARDS ============
       document.getElementById('canvasFrame').addEventListener('touchmove', (e) => {
         if (e.target === canvas) e.preventDefault();
       }, { passive: false });
@@ -1468,9 +1384,6 @@
         lastTouchEnd = now;
       }, { passive: false });
 
-      // ============ INIT WITH FONT LOADING CHECK ============
-      randomizeTextAnimations();
-      
       document.fonts.ready.then(() => {
         scheduleDraw();
       });
