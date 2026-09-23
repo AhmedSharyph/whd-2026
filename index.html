@@ -696,14 +696,9 @@
           const vw = userVideo.videoWidth;
           const vh = userVideo.videoHeight;
           if (vw && vh) {
-            const sourceAspect = vw / vh;
-            let drawWidth = w;
-            let drawHeight = h;
-            if (sourceAspect > (w / h)) {
-              drawWidth = h * sourceAspect;
-            } else {
-              drawHeight = w / sourceAspect;
-            }
+            let drawWidth = w * 0.75;
+            let drawHeight = drawWidth * (vh / vw);
+
             drawWidth *= photoScale;
             drawHeight *= photoScale;
 
@@ -714,14 +709,10 @@
         } else if (userImage) {
           const iw = userImage.naturalWidth || userImage.width;
           const ih = userImage.naturalHeight || userImage.height;
-          const sourceAspect = iw / ih;
-          let drawWidth = w;
-          let drawHeight = h;
-          if (sourceAspect > (w / h)) {
-            drawWidth = h * sourceAspect;
-          } else {
-            drawHeight = w / sourceAspect;
-          }
+          
+          let drawWidth = w * 0.75;
+          let drawHeight = drawWidth * (ih / iw);
+
           drawWidth *= photoScale;
           drawHeight *= photoScale;
 
