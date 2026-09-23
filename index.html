@@ -669,18 +669,18 @@
 
       const PRIMARY_FONT = 'AppSans';
       const SLOGAN_FONT = 'SloganFont';
-      const HASHTAG_FONT = 'HashtagFont';
+      const HASHTAG_FONT = 'CustomHandwritten';
 
       function drawTextAlongCurve(text, startT, opts = {}) {
         const {
           aboveOffset = 38,
-          fontSize = 48,
+          fontSize = 58,
           color = '#ffffff',
           glow = 'rgba(0, 0, 0, 0.5)'
         } = opts;
 
         ctx.save();
-        ctx.font = `800 ${fontSize}px ${HASHTAG_FONT}, sans-serif`;
+        ctx.font = `700 ${fontSize}px ${HASHTAG_FONT}, cursive, sans-serif`;
         ctx.fillStyle = color;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -908,18 +908,18 @@
         wrapText(ctx, whdSlogans[currentSloganIndex], 500, 85, 540, 56);
         ctx.restore();
 
-        // 5. Hashtags Side-by-Side on Left Arch
+        // 5. Hashtags Side-by-Side on Left Arch (Using Handwritten Font)
         const baseCenterT = 0.1;
         const primaryTagDistance = -10;
         const primaryT = findTAtDistance(baseCenterT, primaryTagDistance);
 
         drawTextAlongCurve('#DontMissABeat', primaryT, {
           aboveOffset: 38,
-          fontSize: 48,
+          fontSize: 58,
           color: '#ffffff'
         });
 
-        ctx.font = `800 48px ${HASHTAG_FONT}, sans-serif`;
+        ctx.font = `700 58px ${HASHTAG_FONT}, cursive, sans-serif`;
         const primaryTextWidth = ctx.measureText('#DontMissABeat').width;
 
         const secondaryTagDistance = primaryTagDistance + primaryTextWidth + 30;
@@ -927,7 +927,7 @@
 
         drawTextAlongCurve('#WorldHeartDay', secondaryT, {
           aboveOffset: 36,
-          fontSize: 48,
+          fontSize: 58,
           color: '#ffffff'
         });
 
