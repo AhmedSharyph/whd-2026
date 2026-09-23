@@ -328,12 +328,12 @@
         </div>
       </div>
 
-      <!-- NAME -->
+      <!-- NAME / FACILITY -->
       <div class="field-group">
         <label class="field-label" for="userName">
-          <span>Your name / team (optional)</span>
+          <span>Your name / team / facility (optional)</span>
         </label>
-        <input type="text" id="userName" placeholder="e.g. Community Health Team" maxlength="28" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
+        <input type="text" id="userName" placeholder="e.g. Fenaka / Community Health Team" maxlength="28" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
       </div>
 
       <!-- VIDEO STATUS -->
@@ -544,7 +544,7 @@
         return Math.max(0.01, Math.min(0.99, t));
       }
 
-      // ============ SMOOTH TEXT ALONG CURVE ============
+      // ============ SMOOTH TEXT ALONG CURVE (Using Arial for clean rendering) ============
       function drawTextAlongCurve(text, startT, opts = {}) {
         const {
           aboveOffset = 35,
@@ -554,7 +554,7 @@
         } = opts;
 
         ctx.save();
-        ctx.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif`;
+        ctx.font = `900 ${fontSize}px Arial, sans-serif`;
         ctx.fillStyle = color;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -580,7 +580,6 @@
           ctx.fillText(char, 0, 0);
           ctx.restore();
 
-          // Advance t forward based on character width to space letters smoothly
           currentT = findTAtDistance(currentT, charWidth * 0.85);
         }
         ctx.restore();
@@ -746,13 +745,13 @@
 
         ctx.restore();
 
-        // 3. Top branding (Enlarged Logo + Stacked WORLD / HEART / DAY)
+        // 3. Top branding (Enlarged Logo + Stacked WORLD / HEART / DAY 26 / 29 SEP)
         withAnimation(textAnimations.title, elapsedTime, 100, 900, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
           const ox = state.offsetX, oy = state.offsetY;
           const logoX = 50 + ox;
-          const logoY = 35 + oy;
+          const logoY = 30 + oy;
           const logoTargetHeight = 170; // Enlarged logo size
 
           if (newLogoImg.complete && newLogoImg.naturalHeight !== 0) {
@@ -765,18 +764,24 @@
             ctx.textAlign = 'left';
             ctx.textBaseline = 'alphabetic';
 
-            ctx.font = '900 36px -apple-system, sans-serif';
-            ctx.fillText('WORLD', textStartX, 75 + oy);
-            ctx.fillText('HEART', textStartX, 115 + oy);
-            ctx.fillText('DAY', textStartX, 155 + oy);
+            ctx.font = '900 32px -apple-system, sans-serif';
+            ctx.fillText('WORLD', textStartX, 70 + oy);
+            ctx.fillText('HEART', textStartX, 108 + oy);
+            ctx.fillText('DAY 26', textStartX, 146 + oy);
+
+            ctx.font = '800 20px -apple-system, sans-serif';
+            ctx.fillText('29 SEP', textStartX, 172 + oy);
           } else {
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'alphabetic';
-            ctx.font = '900 36px -apple-system, sans-serif';
-            ctx.fillText('WORLD', 60 + ox, 75 + oy);
-            ctx.fillText('HEART', 60 + ox, 115 + oy);
-            ctx.fillText('DAY', 60 + ox, 155 + oy);
+            ctx.font = '900 32px -apple-system, sans-serif';
+            ctx.fillText('WORLD', 60 + ox, 70 + oy);
+            ctx.fillText('HEART', 60 + ox, 108 + oy);
+            ctx.fillText('DAY 26', 60 + ox, 146 + oy);
+
+            ctx.font = '800 20px -apple-system, sans-serif';
+            ctx.fillText('29 SEP', 60 + ox, 172 + oy);
           }
           ctx.restore();
         });
@@ -793,7 +798,7 @@
           ctx.restore();
         });
 
-        // 5. Hashtags Side-by-Side on Left Arch (#DontMissABeat in lead, 50px)
+        // 5. Hashtags Side-by-Side on Left Arch (Using Arial for smooth curves)
         const baseCenterT = 0.1;
         const primaryTagDistance = -20;
         const primaryT = findTAtDistance(baseCenterT, primaryTagDistance);
@@ -805,8 +810,8 @@
           color: '#ffffff'
         });
 
-        // Measure primary text to place the secondary tag right next to it
-        ctx.font = '900 50px -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif';
+        // Measure primary text using Arial to accurately place secondary tag right next to it
+        ctx.font = '900 50px Arial, sans-serif';
         const primaryTextWidth = ctx.measureText('#DontMissABeat').width;
 
         const secondaryTagDistance = primaryTagDistance + primaryTextWidth + 25;
@@ -1175,8 +1180,12 @@
         setTimeout(() => URL.revokeObjectURL(url), 4000);
       }
 
-      // ============ SHARE ============
+      // ============ SHARE (Dynamic Team/Facility Caption) ============
       actionShareBtn.addEventListener('click', async () => {
+        const customTeam = userNameInput.value.trim();
+        const sharePrefix = customTeam ? `${customTeam} · ` : 'World Heart Day 2026 · ';
+        const shareText = `${sharePrefix}${whdSlogans[currentSloganIndex]} #DontMissABeat #WorldHeartDay`;
+
         if (currentMode === 'image') {
           const dataUrl = canvas.toDataURL('image/png');
           const blob = await (await fetch(dataUrl)).blob();
@@ -1186,7 +1195,7 @@
             try {
               await navigator.share({
                 title: 'World Heart Day 2026 Story',
-                text: `${whdSlogans[currentSloganIndex]} #DontMissABeat #WorldHeartDay`,
+                text: shareText,
                 files: [file]
               });
             } catch (err) {
@@ -1206,7 +1215,7 @@
             try {
               await navigator.share({
                 title: 'World Heart Day 2026 Story Video',
-                text: `${whdSlogans[currentSloganIndex]} #DontMissABeat #WorldHeartDay`,
+                text: shareText,
                 files: [videoFile]
               });
             } catch (err) {
