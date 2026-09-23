@@ -1023,7 +1023,7 @@
         const baseWidth = baseHeight * aspect;
 
         const finalX = canvas.width - baseWidth - 30;
-        const finalY = 740 - baseHeight;
+        const finalY = 970 - baseHeight;
 
         ctx.save();
         ctx.globalAlpha = 1;
@@ -1055,7 +1055,7 @@
         // 2. Circle frame
         const circleRadius = 350;
         const circleX = 500;
-        const circleY = 485;
+        const circleY = 465;
 
         ctx.save();
         ctx.beginPath();
@@ -1066,7 +1066,6 @@
           const vw = userVideo.videoWidth;
           const vh = userVideo.videoHeight;
           if (vw && vh) {
-            // Solve distortion by preserving source aspect ratio inside the circular viewport
             const sourceAspect = vw / vh;
             let drawWidth = circleRadius * 2 * photoScale;
             let drawHeight = circleRadius * 2 * photoScale;
@@ -1114,11 +1113,11 @@
         // 4. ECG
         drawContinuousNormalEcg(elapsedTime);
 
-        // 5. Mascot
+        // 5. Mascot (Bottom Right Corner)
         drawMascot();
 
-        // 6. Header Title & Date (Widened & stacked with date below)
-        const headerY = 30;
+        // 6. Header Title & Date (Widened)
+        const headerY = 24;
         const textCenterX = canvas.width / 2;
 
         withAnimation(textAnimations.title, t, 100, 900, (state) => {
@@ -1140,7 +1139,7 @@
           ctx.restore();
         });
 
-        // Date below title in smaller text
+        // Date below title
         ctx.save();
         ctx.textAlign = 'center';
         ctx.fillStyle = '#ffe3e3';
@@ -1150,7 +1149,7 @@
         ctx.fillText('29 September 2026', textCenterX, headerY + 60);
         ctx.restore();
 
-        // 7. Curved slogan
+        // 7. "DON'T MISS A BEAT" below date
         const sloganRadius = circleRadius + 42;
         withAnimation(textAnimations.curvedSlogan, t, 500, 1000, (state) => {
           drawCurvedText(bannerSloganText, circleX, circleY, sloganRadius, {
@@ -1170,33 +1169,33 @@
             const ox = state.offsetX, oy = state.offsetY;
             const sc = state.scale, rot = state.rotate, glow = state.glow;
             if (sc !== 1 || rot !== 0) {
-              ctx.translate(canvas.width / 2, 440);
+              ctx.translate(canvas.width / 2, 420);
               ctx.rotate(rot); ctx.scale(sc, sc);
-              ctx.translate(-canvas.width / 2, -440);
+              ctx.translate(-canvas.width / 2, -420);
             }
             ctx.textAlign = 'center';
             ctx.fillStyle = '#fff0f3';
             ctx.font = '900 32px -apple-system, sans-serif';
             ctx.shadowColor = 'rgba(0,0,0,0.6)';
             ctx.shadowBlur = 8 + glow;
-            ctx.fillText(nameText, canvas.width / 2 + ox, 440 + oy, 650);
+            ctx.fillText(nameText, canvas.width / 2 + ox, 420 + oy, 650);
             ctx.restore();
           });
         }
 
-        // 9. Rotating slogan
+        // 9. Random Slogan below the circle
         withAnimation(textAnimations.rotatingSlogan, t, 1500, 900, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
           const ox = state.offsetX, oy = state.offsetY;
           const sc = state.scale, rot = state.rotate, glow = state.glow;
           if (sc !== 1 || rot !== 0) {
-            ctx.translate(canvas.width / 2, 800);
+            ctx.translate(canvas.width / 2, 860);
             ctx.rotate(rot); ctx.scale(sc, sc);
-            ctx.translate(-canvas.width / 2, -800);
+            ctx.translate(-canvas.width / 2, -860);
           }
           ctx.fillStyle = '#ffffff';
-          ctx.font = '900 40px -apple-system, sans-serif';
+          ctx.font = '900 38px -apple-system, sans-serif';
           ctx.textAlign = 'center';
           ctx.shadowColor = 'rgba(0,0,0,0.9)';
           ctx.shadowBlur = 14 + glow;
@@ -1205,7 +1204,7 @@
             const fullText = currentRotatingSlogan;
             const totalW = ctx.measureText(fullText).width;
             let startX = canvas.width / 2 - totalW / 2 + ox;
-            const y = 800 + oy;
+            const y = 860 + oy;
             for (let i = 0; i < fullText.length; i++) {
               const ch = fullText[i];
               const chW = ctx.measureText(ch).width;
@@ -1214,7 +1213,7 @@
               startX += chW;
             }
           } else {
-            wrapText(ctx, currentRotatingSlogan, canvas.width / 2 + ox, 800 + oy, 800, 46);
+            wrapText(ctx, currentRotatingSlogan, canvas.width / 2 + ox, 860 + oy, 800, 44);
           }
           ctx.restore();
         });
@@ -1226,25 +1225,25 @@
           const ox = state.offsetX, oy = state.offsetY;
           const sc = state.scale, rot = state.rotate, glow = state.glow;
           if (sc !== 1 || rot !== 0) {
-            ctx.translate(canvas.width / 2, 875);
+            ctx.translate(canvas.width / 2, 920);
             ctx.rotate(rot); ctx.scale(sc, sc);
-            ctx.translate(-canvas.width / 2, -875);
+            ctx.translate(-canvas.width / 2, -920);
           }
           ctx.fillStyle = '#ffe3e3';
-          ctx.font = '900 30px -apple-system, sans-serif';
+          ctx.font = '900 28px -apple-system, sans-serif';
           ctx.textAlign = 'center';
           ctx.shadowColor = 'rgba(0,0,0,0.8)';
           ctx.shadowBlur = 10 + glow;
-          ctx.fillText('#DontMissABeat    #UseHeart', canvas.width / 2 + ox, 875 + oy);
+          ctx.fillText('#DontMissABeat    #UseHeart', canvas.width / 2 + ox, 920 + oy);
           ctx.restore();
         });
 
-        // 11. Hospital Logo at Bottom Left
+        // 11. Hospital Logo at Bottom Left (Below hashtags)
         if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
-          const targetLogoHeight = 65;
+          const targetLogoHeight = 55;
           const logoWidth = (hospitalLogo.width / hospitalLogo.height) * targetLogoHeight;
           const logoX = 35;
-          const logoY = 910 - targetLogoHeight;
+          const logoY = 965 - targetLogoHeight;
 
           ctx.save();
           ctx.shadowColor = 'rgba(0,0,0,0.3)';
@@ -1267,7 +1266,7 @@
         ctx.shadowBlur = 14;
         ctx.beginPath();
 
-        const ecgY = 610;
+        const ecgY = 590;
         const totalDuration = 10000;
         const progress = (currentMode === 'video') ? Math.min(1, elapsedTime / totalDuration) : 1.0;
         const maxVisibleX = canvas.width * progress;
