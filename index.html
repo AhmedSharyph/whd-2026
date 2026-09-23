@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="WHD Creator">
+  <meta name="theme-color" content="#d90429">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="screen-orientation" content="portrait">
+  <meta name="x5-orientation" content="portrait">
+  <title>WHD 2026 · Creator Studio</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html { height: 100%; width: 100%; overflow: hidden; touch-action: manipulation; background: #ffffff; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      height: 100%; width: 100%; overflow: hidden; position: fixed; inset: 0;
+      display: flex; flex-direction: column; color: #1a1a1a;
+      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+      overscroll-behavior: none; -webkit-overflow-scrolling: touch; background: #ffffff;
+    }
+    .app {
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      display: flex; flex-direction: column; overflow: hidden;
+      background: linear-gradient(180deg, #fff8f9 0%, #ffffff 40%, #ffffff 100%);
+      z-index: 1;
+    }
+    .scroll-area {
+      flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
+      padding: 16px 16px 32px; display: flex; flex-direction: column; gap: 14px;
+      overscroll-behavior: contain; background: transparent; scrollbar-width: none;
+    }
+    .scroll-area::-webkit-scrollbar { display: none; }
+
+    /* HEADER */
+    .app-header { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 8px; flex-shrink: 0; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-mark {
+      width: 38px; height: 38px; border-radius: 12px;
+      background: linear-gradient(135deg, #ff2d55, #d90429);
+      display: flex; align-items: center; justify-content: center; font-size: 19px;
+      box-shadow: 0 8px 18px rgba(255, 45, 85, 0.25);
+    }
+    .brand-text h1 { font-size: 0.88rem; font-weight: 800; letter-spacing: -0.02em; color: #7a0010; line-height: 1.1; }
+    .brand-text .sub { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #d90429; margin-top: 2px; }
+    .live-badge {
+      display: flex; align-items: center; gap: 5px; padding: 6px 11px; border-radius: 20px;
+      background: rgba(255, 45, 85, 0.08); border: 1px solid rgba(255, 45, 85, 0.2);
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #d90429;
+    }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #ff2d55; box-shadow: 0 0 8px rgba(255, 45, 85, 0.6); animation: livePulse 1.6s ease-in-out infinite; }
+    @keyframes livePulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.75); } }
+
+    /* MODE TABS */
+    .mode-tabs {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+      background: #f5f5f7; padding: 5px; border-radius: 16px;
+      border: 1px solid rgba(0, 0, 0, 0.04); flex-shrink: 0;
+    }
+    .tab-btn {
+      background: transparent; border: none; padding: 12px 8px;
+      font-size: 0.76rem; font-weight: 700; color: #8a6a70; border-radius: 12px;
+      cursor: pointer; transition: all 0.28s cubic-bezier(0.2, 0.9, 0.4, 1);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      -webkit-user-select: none; user-select: none; touch-action: manipulation;
+      font-family: inherit; letter-spacing: 0.02em;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #ff2d55, #d90429); color: #ffffff;
+      box-shadow: 0 6px 16px rgba(255, 45, 85, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+    .tab-btn:active { transform: scale(0.97); }
+
+    /* CANVAS FRAME - 3:4 Aspect Ratio */
+    .canvas-frame {
+      position: relative; width: 100%; aspect-ratio: 3 / 4;
+      border-radius: 26px; overflow: hidden; flex-shrink: 0;
+      background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow:
+        0 12px 34px rgba(217, 4, 41, 0.12),
+        0 2px 6px rgba(0, 0, 0, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      padding: 8px; box-sizing: border-box; max-height: 52vh; margin: 0 auto;
+    }
+    .canvas-frame .hearts-layer {
+      position: absolute; inset: 8px; border-radius: 19px;
+      overflow: hidden; pointer-events: none; z-index: 1;
+    }
+    .canvas-frame .hearts-layer .heart {
+      position: absolute; top: -30px; font-size: 14px; opacity: 0;
+      animation: heartFall linear infinite; will-change: transform, opacity;
+      filter: drop-shadow(0 0 3px rgba(255, 100, 130, 0.5));
+    }
+    @keyframes heartFall {
+      0% { transform: translateY(-30px) translateX(0) rotate(0deg) scale(0.6); opacity: 0; }
+      12% { opacity: 0.9; } 50% { opacity: 0.7; } 88% { opacity: 0.35; }
+      100% { transform: translateY(110%) translateX(var(--drift, 24px)) rotate(340deg) scale(1); opacity: 0; }
+    }
+    .canvas-frame canvas {
+      position: relative; z-index: 2; width: 100%; height: 100%;
+      display: block; border-radius: 19px; touch-action: none;
+    }
+
+    /* UPLOAD */
+    .upload-section { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+    .upload-label-row { display: flex; align-items: center; justify-content: space-between; padding: 0 4px; }
+    .upload-label-row .label-text {
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #8a6a70;
+    }
+    .upload-label-row .media-type-badge {
+      font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      color: #d90429; background: rgba(255, 45, 85, 0.08); border: 1px solid rgba(255, 45, 85, 0.2);
+      padding: 3px 9px; border-radius: 8px;
+    }
+    .upload-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .upload-action-btn {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; padding: 16px 10px; border-radius: 18px;
+      border: 1.5px solid rgba(255, 45, 85, 0.15);
+      background: #ffffff; color: #7a0010; font-weight: 700; font-size: 0.72rem;
+      cursor: pointer; transition: all 0.2s;
+      -webkit-user-select: none; user-select: none; touch-action: manipulation;
+      font-family: inherit; text-align: center; letter-spacing: 0.01em;
+      position: relative; overflow: hidden;
+      box-shadow: 0 4px 12px rgba(217, 4, 41, 0.06);
+    }
+    .upload-action-btn .icon-circle {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255, 45, 85, 0.12), rgba(217, 4, 41, 0.08));
+      border: 1px solid rgba(255, 45, 85, 0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; transition: transform 0.2s;
+    }
+    .upload-action-btn:active { transform: scale(0.97); background: #fff5f7; border-color: rgba(255, 45, 85, 0.4); }
+    .upload-action-btn:active .icon-circle { transform: scale(1.1); }
+    .upload-action-btn input[type="file"] { display: none; }
+
+    /* FIELDS */
+    .field-group { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .field-label {
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #8a6a70; padding: 0 4px;
+      -webkit-user-select: none; user-select: none;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .field-label .value-badge {
+      font-size: 0.6rem; font-weight: 700; color: #d90429;
+      background: rgba(255, 45, 85, 0.08); padding: 3px 8px; border-radius: 6px;
+      letter-spacing: 0.02em; border: 1px solid rgba(255, 45, 85, 0.15);
+    }
+    .range-wrapper { width: 100%; padding: 0 2px; }
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+      background: #f0e0e5; border-radius: 6px; outline: none;
+      margin: 4px 0; touch-action: manipulation; cursor: pointer; border: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none; width: 26px; height: 26px;
+      border-radius: 50%; background: linear-gradient(135deg, #ff2d55, #b3001b);
+      cursor: pointer; box-shadow: 0 4px 12px rgba(255, 45, 85, 0.4), 0 0 0 3px rgba(255, 45, 85, 0.1);
+      border: 2.5px solid #ffffff; transition: transform 0.12s; touch-action: manipulation;
+    }
+    input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.18); }
+    input[type="range"]::-moz-range-thumb {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: linear-gradient(135deg, #ff2d55, #b3001b);
+      cursor: pointer; border: 2.5px solid #ffffff;
+      box-shadow: 0 4px 12px rgba(255, 45, 85, 0.4);
+    }
+    input[type="text"] {
+      width: 100%; padding: 15px 16px; border-radius: 16px;
+      border: 1.5px solid rgba(0, 0, 0, 0.06); background: #ffffff;
+      font-size: 0.9rem; font-weight: 500; outline: none; transition: all 0.2s;
+      -webkit-appearance: none; appearance: none; touch-action: manipulation;
+      color: #1a1a1a; font-family: inherit;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    }
+    input[type="text"]:focus { border-color: #ff2d55; background: #ffffff; box-shadow: 0 0 0 3px rgba(255, 45, 85, 0.1); }
+    input[type="text"]::placeholder { color: #b8a0a5; font-weight: 400; }
+
+    /* BUTTONS */
+    .btn {
+      width: 100%; padding: 16px 12px; border-radius: 18px; border: none;
+      font-weight: 700; font-size: 0.84rem; cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      -webkit-user-select: none; user-select: none; touch-action: manipulation;
+      -webkit-appearance: none; appearance: none; color: #ffffff;
+      flex-shrink: 0; font-family: inherit; letter-spacing: 0.01em;
+      position: relative; overflow: hidden;
+    }
+    .btn::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 55%);
+      pointer-events: none;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-shuffle {
+      background: linear-gradient(135deg, #ff758c, #ff7eb3);
+      box-shadow: 0 6px 16px rgba(255, 117, 140, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+    .btn-download {
+      background: linear-gradient(135deg, #2b2b30, #000000);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+    .btn-share {
+      background: linear-gradient(135deg, #ff2d55, #d90429);
+      box-shadow: 0 8px 20px rgba(255, 45, 85, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-shrink: 0; }
+
+    .video-status {
+      font-size: 0.72rem; font-weight: 600; color: #b3001b; text-align: center;
+      background: #fff5f7; padding: 12px 14px; border-radius: 14px;
+      display: none; border: 1px solid rgba(255, 45, 85, 0.18);
+      flex-shrink: 0; line-height: 1.5; letter-spacing: 0.01em;
+    }
+    .video-status.visible { display: block; animation: fadeIn 0.3s ease both; }
+
+    .app-footer {
+      text-align: center; font-size: 0.56rem; color: #b8a0a5;
+      font-weight: 500; padding: 8px 0 4px; flex-shrink: 0; letter-spacing: 0.04em;
+    }
+
+    @supports (padding: env(safe-area-inset-bottom)) {
+      .scroll-area {
+        padding-bottom: calc(32px + env(safe-area-inset-bottom));
+        padding-top: calc(16px + env(safe-area-inset-top));
+      }
+      .app-header { padding-top: calc(4px + env(safe-area-inset-top)); }
+      .app-footer { padding-bottom: calc(4px + env(safe-area-inset-bottom)); }
+    }
+    @media (max-height: 720px) {
+      .scroll-area { gap: 10px; padding: 12px 14px 24px; }
+      .canvas-frame { border-radius: 20px; padding: 6px; max-height: 44vh; }
+      .canvas-frame .hearts-layer, .canvas-frame canvas { border-radius: 15px; }
+      .upload-action-btn { padding: 13px 8px; font-size: 0.68rem; }
+      .upload-action-btn .icon-circle { width: 32px; height: 32px; font-size: 15px; }
+      .btn { padding: 14px 10px; font-size: 0.8rem; }
+      input[type="text"] { padding: 13px 14px; font-size: 0.86rem; }
+      .tab-btn { padding: 11px 6px; font-size: 0.72rem; }
+    }
+    .app, .app * { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+    input[type="text"] { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; }
+    body { overscroll-behavior-y: none; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .scroll-area > * { animation: fadeIn 0.35s cubic-bezier(0.2, 0.9, 0.4, 1) both; }
+    .scroll-area > *:nth-child(2) { animation-delay: 0.04s; }
+    .scroll-area > *:nth-child(3) { animation-delay: 0.08s; }
+    .scroll-area > *:nth-child(4) { animation-delay: 0.12s; }
+    .scroll-area > *:nth-child(5) { animation-delay: 0.16s; }
+    .scroll-area > *:nth-child(6) { animation-delay: 0.20s; }
+    .scroll-area > *:nth-child(7) { animation-delay: 0.24s; }
+    .scroll-area > *:nth-child(8) { animation-delay: 0.28s; }
+    .scroll-area > *:nth-child(9) { animation-delay: 0.32s; }
+  </style>
+</head>
+<body>
+
+  <div class="app" id="app">
+    <div class="scroll-area" id="scrollArea">
+
+      <!-- HEADER -->
+      <header class="app-header">
+        <div class="brand">
+          <div class="brand-mark">❤️</div>
+          <div class="brand-text">
+            <h1>SHAH HEALTH PORTAL</h1>
+            <div class="sub">World Heart Day 2026</div>
+          </div>
+        </div>
+        <div class="live-badge">
+          <span class="live-dot"></span>
+          Story Studio
+        </div>
+      </header>
+
+      <!-- MODE SWITCH -->
+      <div class="mode-tabs" id="modeTabs">
+        <button class="tab-btn active" id="modeImageBtn" onclick="switchMode('image')" aria-label="Photo story mode">
+          📷 Photo Story
+        </button>
+        <button class="tab-btn" id="modeVideoBtn" onclick="switchMode('video')" aria-label="10 second story video mode">
+          🎥 10s Story Video
+        </button>
+      </div>
+
+      <!-- CANVAS FRAME (3:4 Ratio) -->
+      <div class="canvas-frame" id="canvasFrame">
+        <div class="hearts-layer" id="heartsLayer" aria-hidden="true"></div>
+        <canvas id="creatorCanvas" width="1080" height="1440"></canvas>
+      </div>
+
+      <!-- UPLOAD -->
+      <div class="upload-section">
+        <div class="upload-label-row">
+          <span class="label-text">Add your media</span>
+          <span class="media-type-badge" id="mediaTypeBadge">Photo</span>
+        </div>
+        <div class="upload-actions">
+          <button class="upload-action-btn" id="cameraBtn" type="button">
+            <span class="icon-circle">📸</span>
+            <span id="cameraBtnText">Take Photo</span>
+          </button>
+          <button class="upload-action-btn" id="galleryBtn" type="button">
+            <span class="icon-circle">🖼️</span>
+            <span id="galleryBtnText">Choose Photo</span>
+          </button>
+        </div>
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
+        <input type="file" id="galleryInput" accept="image/*" style="display:none;">
+      </div>
+
+      <!-- SHUFFLE -->
+      <button class="btn btn-shuffle" id="shuffleSloganBtn" type="button">🔀 Shuffle Message Slogan</button>
+
+      <!-- ZOOM -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>Zoom & drag inside media area</span>
+          <span class="value-badge" id="zoomValue">1.0×</span>
+        </div>
+        <div class="range-wrapper">
+          <input type="range" id="zoomRange" min="0.5" max="3.0" step="0.05" value="1">
+        </div>
+      </div>
+
+      <!-- NAME -->
+      <div class="field-group">
+        <label class="field-label" for="userName">
+          <span>Your name / team (optional)</span>
+        </label>
+        <input type="text" id="userName" placeholder="e.g. Community Health Team" maxlength="28" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
+      </div>
+
+      <!-- VIDEO STATUS -->
+      <div class="video-status" id="videoStatus"></div>
+
+      <!-- ACTIONS -->
+      <div class="btn-group">
+        <button class="btn btn-download" id="actionDownloadBtn">💾 Save Story</button>
+        <button class="btn btn-share" id="actionShareBtn">📤 Share Story</button>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="app-footer">Developed by Ahmed Shareef · Shaviyani Atoll Hospital</div>
+
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      "use strict";
+
+      // ============ HEART CASCADE ============
+      (function generateHearts() {
+        const layer = document.getElementById('heartsLayer');
+        const heartChars = ['❤', '♥', '❤️', '💗', '💓'];
+        const colors = [
+          'rgba(255, 160, 180, 0.85)', 'rgba(255, 120, 150, 0.8)',
+          'rgba(255, 190, 205, 0.75)', 'rgba(255, 100, 130, 0.7)',
+          'rgba(255, 210, 220, 0.7)'
+        ];
+        for (let i = 0; i < 20; i++) {
+          const heart = document.createElement('span');
+          heart.className = 'heart';
+          heart.textContent = heartChars[Math.floor(Math.random() * heartChars.length)];
+          const size = 8 + Math.random() * 16;
+          const duration = 8 + Math.random() * 12;
+          const delay = Math.random() * 12;
+          const left = Math.random() * 100;
+          const drift = (Math.random() * 70 - 35).toFixed(0) + 'px';
+          heart.style.left = left + '%';
+          heart.style.fontSize = size + 'px';
+          heart.style.color = colors[Math.floor(Math.random() * colors.length)];
+          heart.style.animationDuration = duration + 's';
+          heart.style.animationDelay = '-' + delay + 's';
+          heart.style.setProperty('--drift', drift);
+          layer.appendChild(heart);
+        }
+      })();
+
+      // ============ DOM REFS ============
+      const canvas = document.getElementById('creatorCanvas');
+      const ctx = canvas.getContext('2d');
+      const userNameInput = document.getElementById('userName');
+      const zoomRange = document.getElementById('zoomRange');
+      const zoomValue = document.getElementById('zoomValue');
+      const actionDownloadBtn = document.getElementById('actionDownloadBtn');
+      const actionShareBtn = document.getElementById('actionShareBtn');
+      const videoStatus = document.getElementById('videoStatus');
+      const modeImageBtn = document.getElementById('modeImageBtn');
+      const modeVideoBtn = document.getElementById('modeVideoBtn');
+      const mediaTypeBadge = document.getElementById('mediaTypeBadge');
+      const cameraBtn = document.getElementById('cameraBtn');
+      const galleryBtn = document.getElementById('galleryBtn');
+      const cameraBtnText = document.getElementById('cameraBtnText');
+      const galleryBtnText = document.getElementById('galleryBtnText');
+      const cameraInput = document.getElementById('cameraInput');
+      const galleryInput = document.getElementById('galleryInput');
+      const shuffleSloganBtn = document.getElementById('shuffleSloganBtn');
+
+      // ============ STATE ============
+      let userImage = null;
+      let userVideo = null;
+      let photoScale = 1;
+      let photoOffsetX = 0;
+      let photoOffsetY = 0;
+      let currentMode = 'image';
+      let animationId = null;
+      let recordingStartTime = 0;
+      let lastRecordedVideoBlob = null;
+      let isDragging = false;
+      let startX = 0, startY = 0;
+      let lastDrawTime = 0;
+
+      // Pinch zoom state
+      let initialPinchDist = null;
+      let initialScale = 1;
+
+      // ============ SLOGANS ============
+      const whdSlogans = [
+        "USE HEART FOR ACTION.",
+        "USE HEART TO CONNECT.",
+        "BEAT CVD, USE HEART.",
+        "POWER YOUR LIFE, USE HEART.",
+        "PROTECT EVERY HEART.",
+        "HEART HEALTH FOR ALL.",
+        "KNOW RISK, TAKE ACTION.",
+        "LIVE LIFE WITH HEART.",
+        "SMALL STEPS, BIG HEART.",
+        "CHOOSE HEALTH, BEAT CVD.",
+        "KEEP THE BEAT ALIVE."
+      ];
+      let currentSloganIndex = Math.floor(Math.random() * whdSlogans.length);
+
+      shuffleSloganBtn.addEventListener('click', () => {
+        let newIndex;
+        do { newIndex = Math.floor(Math.random() * whdSlogans.length); }
+        while (newIndex === currentSloganIndex && whdSlogans.length > 1);
+        currentSloganIndex = newIndex;
+        scheduleDraw();
+      });
+
+      // ============ TEXT ANIMATIONS ============
+      let textAnimations = { title: null, subtitle: null, name: null };
+      const animationPool = [
+        'fadeIn', 'slideFromLeft', 'slideFromRight', 'slideFromTop',
+        'slideFromBottom', 'scaleUp', 'scaleDown', 'wave', 'pulse',
+        'glow', 'rotateIn', 'bounceIn', 'flipIn'
+      ];
+      function randomizeTextAnimations() {
+        const pick = () => animationPool[Math.floor(Math.random() * animationPool.length)];
+        textAnimations.title = pick();
+        textAnimations.subtitle = pick();
+        textAnimations.name = pick();
+      }
+      function getAnimProgress(elapsed, delay, duration) {
+        if (elapsed < delay) return 0;
+        return Math.min(1, (elapsed - delay) / duration);
+      }
+      function getAnimState(animName, progress) {
+        const state = { alpha: 1, offsetX: 0, offsetY: 0, scale: 1, rotate: 0, glow: 0 };
+        const p = progress;
+        switch (animName) {
+          case 'fadeIn':         state.alpha = p; break;
+          case 'slideFromLeft':  state.offsetX = -180 * (1 - p); state.alpha = p; break;
+          case 'slideFromRight': state.offsetX = 180 * (1 - p);  state.alpha = p; break;
+          case 'slideFromTop':   state.offsetY = -120 * (1 - p); state.alpha = p; break;
+          case 'slideFromBottom':state.offsetY = 120 * (1 - p);  state.alpha = p; break;
+          case 'scaleUp':        state.scale = 0.3 + 0.7 * p;    state.alpha = p; break;
+          case 'scaleDown':      state.scale = 1.6 - 0.6 * p;    state.alpha = p; break;
+          case 'wave':           state.offsetY = Math.sin(p * Math.PI * 4) * 18 * (1 - p); state.alpha = Math.min(1, p * 2); break;
+          case 'pulse':          state.scale = 1 + Math.sin(p * Math.PI * 6) * 0.12 * (1 - p); state.alpha = Math.min(1, p * 1.5); break;
+          case 'glow':           state.glow = Math.sin(p * Math.PI * 5) * 22; state.alpha = Math.min(1, p * 2); break;
+          case 'rotateIn':       state.rotate = -Math.PI * 0.6 * (1 - p); state.scale = 0.4 + 0.6 * p; state.alpha = p; break;
+          case 'bounceIn':
+            if (p < 0.7) { const tt = p / 0.7; state.scale = 0.3 + 1.0 * tt - 0.3 * Math.sin(tt * Math.PI); }
+            else { state.scale = 1; }
+            state.alpha = Math.min(1, p * 1.8);
+            break;
+          case 'flipIn':         state.scale = 0.1 + 0.9 * p; state.rotate = Math.PI * (1 - p); state.alpha = p; break;
+        }
+        return state;
+      }
+
+      // ============ ASSETS ============
+      const newLogoImg = new Image();
+      newLogoImg.src = 'https://raw.githubusercontent.com/AhmedSharyph/whd-2026/main/new_logo.png';
+      newLogoImg.crossOrigin = 'anonymous';
+      newLogoImg.onload = () => { if (currentMode === 'image') scheduleDraw(); };
+
+      const mascotTrImg = new Image();
+      mascotTrImg.src = 'https://raw.githubusercontent.com/AhmedSharyph/whd-2026/main/mascot_tr.png';
+      mascotTrImg.crossOrigin = 'anonymous';
+      mascotTrImg.onload = () => { if (currentMode === 'image') scheduleDraw(); };
+
+      // ============ CURVE CONSTANTS (Adapted for 3:4 Aspect Ratio) ============
+      const CURVE = {
+        P0: { x: 0,    y: 620 },
+        P1: { x: 360,  y: 380 },
+        P2: { x: 720,  y: 260 },
+        P3: { x: 1080, y: 400 }
+      };
+
+      function bezierPoint(t) {
+        const mt = 1 - t;
+        const { P0, P1, P2, P3 } = CURVE;
+        return {
+          x: mt*mt*mt*P0.x + 3*mt*mt*t*P1.x + 3*mt*t*t*P2.x + t*t*t*P3.x,
+          y: mt*mt*mt*P0.y + 3*mt*mt*t*P1.y + 3*mt*t*t*P2.y + t*t*t*P3.y
+        };
+      }
+      function bezierTangentAngle(t) {
+        const mt = 1 - t;
+        const { P0, P1, P2, P3 } = CURVE;
+        const dx = 3*mt*mt*(P1.x-P0.x) + 6*mt*t*(P2.x-P1.x) + 3*t*t*(P3.x-P2.x);
+        const dy = 3*mt*mt*(P1.y-P0.y) + 6*mt*t*(P2.y-P1.y) + 3*t*t*(P3.y-P2.y);
+        return Math.atan2(dy, dx);
+      }
+      function bezierLength(tMax = 1, samples = 200) {
+        let len = 0;
+        let prev = bezierPoint(0);
+        for (let i = 1; i <= samples; i++) {
+          const cur = bezierPoint((i / samples) * tMax);
+          len += Math.hypot(cur.x - prev.x, cur.y - prev.y);
+          prev = cur;
+        }
+        return len;
+      }
+
+      // ============ FIND T AT PIXEL DISTANCE ============
+      function findTAtDistance(centerT, distancePx) {
+        const centerPt = bezierPoint(centerT);
+        const forward = distancePx >= 0;
+        const absDist = Math.abs(distancePx);
+        const step = 0.002;
+
+        let t = centerT;
+        let accumulated = 0;
+        let prevPt = centerPt;
+
+        for (let i = 0; i < 600; i++) {
+          t += forward ? step : -step;
+          if (t < 0.001 || t > 0.999) break;
+          const pt = bezierPoint(t);
+          accumulated += Math.hypot(pt.x - prevPt.x, pt.y - prevPt.y);
+          prevPt = pt;
+          if (accumulated >= absDist) break;
+        }
+        return Math.max(0.01, Math.min(0.99, t));
+      }
+
+      // ============ HASHTAG FONT & HELPERS ============
+      const HASHTAG_FONT_TEMPLATE =
+        '200 {SIZE}px "Helvetica Neue", "HelveticaNeue-Thin", "SF Pro Text", "Segoe UI Light", Roboto, Arial, sans-serif';
+
+      function fitFontSize(text, template, maxWidth, minSize, maxSize) {
+        let size = maxSize;
+        while (size > minSize) {
+          ctx.font = template.replace('{SIZE}', size);
+          if (ctx.measureText(text).width <= maxWidth) break;
+          size -= 2;
+        }
+        return size;
+      }
+
+      // ============ HASHTAG ON CURVE ============
+      function drawHashtagOnCurve(text, t, opts = {}) {
+        const {
+          aboveOffset = 0,
+          maxWidth = 300,
+          minSize = 22,
+          maxSize = 40,
+          angleOffset = 0,
+          color = '#ffffff',
+          glow = 'rgba(0, 0, 0, 0.45)'
+        } = opts;
+
+        const pt = bezierPoint(t);
+        const angle = bezierTangentAngle(t) + angleOffset;
+
+        const nx = Math.sin(angle);
+        const ny = -Math.cos(angle);
+
+        ctx.save();
+        ctx.translate(pt.x + nx * aboveOffset, pt.y + ny * aboveOffset);
+        ctx.rotate(angle);
+
+        const size = fitFontSize(text, HASHTAG_FONT_TEMPLATE, maxWidth, minSize, maxSize);
+        ctx.font = HASHTAG_FONT_TEMPLATE.replace('{SIZE}', size);
+
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = glow;
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetY = 1;
+        ctx.fillText(text, 0, 0);
+        ctx.restore();
+      }
+
+      // ============ BACKGROUND RENDERER ============
+      function drawBackground(w, h) {
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+        bgGrad.addColorStop(0.00, '#8a0018');
+        bgGrad.addColorStop(0.15, '#b3001b');
+        bgGrad.addColorStop(0.35, '#d90429');
+        bgGrad.addColorStop(0.55, '#d90429');
+        bgGrad.addColorStop(0.75, '#a80020');
+        bgGrad.addColorStop(1.00, '#6e0014');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        const glow = ctx.createRadialGradient(
+          w * 0.30, h * 0.06, 0,
+          w * 0.30, h * 0.06, w * 0.9
+        );
+        glow.addColorStop(0,    'rgba(255, 120, 150, 0.35)');
+        glow.addColorStop(0.45, 'rgba(255, 45, 85, 0.12)');
+        glow.addColorStop(1,    'rgba(255, 45, 85, 0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, w, h * 0.5);
+
+        ctx.save();
+        ctx.globalAlpha = 0.06;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        const patternY = 220;
+        const patternStep = 90;
+        for (let row = 0; row < 3; row++) {
+          const yBase = patternY + row * patternStep;
+          ctx.beginPath();
+          for (let x = 0; x <= w; x += 6) {
+            const cycle = 180;
+            const local = (x + row * 40) % cycle;
+            let dy = 0;
+            if (local > 20 && local < 40) dy = -6 * Math.sin(((local - 20) / 20) * Math.PI);
+            else if (local >= 50 && local < 58) dy = 6;
+            else if (local >= 58 && local < 68) dy = -32 * Math.sin(((local - 58) / 10) * Math.PI);
+            else if (local >= 68 && local < 76) dy = 10 * Math.sin(((local - 68) / 8) * Math.PI);
+            else if (local >= 90 && local < 120) dy = -5 * Math.sin(((local - 90) / 30) * Math.PI);
+            const y = yBase + dy;
+            if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        const bottomGrad = ctx.createLinearGradient(0, h - 140, 0, h);
+        bottomGrad.addColorStop(0, '#b3001b');
+        bottomGrad.addColorStop(0.5, '#8a0018');
+        bottomGrad.addColorStop(1, '#5a0010');
+        ctx.fillStyle = bottomGrad;
+        ctx.fillRect(0, h - 140, w, 140);
+
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, h - 140);
+        ctx.lineTo(w, h - 140);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // ============ DRAW SCHEDULER ============
+      let drawScheduled = false;
+      function scheduleDraw() {
+        if (drawScheduled) return;
+        drawScheduled = true;
+        requestAnimationFrame(() => {
+          drawScheduled = false;
+          drawCanvas(0);
+        });
+      }
+
+      function withAnimation(animName, elapsed, delay, duration, drawFn) {
+        if (currentMode !== 'video' || !animName) {
+          drawFn({ alpha: 1, offsetX: 0, offsetY: 0, scale: 1, rotate: 0, glow: 0 });
+          return;
+        }
+        const progress = getAnimProgress(elapsed, delay, duration);
+        drawFn(getAnimState(animName, progress));
+      }
+
+      // ============ MAIN DRAW ============
+      function drawCanvas(elapsedTime) {
+        const w = canvas.width;
+        const h = canvas.height;
+        const now = performance.now();
+        if (now - lastDrawTime < 16 && elapsedTime === 0) return;
+        lastDrawTime = now;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // 1. Background
+        drawBackground(w, h);
+
+        // 2. Media clip path (3:4 ratio boundaries)
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(CURVE.P0.x, CURVE.P0.y);
+        ctx.bezierCurveTo(CURVE.P1.x, CURVE.P1.y, CURVE.P2.x, CURVE.P2.y, CURVE.P3.x, CURVE.P3.y);
+        ctx.lineTo(CURVE.P3.x, h - 140);
+        ctx.lineTo(CURVE.P0.x, h - 140);
+        ctx.closePath();
+        ctx.clip();
+
+        if (userVideo && userVideo.readyState >= 2) {
+          const vw = userVideo.videoWidth;
+          const vh = userVideo.videoHeight;
+          if (vw && vh) {
+            const sourceAspect = vw / vh;
+            let drawWidth = w;
+            let drawHeight = h;
+            if (sourceAspect > (w / h)) {
+              drawWidth = h * sourceAspect;
+            } else {
+              drawHeight = w / sourceAspect;
+            }
+            drawWidth *= photoScale;
+            drawHeight *= photoScale;
+
+            const vx = (w / 2) - (drawWidth / 2) + photoOffsetX;
+            const vy = (h / 2) - (drawHeight / 2) + photoOffsetY;
+            ctx.drawImage(userVideo, vx, vy, drawWidth, drawHeight);
+          }
+        } else if (userImage) {
+          const iw = userImage.naturalWidth || userImage.width;
+          const ih = userImage.naturalHeight || userImage.height;
+          const sourceAspect = iw / ih;
+          let drawWidth = w;
+          let drawHeight = h;
+          if (sourceAspect > (w / h)) {
+            drawWidth = h * sourceAspect;
+          } else {
+            drawHeight = w / sourceAspect;
+          }
+          drawWidth *= photoScale;
+          drawHeight *= photoScale;
+
+          const x = (w / 2) - (drawWidth / 2) + photoOffsetX;
+          const y = (h / 2) - (drawHeight / 2) + photoOffsetY;
+          ctx.drawImage(userImage, x, y, drawWidth, drawHeight);
+        } else {
+          ctx.fillStyle = '#f5f5f7';
+          ctx.fillRect(0, 0, w, h);
+          ctx.fillStyle = '#d90429';
+          ctx.font = 'bold 42px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('Tap below to add your photo or video', w / 2, h / 2);
+        }
+
+        const vignette = ctx.createRadialGradient(w/2, h/2, h*0.3, w/2, h/2, h*0.75);
+        vignette.addColorStop(0, 'rgba(0,0,0,0)');
+        vignette.addColorStop(1, 'rgba(0,0,0,0.35)');
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, w, h);
+
+        ctx.restore();
+
+        // 3. Top branding
+        withAnimation(textAnimations.title, elapsedTime, 100, 900, (state) => {
+          ctx.save();
+          ctx.globalAlpha = state.alpha;
+          const ox = state.offsetX, oy = state.offsetY;
+          const logoX = 50 + ox;
+          const logoY = 45 + oy;
+          const logoTargetHeight = 110;
+
+          if (newLogoImg.complete && newLogoImg.naturalHeight !== 0) {
+            const lAspect = newLogoImg.width / newLogoImg.height;
+            const logoWidth = logoTargetHeight * lAspect;
+            ctx.drawImage(newLogoImg, logoX, logoY, logoWidth, logoTargetHeight);
+
+            const textStartX = logoX + logoWidth + 20;
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'alphabetic';
+
+            ctx.font = '900 32px -apple-system, sans-serif';
+            ctx.fillText('WORLD', textStartX, 80 + oy);
+            ctx.fillText('HEART', textStartX, 115 + oy);
+
+            ctx.font = '800 18px -apple-system, sans-serif';
+            ctx.fillText('DAY 29 SEP', textStartX, 142 + oy);
+          } else {
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'alphabetic';
+            ctx.font = '900 32px -apple-system, sans-serif';
+            ctx.fillText('WORLD', 60 + ox, 80 + oy);
+            ctx.fillText('HEART', 60 + ox, 115 + oy);
+            ctx.font = '800 18px -apple-system, sans-serif';
+            ctx.fillText('DAY 29 SEP', 60 + ox, 142 + oy);
+          }
+          ctx.restore();
+        });
+
+        // 4. Slogan
+        withAnimation(textAnimations.subtitle, elapsedTime, 300, 900, (state) => {
+          ctx.save();
+          ctx.globalAlpha = state.alpha;
+          const ox = state.offsetX, oy = state.offsetY;
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '900 48px -apple-system, sans-serif';
+          ctx.textAlign = 'left';
+          wrapText(ctx, whdSlogans[currentSloganIndex], 500 + ox, 85 + oy, 540, 56);
+          ctx.restore();
+        });
+
+        // 5. Hashtags
+        const progress = (currentMode === 'video') ? Math.min(1, elapsedTime / 10000) : 1;
+        const ease = 1 - Math.pow(1 - progress, 3);
+
+        const baseCenterT = 0.52;
+        const startCenterT = currentMode === 'video'
+          ? Math.max(0.10, baseCenterT - 0.28)
+          : baseCenterT;
+        const centerT = startCenterT + (baseCenterT - startCenterT) * ease;
+
+        const MIN_PIXEL_GAP  = 100;
+        const LEFT_EXTRA_PX  = 160;
+
+        const leftDistance  = -(MIN_PIXEL_GAP / 2 + LEFT_EXTRA_PX);
+        const rightDistance =  (MIN_PIXEL_GAP / 2);
+
+        const leftT  = findTAtDistance(centerT, leftDistance);
+        const rightT = findTAtDistance(centerT, rightDistance);
+
+        drawHashtagOnCurve('#DontMissABeat', leftT, {
+          aboveOffset: 26,
+          maxWidth: 280,
+          minSize: 20,
+          maxSize: 36,
+          angleOffset: -0.06
+        });
+
+        drawHashtagOnCurve('#WorldHeartDay', rightT, {
+          aboveOffset: 30,
+          maxWidth: 280,
+          minSize: 20,
+          maxSize: 36,
+          angleOffset: -0.06
+        });
+
+        // 6. ECG
+        drawContinuousNormalEcg(elapsedTime);
+
+        // 7. Mascot
+        if (mascotTrImg.complete && mascotTrImg.naturalHeight !== 0) {
+          const targetHeight = 170;
+          const aspect = mascotTrImg.width / mascotTrImg.height;
+          const targetWidth = targetHeight * aspect;
+          const mascotX = w - targetWidth - 25;
+          const mascotY = h - targetHeight - 15;
+          ctx.save();
+          ctx.drawImage(mascotTrImg, mascotX, mascotY, targetWidth, targetHeight);
+          ctx.restore();
+        }
+
+        // 8. Name
+        const nameText = userNameInput.value.trim() ? userNameInput.value.toUpperCase() : "";
+        if (nameText) {
+          withAnimation(textAnimations.name, elapsedTime, 1000, 800, (state) => {
+            ctx.save();
+            ctx.globalAlpha = state.alpha;
+            const ox = state.offsetX, oy = state.offsetY;
+            ctx.fillStyle = '#fff0f3';
+            ctx.font = '900 30px -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = 'rgba(0,0,0,0.6)';
+            ctx.shadowBlur = 8;
+            ctx.fillText(nameText, w / 2 + ox, 1380 + oy, 700);
+            ctx.restore();
+          });
+        }
+      }
+
+      // ============ ECG ============
+      function drawContinuousNormalEcg(elapsedTime) {
+        ctx.save();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.shadowColor = 'rgba(255,255,255,0.9)';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+
+        const ecgY = 1370;
+        const progress = (currentMode === 'video') ? Math.min(1, elapsedTime / 10000) : 1.0;
+        const maxVisibleX = canvas.width * progress;
+
+        function getEcgOffset(t) {
+          const cycleTime = 750;
+          const localT = t % cycleTime;
+          let val = 0;
+          if (localT > 100 && localT < 220) {
+            val -= 8 * Math.sin(((localT - 100) / 120) * Math.PI);
+          } else if (localT >= 260 && localT < 290) { val += 12; }
+          else if (localT >= 290 && localT < 340) {
+            val -= 130 * Math.sin(((localT - 290) / 50) * Math.PI);
+          } else if (localT >= 340 && localT < 380) {
+            val += 28 * Math.sin(((localT - 340) / 40) * Math.PI);
+          } else if (localT >= 460 && localT < 640) {
+            val -= 18 * Math.sin(((localT - 460) / 180) * Math.PI);
+          }
+          return val;
+        }
+
+        let started = false;
+        const timeShift = (currentMode === 'video') ? elapsedTime : (performance.now() * 0.4);
+        const endX = (currentMode === 'video') ? maxVisibleX : canvas.width;
+
+        for (let x = 0; x <= endX; x += 4) {
+          const t = x * 2.2 + timeShift;
+          const y = ecgY + getEcgOffset(t);
+          if (!started) { ctx.moveTo(x, y); started = true; }
+          else { ctx.lineTo(x, y); }
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // ============ TEXT WRAP ============
+      function wrapText(context, text, x, y, maxWidth, lineHeight) {
+        const words = text.split(' ');
+        let line = '';
+        let currentY = y;
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + words[n] + ' ';
+          if (context.measureText(testLine).width > maxWidth && n > 0) {
+            context.fillText(line, x, currentY);
+            line = words[n] + ' ';
+            currentY += lineHeight;
+          } else { line = testLine; }
+        }
+        context.fillText(line, x, currentY);
+      }
+
+      // ============ FILE HANDLING ============
+      function handleMediaSelect(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        photoOffsetX = 0;
+        photoOffsetY = 0;
+        zoomRange.value = 1;
+        photoScale = 1;
+        zoomValue.textContent = '1.0×';
+
+        if (file.type.startsWith('video/')) {
+          if (userVideo) { userVideo.pause(); userVideo.src = ''; }
+          userVideo = document.createElement('video');
+          userVideo.src = URL.createObjectURL(file);
+          userVideo.loop = true;
+          userVideo.muted = false;
+          userVideo.playsInline = true;
+          userVideo.setAttribute('playsinline', '');
+          userVideo.setAttribute('webkit-playsinline', '');
+          userVideo.crossOrigin = 'anonymous';
+          userVideo.volume = 1.0;
+          userVideo.play().catch(() => {});
+          userVideo.onloadeddata = () => scheduleDraw();
+          userImage = null;
+        } else {
+          if (userVideo) { userVideo.pause(); userVideo.src = ''; userVideo = null; }
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            userImage = new Image();
+            userImage.src = ev.target.result;
+            userImage.onload = () => scheduleDraw();
+          };
+          reader.readAsDataURL(file);
+        }
+        setTimeout(() => {
+          cameraInput.value = '';
+          galleryInput.value = '';
+        }, 500);
+      }
+      cameraInput.addEventListener('change', handleMediaSelect);
+      galleryInput.addEventListener('change', handleMediaSelect);
+      cameraBtn.addEventListener('click', () => cameraInput.click());
+      galleryBtn.addEventListener('click', () => galleryInput.click());
+
+      // ============ TOUCH / MOUSE DRAG & PINCH ZOOM ============
+      canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          isDragging = true;
+          startX = e.touches[0].clientX - photoOffsetX;
+          startY = e.touches[0].clientY - photoOffsetY;
+          initialPinchDist = null;
+        } else if (e.touches.length === 2) {
+          isDragging = false;
+          initialPinchDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          initialScale = photoScale;
+        }
+        e.preventDefault();
+      }, { passive: false });
+
+      canvas.addEventListener('touchmove', (e) => {
+        if (isDragging && e.touches.length === 1) {
+          photoOffsetX = e.touches[0].clientX - startX;
+          photoOffsetY = e.touches[0].clientY - startY;
+          if (currentMode === 'image') scheduleDraw();
+        } else if (e.touches.length === 2 && initialPinchDist !== null) {
+          const currentDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          let newScale = initialScale * (currentDist / initialPinchDist);
+          newScale = Math.max(0.5, Math.min(3.0, newScale));
+          photoScale = newScale;
+          zoomRange.value = photoScale;
+          zoomValue.textContent = photoScale.toFixed(1) + '×';
+          if (currentMode === 'image') scheduleDraw();
+        }
+        e.preventDefault();
+      }, { passive: false });
+
+      canvas.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) initialPinchDist = null;
+        if (e.touches.length === 0) isDragging = false;
+        e.preventDefault();
+      }, { passive: false });
+
+      canvas.addEventListener('touchcancel', () => { isDragging = false; initialPinchDist = null; });
+
+      canvas.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX - photoOffsetX;
+        startY = e.clientY - photoOffsetY;
+        e.preventDefault();
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        photoOffsetX = e.clientX - startX;
+        photoOffsetY = e.clientY - startY;
+        if (currentMode === 'image') scheduleDraw();
+      });
+      window.addEventListener('mouseup', () => { isDragging = false; });
+
+      // ============ UI LISTENERS ============
+      zoomRange.addEventListener('input', (e) => {
+        photoScale = parseFloat(e.target.value);
+        zoomValue.textContent = photoScale.toFixed(1) + '×';
+        if (currentMode === 'image') scheduleDraw();
+      });
+      userNameInput.addEventListener('input', () => {
+        if (currentMode === 'image') scheduleDraw();
+      });
+
+      // ============ MODE SWITCH ============
+      window.switchMode = function(mode) {
+        currentMode = mode;
+        if (animationId) cancelAnimationFrame(animationId);
+        lastRecordedVideoBlob = null;
+
+        modeImageBtn.classList.toggle('active', mode === 'image');
+        modeVideoBtn.classList.toggle('active', mode === 'video');
+
+        if (mode === 'image') {
+          videoStatus.classList.remove('visible');
+          actionDownloadBtn.textContent = '💾 Save Story';
+          actionShareBtn.textContent = '📤 Share Story';
+          cameraBtnText.textContent = 'Take Photo';
+          galleryBtnText.textContent = 'Choose Photo';
+          mediaTypeBadge.textContent = 'Photo';
+          cameraInput.setAttribute('accept', 'image/*');
+          cameraInput.setAttribute('capture', 'environment');
+          galleryInput.setAttribute('accept', 'image/*');
+          if (userVideo) { userVideo.pause(); userVideo = null; }
+          scheduleDraw();
+        } else {
+          randomizeTextAnimations();
+          videoStatus.classList.add('visible');
+          videoStatus.textContent = '🎥 10s Story Video · Static shuffled slogan · Original audio preserved';
+          actionDownloadBtn.textContent = '📥 Export MP4';
+          actionShareBtn.textContent = '📤 Share MP4';
+          cameraBtnText.textContent = 'Record Video';
+          galleryBtnText.textContent = 'Choose Video';
+          mediaTypeBadge.textContent = 'Video';
+          cameraInput.setAttribute('accept', 'video/*');
+          cameraInput.setAttribute('capture', 'environment');
+          galleryInput.setAttribute('accept', 'video/*');
+          userImage = null;
+          recordingStartTime = performance.now();
+          startVideoPreviewLoop();
+        }
+        cameraInput.value = '';
+        galleryInput.value = '';
+      };
+
+      // ============ VIDEO PREVIEW ============
+      function startVideoPreviewLoop() {
+        function loop(timestamp) {
+          if (currentMode !== 'video') return;
+          const elapsed = timestamp - recordingStartTime;
+          drawCanvas(elapsed);
+          if (elapsed < 10000) {
+            animationId = requestAnimationFrame(loop);
+          } else {
+            videoStatus.textContent = '✅ 10s preview finished — tap Export MP4';
+          }
+        }
+        animationId = requestAnimationFrame(loop);
+      }
+
+      // ============ DOWNLOAD ============
+      actionDownloadBtn.addEventListener('click', async () => {
+        if (currentMode === 'image') {
+          const link = document.createElement('a');
+          link.download = 'world-heart-day-2026-story-3-4.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        } else {
+          if (!window.MediaRecorder) {
+            alert('Video recording is not supported on this browser.');
+            return;
+          }
+          if (lastRecordedVideoBlob) {
+            downloadVideoBlob(lastRecordedVideoBlob);
+            return;
+          }
+
+          randomizeTextAnimations();
+          videoStatus.classList.add('visible');
+          videoStatus.textContent = '🎥 Recording 10s 3:4 video... Please wait.';
+
+          recordingStartTime = performance.now();
+          const canvasStream = canvas.captureStream(30);
+
+          try {
+            let combinedStream;
+            let audioCtx = null;
+
+            if (userVideo && userVideo.srcObject instanceof MediaStream) {
+              combinedStream = new MediaStream([
+                ...canvasStream.getVideoTracks(),
+                ...userVideo.srcObject.getAudioTracks()
+              ]);
+            } else if (userVideo) {
+              audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+              const source = audioCtx.createMediaElementSource(userVideo);
+              const dest = audioCtx.createMediaStreamDestination();
+              source.connect(dest);
+              source.connect(audioCtx.destination);
+              combinedStream = new MediaStream([
+                ...canvasStream.getVideoTracks(),
+                ...dest.stream.getAudioTracks()
+              ]);
+            } else {
+              combinedStream = new MediaStream([...canvasStream.getVideoTracks()]);
+            }
+
+            let mime = 'video/mp4;codecs=avc1.42E01E,mp4a.40.2';
+            if (!MediaRecorder.isTypeSupported(mime)) {
+              mime = 'video/mp4';
+              if (!MediaRecorder.isTypeSupported(mime)) {
+                mime = 'video/webm;codecs=h264,opus';
+              }
+            }
+
+            const recorder = new MediaRecorder(combinedStream, { mimeType: mime });
+            const chunks = [];
+
+            recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+            recorder.onstop = () => {
+              if (audioCtx) audioCtx.close().catch(() => {});
+              lastRecordedVideoBlob = new Blob(chunks, { type: 'video/mp4' });
+              downloadVideoBlob(lastRecordedVideoBlob);
+              videoStatus.textContent = '✅ 10s story video saved successfully!';
+            };
+
+            recorder.start();
+            startVideoPreviewLoop();
+
+            setTimeout(() => {
+              if (recorder.state !== 'inactive') recorder.stop();
+            }, 10000);
+
+          } catch (err) {
+            console.error(err);
+            alert('Video export error: ' + err.message);
+            videoStatus.classList.remove('visible');
+          }
+        }
+      });
+
+      function downloadVideoBlob(blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'world-heart-day-2026-story-3-4.mp4';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+      }
+
+      // ============ SHARE ============
+      actionShareBtn.addEventListener('click', async () => {
+        if (currentMode === 'image') {
+          const dataUrl = canvas.toDataURL('image/png');
+          const blob = await (await fetch(dataUrl)).blob();
+          const file = new File([blob], 'world-heart-day-2026-story-3-4.png', { type: 'image/png' });
+
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                title: 'World Heart Day 2026 Story',
+                text: `${whdSlogans[currentSloganIndex]} #DontMissABeat #WorldHeartDay`,
+                files: [file]
+              });
+            } catch (err) {
+              if (err.name !== 'AbortError') console.warn('Share failed', err);
+            }
+          } else {
+            alert('Direct sharing is not supported here. Please use "Save Story" instead.');
+          }
+        } else {
+          if (!lastRecordedVideoBlob) {
+            alert('Please click "Export MP4" first to record the 10s clip before sharing.');
+            return;
+          }
+          const videoFile = new File([lastRecordedVideoBlob], 'world-heart-day-2026-story-3-4.mp4', { type: 'video/mp4' });
+
+          if (navigator.canShare && navigator.canShare({ files: [videoFile] })) {
+            try {
+              await navigator.share({
+                title: 'World Heart Day 2026 Story Video',
+                text: `${whdSlogans[currentSloganIndex]} #DontMissABeat #WorldHeartDay`,
+                files: [videoFile]
+              });
+            } catch (err) {
+              if (err.name !== 'AbortError') console.warn('Share failed', err);
+            }
+          } else {
+            alert('Direct video sharing is not supported. Your MP4 was saved to downloads.');
+          }
+        }
+      });
+
+      // ============ GUARDS ============
+      document.getElementById('canvasFrame').addEventListener('touchmove', (e) => {
+        if (e.target === canvas) e.preventDefault();
+      }, { passive: false });
+
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) e.preventDefault();
+        lastTouchEnd = now;
+      }, { passive: false });
+
+      // ============ INIT ============
+      randomizeTextAnimations();
+      scheduleDraw();
+      window.addEventListener('load', () => { if (currentMode === 'image') scheduleDraw(); });
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          if (userVideo) userVideo.pause();
+          if (animationId) cancelAnimationFrame(animationId);
+        } else {
+          if (userVideo && currentMode === 'image') userVideo.play().catch(() => {});
+          if (currentMode === 'image') scheduleDraw();
+        }
+      });
+
+    })();
+  </script>
+</body>
+</html>
