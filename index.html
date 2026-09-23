@@ -521,16 +521,6 @@
         const dy = 3*mt*mt*(P1.y-P0.y) + 6*mt*t*(P2.y-P1.y) + 3*t*t*(P3.y-P2.y);
         return Math.atan2(dy, dx);
       }
-      function bezierLength(tMax = 1, samples = 200) {
-        let len = 0;
-        let prev = bezierPoint(0);
-        for (let i = 1; i <= samples; i++) {
-          const cur = bezierPoint((i / samples) * tMax);
-          len += Math.hypot(cur.x - prev.x, cur.y - prev.y);
-          prev = cur;
-        }
-        return len;
-      }
 
       // ============ FIND T AT PIXEL DISTANCE ============
       function findTAtDistance(centerT, distancePx) {
@@ -554,52 +544,45 @@
         return Math.max(0.01, Math.min(0.99, t));
       }
 
-      // ============ HASHTAG FONT & HELPERS ============
-      const HASHTAG_FONT_TEMPLATE =
-        '200 {SIZE}px "Helvetica Neue", "HelveticaNeue-Thin", "SF Pro Text", "Segoe UI Light", Roboto, Arial, sans-serif';
-
-      function fitFontSize(text, template, maxWidth, minSize, maxSize) {
-        let size = maxSize;
-        while (size > minSize) {
-          ctx.font = template.replace('{SIZE}', size);
-          if (ctx.measureText(text).width <= maxWidth) break;
-          size -= 2;
-        }
-        return size;
-      }
-
-      // ============ HASHTAG ON CURVE ============
-      function drawHashtagOnCurve(text, t, opts = {}) {
+      // ============ SMOOTH TEXT ALONG CURVE ============
+      function drawTextAlongCurve(text, startT, opts = {}) {
         const {
-          aboveOffset = 0,
-          maxWidth = 300,
-          minSize = 22,
-          maxSize = 40,
-          angleOffset = 0,
+          aboveOffset = 35,
+          fontSize = 42,
           color = '#ffffff',
-          glow = 'rgba(0, 0, 0, 0.45)'
+          glow = 'rgba(0, 0, 0, 0.5)'
         } = opts;
 
-        const pt = bezierPoint(t);
-        const angle = bezierTangentAngle(t) + angleOffset;
-
-        const nx = Math.sin(angle);
-        const ny = -Math.cos(angle);
-
         ctx.save();
-        ctx.translate(pt.x + nx * aboveOffset, pt.y + ny * aboveOffset);
-        ctx.rotate(angle);
-
-        const size = fitFontSize(text, HASHTAG_FONT_TEMPLATE, maxWidth, minSize, maxSize);
-        ctx.font = HASHTAG_FONT_TEMPLATE.replace('{SIZE}', size);
-
+        ctx.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif`;
         ctx.fillStyle = color;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.shadowColor = glow;
-        ctx.shadowBlur = 8;
-        ctx.shadowOffsetY = 1;
-        ctx.fillText(text, 0, 0);
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 2;
+
+        let currentT = startT;
+        
+        for (let i = 0; i < text.length; i++) {
+          const char = text[i];
+          const charWidth = ctx.measureText(char).width;
+
+          const pt = bezierPoint(currentT);
+          const angle = bezierTangentAngle(currentT);
+
+          const nx = Math.sin(angle);
+          const ny = -Math.cos(angle);
+
+          ctx.save();
+          ctx.translate(pt.x + nx * aboveOffset, pt.y + ny * aboveOffset);
+          ctx.rotate(angle);
+          ctx.fillText(char, 0, 0);
+          ctx.restore();
+
+          // Advance t forward based on character width to space letters smoothly
+          currentT = findTAtDistance(currentT, charWidth * 0.85);
+        }
         ctx.restore();
       }
 
@@ -813,39 +796,30 @@
           ctx.restore();
         });
 
-        // 5. Hashtags
-        const progress = (currentMode === 'video') ? Math.min(1, elapsedTime / 10000) : 1;
-        const ease = 1 - Math.pow(1 - progress, 3);
+        // 5. Hashtags Side-by-Side on Curve (#DontMissABeat in lead, larger font size)
+        const baseCenterT = 0.48;
+        const primaryTagDistance = -20;
+        const primaryT = findTAtDistance(baseCenterT, primaryTagDistance);
 
-        const baseCenterT = 0.52;
-        const startCenterT = currentMode === 'video'
-          ? Math.max(0.10, baseCenterT - 0.28)
-          : baseCenterT;
-        const centerT = startCenterT + (baseCenterT - startCenterT) * ease;
-
-        const MIN_PIXEL_GAP  = 100;
-        const LEFT_EXTRA_PX  = 160;
-
-        const leftDistance  = -(MIN_PIXEL_GAP / 2 + LEFT_EXTRA_PX);
-        const rightDistance =  (MIN_PIXEL_GAP / 2);
-
-        const leftT  = findTAtDistance(centerT, leftDistance);
-        const rightT = findTAtDistance(centerT, rightDistance);
-
-        drawHashtagOnCurve('#DontMissABeat', leftT, {
-          aboveOffset: 26,
-          maxWidth: 280,
-          minSize: 20,
-          maxSize: 36,
-          angleOffset: -0.06
+        // Draw #DontMissABeat (Primary - Leading & Larger)
+        drawTextAlongCurve('#DontMissABeat', primaryT, {
+          aboveOffset: 38,
+          fontSize: 48,
+          color: '#ffffff'
         });
 
-        drawHashtagOnCurve('#WorldHeartDay', rightT, {
-          aboveOffset: 30,
-          maxWidth: 280,
-          minSize: 20,
-          maxSize: 36,
-          angleOffset: -0.06
+        // Measure primary text to place the secondary tag right next to it
+        ctx.font = '900 48px -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif';
+        const primaryTextWidth = ctx.measureText('#DontMissABeat').width;
+
+        const secondaryTagDistance = primaryTagDistance + primaryTextWidth + 25;
+        const secondaryT = findTAtDistance(baseCenterT, secondaryTagDistance);
+
+        // Draw #WorldHeartDay (Secondary - Sitting right next to primary)
+        drawTextAlongCurve('#WorldHeartDay', secondaryT, {
+          aboveOffset: 36,
+          fontSize: 40,
+          color: '#ffffff'
         });
 
         // 6. ECG
