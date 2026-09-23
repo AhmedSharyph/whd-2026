@@ -646,13 +646,14 @@
         return Math.max(0.01, Math.min(0.99, t));
       }
 
-      // ============ SMOOTH TEXT ALONG CURVE (Using Cleaner Non-Bold Font) ============
+      // ============ SMOOTH TEXT ALONG CURVE (Expanded Letter Spacing) ============
       function drawTextAlongCurve(text, startT, opts = {}) {
         const {
           aboveOffset = 35,
           fontSize = 44,
           color = '#ffffff',
-          glow = 'rgba(0, 0, 0, 0.4)'
+          glow = 'rgba(0, 0, 0, 0.4)',
+          letterSpacing = 1.25 // Expanded letter spacing multiplier (increased from 0.85)
         } = opts;
 
         ctx.save();
@@ -682,7 +683,7 @@
           ctx.fillText(char, 0, 0);
           ctx.restore();
 
-          currentT = findTAtDistance(currentT, charWidth * 0.85);
+          currentT = findTAtDistance(currentT, charWidth * letterSpacing);
         }
         ctx.restore();
       }
@@ -891,7 +892,7 @@
           ctx.restore();
         });
 
-        // 5. Hashtags Side-by-Side on Left Arch
+        // 5. Hashtags Side-by-Side on Left Arch with Expanded Letter Spacing
         const baseCenterT = 0.1;
         const primaryTagDistance = -15;
         const primaryT = findTAtDistance(baseCenterT, primaryTagDistance);
@@ -899,19 +900,22 @@
         drawTextAlongCurve('#DontMissABeat', primaryT, {
           aboveOffset: 38,
           fontSize: 44,
-          color: '#ffffff'
+          color: '#ffffff',
+          letterSpacing: 1.25
         });
 
         ctx.font = '700 44px Arial, sans-serif';
-        const primaryTextWidth = ctx.measureText('#DontMissABeat').width;
+        // Compute width considering spacing expansion
+        const primaryTextWidth = ctx.measureText('#DontMissABeat').width * 1.25;
 
-        const secondaryTagDistance = primaryTagDistance + primaryTextWidth + 30;
+        const secondaryTagDistance = primaryTagDistance + primaryTextWidth + 40;
         const secondaryT = findTAtDistance(baseCenterT, secondaryTagDistance);
 
         drawTextAlongCurve('#WorldHeartDay', secondaryT, {
           aboveOffset: 36,
           fontSize: 44,
-          color: '#ffffff'
+          color: '#ffffff',
+          letterSpacing: 1.25
         });
 
         // 6. ECG
