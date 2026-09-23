@@ -652,7 +652,6 @@
         } = opts;
 
         ctx.save();
-        // Changed from 900 (ultra-bold) to 700 (cleaner, less heavy weight) for better readability
         ctx.font = `700 ${fontSize}px Arial, sans-serif`;
         ctx.fillStyle = color;
         ctx.textAlign = 'center';
@@ -835,7 +834,7 @@
 
         ctx.restore();
 
-        // 3. Top branding (Enlarged Logo + Stacked WORLD / HEART / DAY 26 / 29 SEP)
+        // 3. Top branding
         withAnimation(textAnimations.title, elapsedTime, 100, 900, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
@@ -888,7 +887,7 @@
           ctx.restore();
         });
 
-        // 5. Hashtags Side-by-Side on Left Arch (Cleaner font-weight 700, size 44px)
+        // 5. Hashtags Side-by-Side on Left Arch
         const baseCenterT = 0.1;
         const primaryTagDistance = -15;
         const primaryT = findTAtDistance(baseCenterT, primaryTagDistance);
@@ -914,7 +913,7 @@
         // 6. ECG
         drawContinuousNormalEcg(elapsedTime);
 
-        // 7. Mascot (Enlarged Size)
+        // 7. Mascot
         if (mascotTrImg.complete && mascotTrImg.naturalHeight !== 0) {
           const targetHeight = 230;
           const aspect = mascotTrImg.width / mascotTrImg.height;
@@ -1021,7 +1020,7 @@
         }
       });
 
-      // ============ FILE HANDLING ============
+      // ============ FILE HANDLING WITH SMOOTH VIDEO PRELOAD ============
       function handleMediaSelect(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -1034,6 +1033,7 @@
 
         if (file.type.startsWith('video/')) {
           if (userVideo) { userVideo.pause(); userVideo.src = ''; }
+          
           userVideo = document.createElement('video');
           userVideo.src = URL.createObjectURL(file);
           userVideo.loop = true;
@@ -1042,11 +1042,20 @@
           userVideo.setAttribute('playsinline', '');
           userVideo.setAttribute('webkit-playsinline', '');
           userVideo.crossOrigin = 'anonymous';
+          userVideo.preload = 'auto';
           userVideo.volume = 1.0;
-          userVideo.play().catch(() => {});
-          userVideo.onloadeddata = () => scheduleDraw();
-          userImage = null;
 
+          // Smooth decoding check before starting playback loop
+          userVideo.onloadeddata = () => {
+            userVideo.play().then(() => {
+              if (currentMode === 'video') {
+                recordingStartTime = performance.now();
+                startVideoPreviewLoop();
+              }
+            }).catch(() => {});
+          };
+
+          userImage = null;
           muteControlRow.classList.add('visible');
           muteToggleBtn.textContent = 'Mute Video';
           muteToggleBtn.classList.remove('muted');
@@ -1178,7 +1187,10 @@
           cameraInput.setAttribute('capture', 'environment');
           galleryInput.setAttribute('accept', 'video/*');
           userImage = null;
-          if (userVideo) muteControlRow.classList.add('visible');
+          if (userVideo) {
+            muteControlRow.classList.add('visible');
+            userVideo.play().catch(() => {});
+          }
           recordingStartTime = performance.now();
           startVideoPreviewLoop();
         }
