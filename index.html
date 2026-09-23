@@ -668,11 +668,11 @@
       const PRIMARY_FONT = 'AppSans';
       const HANDWRITTEN_FONT = 'CustomHandwritten';
 
-      // ============ DRAW TEXT ALONG CURVE ============
+      // ============ DRAW TEXT ALONG CURVE (Optimized Spacing & Larger Font Size) ============
       function drawTextAlongCurve(text, startT, opts = {}) {
         const {
-          aboveOffset = 38,
-          fontSize = 54,
+          aboveOffset = 36,
+          fontSize = 62, // Increased font size safely optimized within frame limit
           color = '#ffffff',
           glow = 'rgba(0, 0, 0, 0.5)'
         } = opts;
@@ -704,7 +704,8 @@
           ctx.fillText(char, 0, 0);
           ctx.restore();
 
-          currentT = findTAtDistance(currentT, charWidth * 1.0);
+          // Normalized and properly balanced character spacing
+          currentT = findTAtDistance(currentT, charWidth * 0.92);
         }
         ctx.restore();
       }
@@ -913,26 +914,26 @@
           ctx.restore();
         });
 
-        // 5. Hashtags Side-by-Side on Left Arch in Handwritten Font (@font-face)
+        // 5. Hashtags Side-by-Side on Left Arch (Larger 62px Handwritten Font)
         const baseCenterT = 0.1;
-        const primaryTagDistance = -15;
+        const primaryTagDistance = -10;
         const primaryT = findTAtDistance(baseCenterT, primaryTagDistance);
 
         drawTextAlongCurve('#DontMissABeat', primaryT, {
-          aboveOffset: 40,
-          fontSize: 54,
+          aboveOffset: 38,
+          fontSize: 62,
           color: '#ffffff'
         });
 
-        ctx.font = `700 54px ${HANDWRITTEN_FONT}, cursive`;
+        ctx.font = `700 62px ${HANDWRITTEN_FONT}, cursive`;
         const primaryTextWidth = ctx.measureText('#DontMissABeat').width;
 
-        const secondaryTagDistance = primaryTagDistance + primaryTextWidth + 35;
+        const secondaryTagDistance = primaryTagDistance + primaryTextWidth + 30;
         const secondaryT = findTAtDistance(baseCenterT, secondaryTagDistance);
 
         drawTextAlongCurve('#WorldHeartDay', secondaryT, {
-          aboveOffset: 38,
-          fontSize: 54,
+          aboveOffset: 36,
+          fontSize: 62,
           color: '#ffffff'
         });
 
@@ -1392,7 +1393,6 @@
       // ============ INIT WITH FONT LOADING CHECK ============
       randomizeTextAnimations();
       
-      // Ensure canvas only renders after @font-face files are fully downloaded by browser
       document.fonts.ready.then(() => {
         scheduleDraw();
       });
