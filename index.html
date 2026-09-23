@@ -721,7 +721,7 @@
       <!-- ZOOM -->
       <div class="field-group">
         <div class="field-label">
-          <span>Zoom & drag inside oval</span>
+          <span>Zoom & drag inside vertical oval</span>
           <span class="value-badge" id="zoomValue">1.0×</span>
         </div>
         <div class="range-wrapper">
@@ -1003,24 +1003,24 @@
         mascotSide = 'right';
       }
 
-      // ============ OVAL PATH HELPER ============
-      function traceOvalPath(ctx, cx, cy, rx, ry) {
+      // ============ VERTICAL OVAL PATH HELPER ============
+      function traceVerticalOvalPath(ctx, cx, cy, rx, ry) {
         ctx.beginPath();
         if (ctx.ellipse) {
           ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
         } else {
           ctx.save();
           ctx.translate(cx, cy);
-          ctx.scale(1, ry / rx);
-          ctx.arc(0, 0, rx, 0, Math.PI * 2);
+          ctx.scale(rx / ry, 1);
+          ctx.arc(0, 0, ry, 0, Math.PI * 2);
           ctx.restore();
         }
       }
 
-      // ============ CURVED TEXT ============
+      // ============ CURVED TEXT AROUND VERTICAL OVAL ============
       function drawCurvedText(text, cx, cy, rx, ry, options, animState) {
         const {
-          fontSize = 54, fontWeight = '900',
+          fontSize = 52, fontWeight = '900',
           fontFamily = '-apple-system, sans-serif',
           fillStyle = '#ffe3e3', shadowColor = 'rgba(0,0,0,0.9)',
           shadowBlur = 16, letterSpacing = 4
@@ -1042,7 +1042,7 @@
           return w + (letterSpacing || 0);
         });
         const totalWidth = charWidths.reduce((a, b) => a + b, 0);
-        // Approximate ellipse perimeter for spacing
+        // Approximate Ramanujan perimeter for vertical ellipse
         const perimeter = Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry)));
         const stringAngleSpan = (totalWidth / perimeter) * (2 * Math.PI);
         const stringCenterAngle = -Math.PI / 2;
@@ -1115,15 +1115,15 @@
         ctx.fillStyle = pattern;
         ctx.fillRect(0, 0, w, h);
 
-        // 2. Oval Frame Dimensions (Increased area: rx = 430, ry = 480)
-        const ovalRx = 430;
+        // 2. Vertical Oval / Sphere Dimensions (Taller than wide: rx = 360, ry = 480)
+        const ovalRx = 360;
         const ovalRy = 480;
         const ovalX = 540;
         const ovalY = 780;
 
-        // Clip to Oval
+        // Clip to Vertical Oval
         ctx.save();
-        traceOvalPath(ctx, ovalX, ovalY, ovalRx, ovalRy);
+        traceVerticalOvalPath(ctx, ovalX, ovalY, ovalRx, ovalRy);
         ctx.clip();
 
         if (userVideo && userVideo.readyState >= 2) {
@@ -1167,10 +1167,10 @@
         }
         ctx.restore();
 
-        // 3. Oval Border
+        // 3. Vertical Oval Border
         ctx.strokeStyle = 'rgba(255,255,255,0.95)';
         ctx.lineWidth = 14;
-        traceOvalPath(ctx, ovalX, ovalY, ovalRx, ovalRy);
+        traceVerticalOvalPath(ctx, ovalX, ovalY, ovalRx, ovalRy);
         ctx.stroke();
 
         // 4. ECG
@@ -1212,10 +1212,10 @@
         ctx.fillText('29 September 2026', textCenterX, headerY + 74);
         ctx.restore();
 
-        // 7. "DON'T MISS A BEAT" curved around the oval top
+        // 7. "DON'T MISS A BEAT" curved around the vertical oval top
         withAnimation(textAnimations.curvedSlogan, t, 500, 1000, (state) => {
           drawCurvedText(bannerSloganText, ovalX, ovalY, ovalRx + 44, ovalRy + 44, {
-            fontSize: 50, fontWeight: '900',
+            fontSize: 48, fontWeight: '900',
             fontFamily: '-apple-system, sans-serif',
             fillStyle: '#ffe3e3', shadowColor: 'rgba(0,0,0,0.9)',
             shadowBlur: 16, letterSpacing: 4
@@ -1240,12 +1240,12 @@
             ctx.font = '900 36px -apple-system, sans-serif';
             ctx.shadowColor = 'rgba(0,0,0,0.6)';
             ctx.shadowBlur = 8 + glow;
-            ctx.fillText(nameText, w / 2 + ox, 720 + oy, 700);
+            ctx.fillText(nameText, w / 2 + ox, 720 + oy, 600);
             ctx.restore();
           });
         }
 
-        // 9. Random Slogan below the oval
+        // 9. Random Slogan below the vertical oval
         withAnimation(textAnimations.rotatingSlogan, t, 1500, 900, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
@@ -1337,7 +1337,7 @@
         ctx.shadowBlur = 14;
         ctx.beginPath();
 
-        const ecgY = 1325; // Adjusted down slightly to perfectly clear the expanded oval base
+        const ecgY = 1325;
         const totalDuration = 10000;
         const progress = (currentMode === 'video') ? Math.min(1, elapsedTime / totalDuration) : 1.0;
         const maxVisibleX = canvas.width * progress;
