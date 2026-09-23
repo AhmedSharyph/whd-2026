@@ -931,7 +931,7 @@
 
         ctx.restore();
 
-        // 3. Top branding (Slightly larger and bolder)
+        // 3. Top branding (With "29 SEPTEMBER" fitted to width)
         withAnimation(textAnimations.title, elapsedTime, 100, 900, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
@@ -955,8 +955,8 @@
             ctx.fillText('HEART', textStartX, 110 + oy);
             ctx.fillText('DAY 26', textStartX, 152 + oy);
 
-            ctx.font = `800 22px ${PRIMARY_FONT}, sans-serif`;
-            ctx.fillText('29 SEP', textStartX, 182 + oy);
+            ctx.font = `800 15px ${PRIMARY_FONT}, sans-serif`;
+            ctx.fillText('29 SEPTEMBER', textStartX, 179 + oy);
           } else {
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = 'left';
@@ -966,8 +966,8 @@
             ctx.fillText('HEART', 50 + ox, 110 + oy);
             ctx.fillText('DAY 26', 50 + ox, 152 + oy);
 
-            ctx.font = `800 22px ${PRIMARY_FONT}, sans-serif`;
-            ctx.fillText('29 SEP', 50 + ox, 182 + oy);
+            ctx.font = `800 15px ${PRIMARY_FONT}, sans-serif`;
+            ctx.fillText('29 SEPTEMBER', 50 + ox, 179 + oy);
           }
           ctx.restore();
         });
