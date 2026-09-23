@@ -1,0 +1,31 @@
+/* Isolated Hashtag Component Styles with Flexible Flow & Larger Font Sizes */
+#hashtag-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.hashtag-item {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f0f4f8;
+  color: #d90429;
+  padding: 8px 16px;
+  border-radius: 24px;
+  
+  /* Increased font size & weight layout */
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  
+  border: 1.5px solid rgba(255, 45, 85, 0.15);
+  box-shadow: 0 4px 12px rgba(217, 4, 41, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hashtag-item:hover {
+  background-color: #fff0f3;
+  transform: translateY(-1px);
+}
