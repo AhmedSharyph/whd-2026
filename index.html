@@ -582,7 +582,7 @@
       let initialPinchDist = null;
       let initialScale = 1;
 
-// ============ SLOGANS (40 OPTIONS) ============
+      // ============ SLOGANS (40 OPTIONS) ============
       const whdSlogans = [
         "USE HEART FOR ACTION.",
         "USE HEART TO CONNECT.",
@@ -931,14 +931,14 @@
 
         ctx.restore();
 
-        // 3. Top branding
+        // 3. Top branding (Slightly larger and bolder)
         withAnimation(textAnimations.title, elapsedTime, 100, 900, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
           const ox = state.offsetX, oy = state.offsetY;
-          const logoX = 50 + ox;
-          const logoY = 30 + oy;
-          const logoTargetHeight = 170;
+          const logoX = 45 + ox;
+          const logoY = 24 + oy;
+          const logoTargetHeight = 195;
 
           if (newLogoImg.complete && newLogoImg.naturalHeight !== 0) {
             const lAspect = newLogoImg.width / newLogoImg.height;
@@ -950,24 +950,24 @@
             ctx.textAlign = 'left';
             ctx.textBaseline = 'alphabetic';
 
-            ctx.font = `900 32px ${PRIMARY_FONT}, sans-serif`;
-            ctx.fillText('WORLD', textStartX, 70 + oy);
-            ctx.fillText('HEART', textStartX, 108 + oy);
-            ctx.fillText('DAY 26', textStartX, 146 + oy);
+            ctx.font = `900 36px ${PRIMARY_FONT}, sans-serif`;
+            ctx.fillText('WORLD', textStartX, 68 + oy);
+            ctx.fillText('HEART', textStartX, 110 + oy);
+            ctx.fillText('DAY 26', textStartX, 152 + oy);
 
-            ctx.font = `800 20px ${PRIMARY_FONT}, sans-serif`;
-            ctx.fillText('29 SEP', textStartX, 172 + oy);
+            ctx.font = `800 22px ${PRIMARY_FONT}, sans-serif`;
+            ctx.fillText('29 SEP', textStartX, 182 + oy);
           } else {
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'alphabetic';
-            ctx.font = `900 32px ${PRIMARY_FONT}, sans-serif`;
-            ctx.fillText('WORLD', 60 + ox, 70 + oy);
-            ctx.fillText('HEART', 60 + ox, 108 + oy);
-            ctx.fillText('DAY 26', 60 + ox, 146 + oy);
+            ctx.font = `900 36px ${PRIMARY_FONT}, sans-serif`;
+            ctx.fillText('WORLD', 50 + ox, 68 + oy);
+            ctx.fillText('HEART', 50 + ox, 110 + oy);
+            ctx.fillText('DAY 26', 50 + ox, 152 + oy);
 
-            ctx.font = `800 20px ${PRIMARY_FONT}, sans-serif`;
-            ctx.fillText('29 SEP', 60 + ox, 172 + oy);
+            ctx.font = `800 22px ${PRIMARY_FONT}, sans-serif`;
+            ctx.fillText('29 SEP', 50 + ox, 182 + oy);
           }
           ctx.restore();
         });
