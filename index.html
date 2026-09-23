@@ -22,6 +22,29 @@
       -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
       overscroll-behavior: none; -webkit-overflow-scrolling: touch; background: #ffffff;
     }
+    
+    /* DESKTOP BLOCKER OVERLAY */
+    .desktop-blocker {
+      position: fixed; inset: 0; background: #8a0018; z-index: 99999;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      padding: 30px; text-align: center; color: #ffffff;
+    }
+    .desktop-blocker.active { display: flex; }
+    .desktop-blocker .icon { font-size: 54px; margin-bottom: 16px; }
+    .desktop-blocker h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+    .desktop-blocker p { font-size: 0.92rem; opacity: 0.9; max-width: 380px; line-height: 1.5; }
+
+    /* CAMPAIGN EXPIRED SCREEN OVERLAY */
+    .expired-blocker {
+      position: fixed; inset: 0; background: #6e0014; z-index: 99999;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      padding: 30px; text-align: center; color: #ffffff;
+    }
+    .expired-blocker.active { display: flex; }
+    .expired-blocker .icon { font-size: 54px; margin-bottom: 16px; }
+    .expired-blocker h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+    .expired-blocker p { font-size: 0.92rem; opacity: 0.9; max-width: 380px; line-height: 1.5; }
+
     .app {
       position: fixed; inset: 0; width: 100%; height: 100%;
       display: flex; flex-direction: column; overflow: hidden;
@@ -56,25 +79,34 @@
 
     /* MODE TABS */
     .mode-tabs {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
-      background: #f5f5f7; padding: 5px; border-radius: 16px;
-      border: 1px solid rgba(0, 0, 0, 0.04); flex-shrink: 0;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      background: #f0e6e8; padding: 6px; border-radius: 18px;
+      border: 1.5px solid rgba(217, 4, 41, 0.15); flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(217, 4, 41, 0.06);
     }
     .tab-btn {
-      background: transparent; border: none; padding: 12px 8px;
-      font-size: 0.76rem; font-weight: 700; color: #8a6a70; border-radius: 12px;
-      cursor: pointer; transition: all 0.28s cubic-bezier(0.2, 0.9, 0.4, 1);
+      background: #ffffff; border: 1.5px solid rgba(0, 0, 0, 0.06); padding: 13px 10px;
+      font-size: 0.78rem; font-weight: 800; color: #7a0010; border-radius: 14px;
+      cursor: pointer; transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1);
       display: flex; align-items: center; justify-content: center; gap: 6px;
       -webkit-user-select: none; user-select: none; touch-action: manipulation;
       font-family: inherit; letter-spacing: 0.02em;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+    .tab-btn#modeVideoBtn {
+      background: linear-gradient(135deg, #fff0f3, #ffe3e8);
+      border-color: rgba(255, 45, 85, 0.35);
+      color: #b3001b;
     }
     .tab-btn.active {
-      background: linear-gradient(135deg, #ff2d55, #d90429); color: #ffffff;
-      box-shadow: 0 6px 16px rgba(255, 45, 85, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      background: linear-gradient(135deg, #ff2d55, #d90429) !important; color: #ffffff !important;
+      border-color: transparent !important;
+      box-shadow: 0 8px 20px rgba(255, 45, 85, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+      transform: scale(1.02);
     }
     .tab-btn:active { transform: scale(0.97); }
 
-    /* CANVAS FRAME - 3:4 Aspect Ratio */
+    /* CANVAS FRAME */
     .canvas-frame {
       position: relative; width: 100%; aspect-ratio: 3 / 4;
       border-radius: 26px; overflow: hidden; flex-shrink: 0;
@@ -120,13 +152,13 @@
     .upload-action-btn {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 6px; padding: 16px 10px; border-radius: 18px;
-      border: 1.5px solid rgba(255, 45, 85, 0.15);
+      border: 1.5px solid rgba(255, 45, 85, 0.2);
       background: #ffffff; color: #7a0010; font-weight: 700; font-size: 0.72rem;
       cursor: pointer; transition: all 0.2s;
       -webkit-user-select: none; user-select: none; touch-action: manipulation;
       font-family: inherit; text-align: center; letter-spacing: 0.01em;
       position: relative; overflow: hidden;
-      box-shadow: 0 4px 12px rgba(217, 4, 41, 0.06);
+      box-shadow: 0 4px 12px rgba(217, 4, 41, 0.08);
     }
     .upload-action-btn .icon-circle {
       width: 38px; height: 38px; border-radius: 50%;
@@ -138,6 +170,22 @@
     .upload-action-btn:active { transform: scale(0.97); background: #fff5f7; border-color: rgba(255, 45, 85, 0.4); }
     .upload-action-btn:active .icon-circle { transform: scale(1.1); }
     .upload-action-btn input[type="file"] { display: none; }
+
+    /* MUTE CONTROL ROW */
+    .mute-control-row {
+      display: none; align-items: center; justify-content: space-between;
+      background: #fff0f3; padding: 10px 14px; border-radius: 14px;
+      border: 1px solid rgba(255, 45, 85, 0.2); flex-shrink: 0;
+    }
+    .mute-control-row.visible { display: flex; animation: fadeIn 0.3s ease both; }
+    .mute-info { font-size: 0.72rem; font-weight: 700; color: #7a0010; }
+    .mute-toggle-btn {
+      background: #ffffff; border: 1.5px solid rgba(255, 45, 85, 0.3);
+      padding: 6px 14px; border-radius: 10px; font-size: 0.72rem; font-weight: 700;
+      color: #d90429; cursor: pointer; transition: all 0.2s; font-family: inherit;
+    }
+    .mute-toggle-btn.muted { background: #d90429; color: #ffffff; border-color: #d90429; }
+    .mute-toggle-btn:active { transform: scale(0.95); }
 
     /* FIELDS */
     .field-group { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
@@ -184,39 +232,40 @@
 
     /* BUTTONS */
     .btn {
-      width: 100%; padding: 16px 12px; border-radius: 18px; border: none;
-      font-weight: 700; font-size: 0.84rem; cursor: pointer; transition: all 0.2s;
+      width: 100%; padding: 17px 14px; border-radius: 18px; border: none;
+      font-weight: 800; font-size: 0.88rem; cursor: pointer; transition: all 0.2s;
       display: flex; align-items: center; justify-content: center; gap: 8px;
       -webkit-user-select: none; user-select: none; touch-action: manipulation;
       -webkit-appearance: none; appearance: none; color: #ffffff;
-      flex-shrink: 0; font-family: inherit; letter-spacing: 0.01em;
+      flex-shrink: 0; font-family: inherit; letter-spacing: 0.02em;
       position: relative; overflow: hidden;
     }
     .btn::before {
       content: ''; position: absolute; inset: 0;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 55%);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.25), transparent 55%);
       pointer-events: none;
     }
     .btn:active { transform: scale(0.97); }
     .btn-shuffle {
-      background: linear-gradient(135deg, #ff758c, #ff7eb3);
-      box-shadow: 0 6px 16px rgba(255, 117, 140, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      background: linear-gradient(135deg, #ff758c, #ff416c);
+      box-shadow: 0 8px 20px rgba(255, 65, 108, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
     }
     .btn-download {
-      background: linear-gradient(135deg, #2b2b30, #000000);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      background: linear-gradient(135deg, #3a3a40, #111115);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
     .btn-share {
-      background: linear-gradient(135deg, #ff2d55, #d90429);
-      box-shadow: 0 8px 20px rgba(255, 45, 85, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      background: linear-gradient(135deg, #ff2d55, #b3001b);
+      box-shadow: 0 10px 24px rgba(255, 45, 85, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     }
     .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-shrink: 0; }
 
     .video-status {
-      font-size: 0.72rem; font-weight: 600; color: #b3001b; text-align: center;
-      background: #fff5f7; padding: 12px 14px; border-radius: 14px;
-      display: none; border: 1px solid rgba(255, 45, 85, 0.18);
+      font-size: 0.74rem; font-weight: 700; color: #b3001b; text-align: center;
+      background: #fff5f7; padding: 13px 15px; border-radius: 14px;
+      display: none; border: 1.5px solid rgba(255, 45, 85, 0.25);
       flex-shrink: 0; line-height: 1.5; letter-spacing: 0.01em;
+      box-shadow: 0 4px 12px rgba(255, 45, 85, 0.08);
     }
     .video-status.visible { display: block; animation: fadeIn 0.3s ease both; }
 
@@ -239,9 +288,9 @@
       .canvas-frame .hearts-layer, .canvas-frame canvas { border-radius: 15px; }
       .upload-action-btn { padding: 13px 8px; font-size: 0.68rem; }
       .upload-action-btn .icon-circle { width: 32px; height: 32px; font-size: 15px; }
-      .btn { padding: 14px 10px; font-size: 0.8rem; }
+      .btn { padding: 15px 10px; font-size: 0.82rem; }
       input[type="text"] { padding: 13px 14px; font-size: 0.86rem; }
-      .tab-btn { padding: 11px 6px; font-size: 0.72rem; }
+      .tab-btn { padding: 12px 6px; font-size: 0.74rem; }
     }
     .app, .app * { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
     input[type="text"] { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; }
@@ -259,6 +308,20 @@
   </style>
 </head>
 <body>
+
+  <!-- DESKTOP ACCESS BLOCKER -->
+  <div class="desktop-blocker" id="desktopBlocker">
+    <div class="icon">📱</div>
+    <h2>Mobile Device Required</h2>
+    <p>The World Heart Day 2026 Creator Studio is optimized exclusively for mobile phones and tablets. Please open this link on your smartphone to create and share your campaign story!</p>
+  </div>
+
+  <!-- CAMPAIGN EXPIRY BLOCKER -->
+  <div class="expired-blocker" id="expiredBlocker">
+    <div class="icon">❤️</div>
+    <h2>Campaign Concluded</h2>
+    <p>The World Heart Day 2026 Creator Studio official campaign window has ended as of October 3, 2026. Thank you for participating and keeping the beat alive!</p>
+  </div>
 
   <div class="app" id="app">
     <div class="scroll-area" id="scrollArea">
@@ -284,7 +347,7 @@
           📷 Photo Story
         </button>
         <button class="tab-btn" id="modeVideoBtn" onclick="switchMode('video')" aria-label="10 second story video mode">
-          🎥 10s Story Video
+          🎥 10s Story Video ⚡
         </button>
       </div>
 
@@ -312,6 +375,12 @@
         </div>
         <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
         <input type="file" id="galleryInput" accept="image/*" style="display:none;">
+      </div>
+
+      <!-- MUTE VIDEO ROW -->
+      <div class="mute-control-row" id="muteControlRow">
+        <span class="mute-info" id="muteInfoText">🔊 Video Audio: Active</span>
+        <button class="mute-toggle-btn" id="muteToggleBtn" type="button">Mute Video</button>
       </div>
 
       <!-- SHUFFLE -->
@@ -354,6 +423,30 @@
   <script>
     (function() {
       "use strict";
+
+      // ============ CAMPAIGN EXPIRY CHECK ============
+      function checkCampaignExpiry() {
+        const expiryDate = new Date('2026-10-04T00:00:00');
+        const now = new Date();
+        if (now > expiryDate) {
+          const expiredBlocker = document.getElementById('expiredBlocker');
+          if (expiredBlocker) expiredBlocker.classList.add('active');
+        }
+      }
+      checkCampaignExpiry();
+
+      // ============ MOBILE-ONLY DEVICE CHECK ============
+      function checkMobileDevice() {
+        const isTouchScreen = (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const isMobileUA = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+        
+        if (!isMobileUA && !isTouchScreen) {
+          const blocker = document.getElementById('desktopBlocker');
+          if (blocker) blocker.classList.add('active');
+        }
+      }
+      checkMobileDevice();
 
       // ============ HEART CASCADE ============
       (function generateHearts() {
@@ -402,6 +495,9 @@
       const cameraInput = document.getElementById('cameraInput');
       const galleryInput = document.getElementById('galleryInput');
       const shuffleSloganBtn = document.getElementById('shuffleSloganBtn');
+      const muteControlRow = document.getElementById('muteControlRow');
+      const muteToggleBtn = document.getElementById('muteToggleBtn');
+      const muteInfoText = document.getElementById('muteInfoText');
 
       // ============ STATE ============
       let userImage = null;
@@ -544,7 +640,7 @@
         return Math.max(0.01, Math.min(0.99, t));
       }
 
-      // ============ SMOOTH TEXT ALONG CURVE (Using Arial for clean rendering) ============
+      // ============ SMOOTH TEXT ALONG CURVE (Using Arial) ============
       function drawTextAlongCurve(text, startT, opts = {}) {
         const {
           aboveOffset = 35,
@@ -794,21 +890,18 @@
         const primaryTagDistance = -20;
         const primaryT = findTAtDistance(baseCenterT, primaryTagDistance);
 
-        // Draw #DontMissABeat (Primary - Leading & 50px)
         drawTextAlongCurve('#DontMissABeat', primaryT, {
           aboveOffset: 38,
           fontSize: 50,
           color: '#ffffff'
         });
 
-        // Measure primary text using Arial to accurately place secondary tag right next to it
         ctx.font = '900 50px Arial, sans-serif';
         const primaryTextWidth = ctx.measureText('#DontMissABeat').width;
 
         const secondaryTagDistance = primaryTagDistance + primaryTextWidth + 25;
         const secondaryT = findTAtDistance(baseCenterT, secondaryTagDistance);
 
-        // Draw #WorldHeartDay (Secondary - Sitting right next to primary, 50px)
         drawTextAlongCurve('#WorldHeartDay', secondaryT, {
           aboveOffset: 36,
           fontSize: 50,
@@ -910,6 +1003,21 @@
         context.fillText(line, x, currentY);
       }
 
+      // ============ MUTE TOGGLE LOGIC ============
+      muteToggleBtn.addEventListener('click', () => {
+        if (!userVideo) return;
+        userVideo.muted = !userVideo.muted;
+        if (userVideo.muted) {
+          muteToggleBtn.textContent = 'Unmute Video';
+          muteToggleBtn.classList.add('muted');
+          muteInfoText.textContent = '🔇 Video Audio: Muted';
+        } else {
+          muteToggleBtn.textContent = 'Mute Video';
+          muteToggleBtn.classList.remove('muted');
+          muteInfoText.textContent = '🔊 Video Audio: Active';
+        }
+      });
+
       // ============ FILE HANDLING ============
       function handleMediaSelect(e) {
         const file = e.target.files[0];
@@ -935,8 +1043,15 @@
           userVideo.play().catch(() => {});
           userVideo.onloadeddata = () => scheduleDraw();
           userImage = null;
+
+          muteControlRow.classList.add('visible');
+          muteToggleBtn.textContent = 'Mute Video';
+          muteToggleBtn.classList.remove('muted');
+          muteInfoText.textContent = '🔊 Video Audio: Active';
         } else {
           if (userVideo) { userVideo.pause(); userVideo.src = ''; userVideo = null; }
+          muteControlRow.classList.remove('visible');
+
           const reader = new FileReader();
           reader.onload = (ev) => {
             userImage = new Image();
@@ -1044,12 +1159,13 @@
           cameraInput.setAttribute('accept', 'image/*');
           cameraInput.setAttribute('capture', 'environment');
           galleryInput.setAttribute('accept', 'image/*');
+          muteControlRow.classList.remove('visible');
           if (userVideo) { userVideo.pause(); userVideo = null; }
           scheduleDraw();
         } else {
           randomizeTextAnimations();
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 10s Story Video · Static shuffled slogan · Original audio preserved';
+          videoStatus.textContent = '🎥 10s Story Video · Static shuffled slogan · Audio can be muted';
           actionDownloadBtn.textContent = '📥 Export MP4';
           actionShareBtn.textContent = '📤 Share MP4';
           cameraBtnText.textContent = 'Record Video';
@@ -1059,6 +1175,7 @@
           cameraInput.setAttribute('capture', 'environment');
           galleryInput.setAttribute('accept', 'video/*');
           userImage = null;
+          if (userVideo) muteControlRow.classList.add('visible');
           recordingStartTime = performance.now();
           startVideoPreviewLoop();
         }
@@ -1109,21 +1226,23 @@
             let combinedStream;
             let audioCtx = null;
 
-            if (userVideo && userVideo.srcObject instanceof MediaStream) {
-              combinedStream = new MediaStream([
-                ...canvasStream.getVideoTracks(),
-                ...userVideo.srcObject.getAudioTracks()
-              ]);
-            } else if (userVideo) {
-              audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-              const source = audioCtx.createMediaElementSource(userVideo);
-              const dest = audioCtx.createMediaStreamDestination();
-              source.connect(dest);
-              source.connect(audioCtx.destination);
-              combinedStream = new MediaStream([
-                ...canvasStream.getVideoTracks(),
-                ...dest.stream.getAudioTracks()
-              ]);
+            if (userVideo && !userVideo.muted) {
+              if (userVideo.srcObject instanceof MediaStream) {
+                combinedStream = new MediaStream([
+                  ...canvasStream.getVideoTracks(),
+                  ...userVideo.srcObject.getAudioTracks()
+                ]);
+              } else {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioCtx.createMediaElementSource(userVideo);
+                const dest = audioCtx.createMediaStreamDestination();
+                source.connect(dest);
+                source.connect(audioCtx.destination);
+                combinedStream = new MediaStream([
+                  ...canvasStream.getVideoTracks(),
+                  ...dest.stream.getAudioTracks()
+                ]);
+              }
             } else {
               combinedStream = new MediaStream([...canvasStream.getVideoTracks()]);
             }
@@ -1171,7 +1290,7 @@
         setTimeout(() => URL.revokeObjectURL(url), 4000);
       }
 
-      // ============ SHARE (Dynamic Team/Facility Caption) ============
+      // ============ SHARE ============
       actionShareBtn.addEventListener('click', async () => {
         const customTeam = userNameInput.value.trim();
         const sharePrefix = customTeam ? `${customTeam} · ` : 'World Heart Day 2026 · ';
