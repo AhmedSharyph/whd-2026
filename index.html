@@ -196,11 +196,11 @@
       transform: scale(0.97);
     }
 
-    /* ============ CANVAS FRAME — SOFT WHITE GLASS ============ */
+    /* ============ CANVAS FRAME — 9:16 VERTICAL STORY RATIO ============ */
     .canvas-frame {
       position: relative;
       width: 100%;
-      aspect-ratio: 1 / 1;
+      aspect-ratio: 9 / 16;
       border-radius: 26px;
       overflow: hidden;
       flex-shrink: 0;
@@ -212,6 +212,8 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.9);
       padding: 8px;
       box-sizing: border-box;
+      max-height: 52vh;
+      margin: 0 auto;
     }
 
     .canvas-frame .hearts-layer {
@@ -590,6 +592,7 @@
       .canvas-frame {
         border-radius: 20px;
         padding: 6px;
+        max-height: 44vh;
       }
       .canvas-frame .hearts-layer,
       .canvas-frame canvas {
@@ -672,24 +675,24 @@
         </div>
         <div class="live-badge">
           <span class="live-dot"></span>
-          Studio
+          Story Studio
         </div>
       </header>
 
       <!-- MODE SWITCH -->
       <div class="mode-tabs" id="modeTabs">
-        <button class="tab-btn active" id="modeImageBtn" onclick="switchMode('image')" aria-label="Photo poster mode">
-          📷 Photo
+        <button class="tab-btn active" id="modeImageBtn" onclick="switchMode('image')" aria-label="Photo story mode">
+          📷 Photo Story
         </button>
-        <button class="tab-btn" id="modeVideoBtn" onclick="switchMode('video')" aria-label="10 second video mode">
-          🎥 10s Video
+        <button class="tab-btn" id="modeVideoBtn" onclick="switchMode('video')" aria-label="10 second story video mode">
+          🎥 10s Story Video
         </button>
       </div>
 
-      <!-- CANVAS FRAME -->
+      <!-- CANVAS FRAME — 9:16 VERTICAL RATIO -->
       <div class="canvas-frame" id="canvasFrame">
         <div class="hearts-layer" id="heartsLayer" aria-hidden="true"></div>
-        <canvas id="creatorCanvas" width="1000" height="1000"></canvas>
+        <canvas id="creatorCanvas" width="1080" height="1920"></canvas>
       </div>
 
       <!-- UPLOAD SECTION — CAMERA + GALLERY (BOTH MODES) -->
@@ -742,8 +745,8 @@
 
       <!-- ACTION BUTTONS -->
       <div class="btn-group">
-        <button class="btn btn-download" id="actionDownloadBtn">💾 Save Image</button>
-        <button class="btn btn-share" id="actionShareBtn">📤 Share Card</button>
+        <button class="btn btn-download" id="actionDownloadBtn">💾 Save Story</button>
+        <button class="btn btn-share" id="actionShareBtn">📤 Share Story</button>
       </div>
 
       <!-- FOOTER -->
@@ -1013,17 +1016,17 @@
         drawFn(getAnimState(animName, progress));
       }
 
-      // ============ DRAW MASCOT ============
+      // ============ DRAW MASCOT (Story 9:16 layout) ============
       function drawMascot() {
         const activeMascot = loadedMascots[currentMascotIndex] || fallbackMascot;
         if (!activeMascot || activeMascot.complete === false) return;
-        const baseHeight = 220;
+        const baseHeight = 240;
         const aspect = (activeMascot.width && activeMascot.height)
           ? (activeMascot.width / activeMascot.height) : 1;
         const baseWidth = baseHeight * aspect;
 
-        const finalX = canvas.width - baseWidth - 30;
-        const finalY = 970 - baseHeight;
+        const finalX = canvas.width - baseWidth - 45;
+        const finalY = 1860 - baseHeight;
 
         ctx.save();
         ctx.globalAlpha = 1;
@@ -1031,7 +1034,7 @@
         ctx.restore();
       }
 
-      // ============ MAIN DRAW ============
+      // ============ MAIN DRAW (1080 x 1920 Story Canvas) ============
       function drawCanvas(elapsedTime) {
         const w = canvas.width;
         const h = canvas.height;
@@ -1045,17 +1048,17 @@
         ctx.clearRect(0, 0, w, h);
 
         // 1. Background
-        const bgGrad = ctx.createRadialGradient(500, 500, 100, 500, 500, 800);
+        const bgGrad = ctx.createRadialGradient(540, 960, 200, 540, 960, 1200);
         bgGrad.addColorStop(0, '#f93154');
         bgGrad.addColorStop(0.6, '#d90429');
         bgGrad.addColorStop(1, '#7a0010');
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, w, h);
 
-        // 2. Circle frame
-        const circleRadius = 350;
-        const circleX = 500;
-        const circleY = 465;
+        // 2. Circle frame (Centered higher up for vertical story layout)
+        const circleRadius = 380;
+        const circleX = 540;
+        const circleY = 780;
 
         ctx.save();
         ctx.beginPath();
@@ -1096,10 +1099,10 @@
           ctx.fillStyle = '#ffffff';
           ctx.fill();
           ctx.fillStyle = '#d90429';
-          ctx.font = 'bold 36px -apple-system, sans-serif';
+          ctx.font = 'bold 40px -apple-system, sans-serif';
           ctx.textAlign = 'center';
-          ctx.fillText('Tap below to', circleX, circleY - 18);
-          ctx.fillText('add your media', circleX, circleY + 28);
+          ctx.fillText('Tap below to', circleX, circleY - 20);
+          ctx.fillText('add your media', circleX, circleY + 30);
         }
         ctx.restore();
 
@@ -1110,15 +1113,15 @@
         ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
         ctx.stroke();
 
-        // 4. ECG
+        // 4. ECG (Positioned nicely below circle)
         drawContinuousNormalEcg(elapsedTime);
 
         // 5. Mascot (Bottom Right Corner)
         drawMascot();
 
-        // 6. Header Title & Date (Widened)
-        const headerY = 24;
-        const textCenterX = canvas.width / 2;
+        // 6. Header Title & Date (Widened at top)
+        const headerY = 110;
+        const textCenterX = w / 2;
 
         withAnimation(textAnimations.title, t, 100, 900, (state) => {
           ctx.save();
@@ -1132,7 +1135,7 @@
           }
           ctx.textAlign = 'center';
           ctx.fillStyle = '#ffffff';
-          ctx.font = '900 52px -apple-system, sans-serif';
+          ctx.font = '900 58px -apple-system, sans-serif';
           ctx.shadowColor = 'rgba(0,0,0,0.8)';
           ctx.shadowBlur = 14 + glow;
           ctx.fillText('WORLD HEART DAY 2026', textCenterX + ox, headerY + 24 + oy);
@@ -1143,17 +1146,17 @@
         ctx.save();
         ctx.textAlign = 'center';
         ctx.fillStyle = '#ffe3e3';
-        ctx.font = '700 24px -apple-system, sans-serif';
+        ctx.font = '700 28px -apple-system, sans-serif';
         ctx.shadowColor = 'rgba(0,0,0,0.6)';
         ctx.shadowBlur = 8;
-        ctx.fillText('29 September 2026', textCenterX, headerY + 60);
+        ctx.fillText('29 September 2026', textCenterX, headerY + 74);
         ctx.restore();
 
-        // 7. "DON'T MISS A BEAT" below date
-        const sloganRadius = circleRadius + 42;
+        // 7. "DON'T MISS A BEAT" around the circle
+        const sloganRadius = circleRadius + 44;
         withAnimation(textAnimations.curvedSlogan, t, 500, 1000, (state) => {
           drawCurvedText(bannerSloganText, circleX, circleY, sloganRadius, {
-            fontSize: 48, fontWeight: '900',
+            fontSize: 52, fontWeight: '900',
             fontFamily: '-apple-system, sans-serif',
             fillStyle: '#ffe3e3', shadowColor: 'rgba(0,0,0,0.9)',
             shadowBlur: 16, letterSpacing: 4
@@ -1169,16 +1172,16 @@
             const ox = state.offsetX, oy = state.offsetY;
             const sc = state.scale, rot = state.rotate, glow = state.glow;
             if (sc !== 1 || rot !== 0) {
-              ctx.translate(canvas.width / 2, 420);
+              ctx.translate(w / 2, 720);
               ctx.rotate(rot); ctx.scale(sc, sc);
-              ctx.translate(-canvas.width / 2, -420);
+              ctx.translate(-w / 2, -720);
             }
             ctx.textAlign = 'center';
             ctx.fillStyle = '#fff0f3';
-            ctx.font = '900 32px -apple-system, sans-serif';
+            ctx.font = '900 36px -apple-system, sans-serif';
             ctx.shadowColor = 'rgba(0,0,0,0.6)';
             ctx.shadowBlur = 8 + glow;
-            ctx.fillText(nameText, canvas.width / 2 + ox, 420 + oy, 650);
+            ctx.fillText(nameText, w / 2 + ox, 720 + oy, 700);
             ctx.restore();
           });
         }
@@ -1190,12 +1193,12 @@
           const ox = state.offsetX, oy = state.offsetY;
           const sc = state.scale, rot = state.rotate, glow = state.glow;
           if (sc !== 1 || rot !== 0) {
-            ctx.translate(canvas.width / 2, 860);
+            ctx.translate(w / 2, 1630);
             ctx.rotate(rot); ctx.scale(sc, sc);
-            ctx.translate(-canvas.width / 2, -860);
+            ctx.translate(-w / 2, -1630);
           }
           ctx.fillStyle = '#ffffff';
-          ctx.font = '900 38px -apple-system, sans-serif';
+          ctx.font = '900 42px -apple-system, sans-serif';
           ctx.textAlign = 'center';
           ctx.shadowColor = 'rgba(0,0,0,0.9)';
           ctx.shadowBlur = 14 + glow;
@@ -1203,17 +1206,17 @@
           if (textAnimations.rotatingSlogan === 'wave' || textAnimations.rotatingSlogan === 'pulse') {
             const fullText = currentRotatingSlogan;
             const totalW = ctx.measureText(fullText).width;
-            let startX = canvas.width / 2 - totalW / 2 + ox;
-            const y = 860 + oy;
+            let startX = w / 2 - totalW / 2 + ox;
+            const py = 1630 + oy;
             for (let i = 0; i < fullText.length; i++) {
               const ch = fullText[i];
               const chW = ctx.measureText(ch).width;
               const waveY = Math.sin((t / 200) + i * 0.5) * 8;
-              ctx.fillText(ch, startX, y + waveY);
+              ctx.fillText(ch, startX, py + waveY);
               startX += chW;
             }
           } else {
-            wrapText(ctx, currentRotatingSlogan, canvas.width / 2 + ox, 860 + oy, 800, 44);
+            wrapText(ctx, currentRotatingSlogan, w / 2 + ox, 1630 + oy, 900, 50);
           }
           ctx.restore();
         });
@@ -1225,40 +1228,38 @@
           const ox = state.offsetX, oy = state.offsetY;
           const sc = state.scale, rot = state.rotate, glow = state.glow;
           if (sc !== 1 || rot !== 0) {
-            ctx.translate(canvas.width / 2, 920);
+            ctx.translate(w / 2, 1720);
             ctx.rotate(rot); ctx.scale(sc, sc);
-            ctx.translate(-canvas.width / 2, -920);
+            ctx.translate(-w / 2, -1720);
           }
           ctx.fillStyle = '#ffe3e3';
-          ctx.font = '900 28px -apple-system, sans-serif';
+          ctx.font = '900 32px -apple-system, sans-serif';
           ctx.textAlign = 'center';
           ctx.shadowColor = 'rgba(0,0,0,0.8)';
           ctx.shadowBlur = 10 + glow;
-          ctx.fillText('#DontMissABeat    #UseHeart', canvas.width / 2 + ox, 920 + oy);
+          ctx.fillText('#DontMissABeat    #UseHeart', w / 2 + ox, 1720 + oy);
           ctx.restore();
         });
 
-        // 11. Hospital Logo at Bottom Left (Below hashtags) with a clean white backing pill for transparent PNG blending
+        // 11. Hospital Logo at Bottom Left (Below hashtags) with white blending pill
         if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
-          const targetLogoHeight = 55;
+          const targetLogoHeight = 65;
           const logoWidth = (hospitalLogo.width / hospitalLogo.height) * targetLogoHeight;
-          const paddingX = 12;
-          const paddingY = 8;
+          const paddingX = 14;
+          const paddingY = 10;
           const pillWidth = logoWidth + (paddingX * 2);
           const pillHeight = targetLogoHeight + (paddingY * 2);
-          const logoX = 35;
-          const logoY = 965 - targetLogoHeight - paddingY;
+          const logoX = 45;
+          const logoY = 1865 - targetLogoHeight - paddingY;
 
           ctx.save();
-          // Draw semi-translucent white pill for smooth transparent PNG badge blending over the red gradient background
           ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
           ctx.shadowColor = 'rgba(0,0,0,0.3)';
           ctx.shadowBlur = 10;
           ctx.beginPath();
-          ctx.roundRect(logoX, logoY, pillWidth, pillHeight, 12);
+          ctx.roundRect(logoX, logoY, pillWidth, pillHeight, 14);
           ctx.fill();
 
-          // Draw logo crisp inside the white backing pill
           ctx.drawImage(hospitalLogo, logoX + paddingX, logoY + paddingY, logoWidth, targetLogoHeight);
           ctx.restore();
         }
@@ -1266,7 +1267,7 @@
         // Hidden credit comment: Developed by Ahmed Shareef for Shaviyani Atoll Hospital
       }
 
-      // ============ ECG ============
+      // ============ ECG (Story layout y-position) ============
       function drawContinuousNormalEcg(elapsedTime) {
         ctx.save();
         ctx.strokeStyle = '#ffffff';
@@ -1277,7 +1278,7 @@
         ctx.shadowBlur = 14;
         ctx.beginPath();
 
-        const ecgY = 590;
+        const ecgY = 1260;
         const totalDuration = 10000;
         const progress = (currentMode === 'video') ? Math.min(1, elapsedTime / totalDuration) : 1.0;
         const maxVisibleX = canvas.width * progress;
@@ -1458,8 +1459,8 @@
 
         if (mode === 'image') {
           videoStatus.classList.remove('visible');
-          actionDownloadBtn.textContent = '💾 Save Image';
-          actionShareBtn.textContent = '📤 Share Card';
+          actionDownloadBtn.textContent = '💾 Save Story';
+          actionShareBtn.textContent = '📤 Share Story';
           cameraBtnText.textContent = 'Take Photo';
           galleryBtnText.textContent = 'Choose Photo';
           mediaTypeBadge.textContent = 'Photo';
@@ -1471,7 +1472,7 @@
         } else {
           randomizeTextAnimations();
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 10s Video · Animated text · Original audio preserved';
+          videoStatus.textContent = '🎥 10s Story Video · Animated text · Original audio preserved';
           actionDownloadBtn.textContent = '📥 Export MP4';
           actionShareBtn.textContent = '📤 Share MP4';
           cameraBtnText.textContent = 'Record Video';
@@ -1507,7 +1508,7 @@
       actionDownloadBtn.addEventListener('click', async () => {
         if (currentMode === 'image') {
           const link = document.createElement('a');
-          link.download = 'world-heart-day-2026.png';
+          link.download = 'world-heart-day-2026-story.png';
           link.href = canvas.toDataURL('image/png');
           link.click();
         } else {
@@ -1523,7 +1524,7 @@
           randomizeTextAnimations();
 
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 Recording 10s video with animated text... Please wait.';
+          videoStatus.textContent = '🎥 Recording 10s vertical video... Please wait.';
 
           recordingStartTime = performance.now();
           const canvasStream = canvas.captureStream(30);
@@ -1567,7 +1568,7 @@
               if (audioCtx) audioCtx.close().catch(() => {});
               lastRecordedVideoBlob = new Blob(chunks, { type: 'video/mp4' });
               downloadVideoBlob(lastRecordedVideoBlob);
-              videoStatus.textContent = '✅ 10s video saved with animated text!';
+              videoStatus.textContent = '✅ 10s story video saved successfully!';
             };
 
             recorder.start();
@@ -1589,7 +1590,7 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'world-heart-day-2026-clip.mp4';
+        a.download = 'world-heart-day-2026-story.mp4';
         a.click();
         setTimeout(() => URL.revokeObjectURL(url), 4000);
       }
@@ -1599,12 +1600,12 @@
         if (currentMode === 'image') {
           const dataUrl = canvas.toDataURL('image/png');
           const blob = await (await fetch(dataUrl)).blob();
-          const file = new File([blob], 'world-heart-day-2026.png', { type: 'image/png' });
+          const file = new File([blob], 'world-heart-day-2026-story.png', { type: 'image/png' });
 
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             try {
               await navigator.share({
-                title: 'World Heart Day 2026',
+                title: 'World Heart Day 2026 Story',
                 text: `${bannerSloganText} — ${currentRotatingSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
                 files: [file]
               });
@@ -1612,19 +1613,19 @@
               if (err.name !== 'AbortError') console.warn('Share failed', err);
             }
           } else {
-            alert('Direct sharing is not supported here. Please use "Save Image" instead.');
+            alert('Direct sharing is not supported here. Please use "Save Story" instead.');
           }
         } else {
           if (!lastRecordedVideoBlob) {
             alert('Please click "Export MP4" first to record the 10s clip before sharing.');
             return;
           }
-          const videoFile = new File([lastRecordedVideoBlob], 'world-heart-day-2026-clip.mp4', { type: 'video/mp4' });
+          const videoFile = new File([lastRecordedVideoBlob], 'world-heart-day-2026-story.mp4', { type: 'video/mp4' });
 
           if (navigator.canShare && navigator.canShare({ files: [videoFile] })) {
             try {
               await navigator.share({
-                title: 'World Heart Day 2026 Video Clip',
+                title: 'World Heart Day 2026 Story Video',
                 text: `${bannerSloganText} — ${currentRotatingSlogan} #WorldHeartDay #DontMissABeat #UseHeart`,
                 files: [videoFile]
               });
