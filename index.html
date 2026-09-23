@@ -827,11 +827,11 @@
 
         // 7. Mascot
         if (mascotTrImg.complete && mascotTrImg.naturalHeight !== 0) {
-          const targetHeight = 170;
+          const targetHeight = 230;
           const aspect = mascotTrImg.width / mascotTrImg.height;
           const targetWidth = targetHeight * aspect;
-          const mascotX = w - targetWidth - 25;
-          const mascotY = h - targetHeight - 15;
+          const mascotX = w - targetWidth - 20;
+          const mascotY = h - targetHeight - 10;
           ctx.save();
           ctx.drawImage(mascotTrImg, mascotX, mascotY, targetWidth, targetHeight);
           ctx.restore();
