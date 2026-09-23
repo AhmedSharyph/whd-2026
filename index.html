@@ -13,11 +13,27 @@
   <meta name="x5-orientation" content="portrait">
   <title>WHD 2026 · Creator Studio</title>
 
-  <!-- UNIVERSAL @FONT-FACE EMBEDDING FOR 100% CROSS-DEVICE CONSISTENCY -->
+  <!-- UNIVERSAL @FONT-FACE EMBEDDING (OUTFIT, MONTSERRAT & CAVEAT VIA FONTSOURCE CDN) -->
   <style>
     @font-face {
       font-family: 'AppSans';
-      src: url('https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2') format('woff2');
+      src: url('https://cdn.jsdelivr.net/fontsource/fonts/outfit:vf@5.3.0/latin-wght-normal.woff2') format('woff2-variations');
+      font-weight: 400 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'SloganFont';
+      src: url('https://cdn.jsdelivr.net/fontsource/fonts/outfit:vf@5.3.0/latin-wght-normal.woff2') format('woff2-variations');
+      font-weight: 400 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'HashtagFont';
+      src: url('https://cdn.jsdelivr.net/fontsource/fonts/montserrat:vf@5.3.0/latin-wght-normal.woff2') format('woff2-variations');
       font-weight: 700 900;
       font-style: normal;
       font-display: swap;
@@ -25,7 +41,7 @@
 
     @font-face {
       font-family: 'CustomHandwritten';
-      src: url('https://fonts.gstatic.com/s/caveat/v18/WnznvdzGJWBW_KpUuQ.woff2') format('woff2');
+      src: url('https://cdn.jsdelivr.net/fontsource/fonts/caveat@latest/latin-700-normal.woff2') format('woff2');
       font-weight: 700;
       font-style: normal;
       font-display: swap;
@@ -691,19 +707,20 @@
 
       // ============ @FONT-FACE CANVAS NAMES ============
       const PRIMARY_FONT = 'AppSans';
-      const HANDWRITTEN_FONT = 'CustomHandwritten';
+      const SLOGAN_FONT = 'SloganFont';
+      const HASHTAG_FONT = 'HashtagFont';
 
-      // ============ DRAW TEXT ALONG CURVE (Optimized Spacing & Larger Font Size) ============
+      // ============ DRAW TEXT ALONG CURVE (Using Montserrat) ============
       function drawTextAlongCurve(text, startT, opts = {}) {
         const {
-          aboveOffset = 36,
-          fontSize = 62,
+          aboveOffset = 38,
+          fontSize = 48,
           color = '#ffffff',
           glow = 'rgba(0, 0, 0, 0.5)'
         } = opts;
 
         ctx.save();
-        ctx.font = `700 ${fontSize}px ${HANDWRITTEN_FONT}, cursive`;
+        ctx.font = `800 ${fontSize}px ${HASHTAG_FONT}, sans-serif`;
         ctx.fillStyle = color;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -926,30 +943,30 @@
           ctx.restore();
         });
 
-        // 4. Slogan
+        // 4. Slogan (Using Outfit)
         withAnimation(textAnimations.subtitle, elapsedTime, 300, 900, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
           const ox = state.offsetX, oy = state.offsetY;
           ctx.fillStyle = '#ffffff';
-          ctx.font = `900 48px ${PRIMARY_FONT}, sans-serif`;
+          ctx.font = `900 48px ${SLOGAN_FONT}, sans-serif`;
           ctx.textAlign = 'left';
           wrapText(ctx, whdSlogans[currentSloganIndex], 500 + ox, 85 + oy, 540, 56);
           ctx.restore();
         });
 
-        // 5. Hashtags Side-by-Side on Left Arch (Larger 62px Handwritten Font)
+        // 5. Hashtags Side-by-Side on Left Arch (Using Montserrat)
         const baseCenterT = 0.1;
         const primaryTagDistance = -10;
         const primaryT = findTAtDistance(baseCenterT, primaryTagDistance);
 
         drawTextAlongCurve('#DontMissABeat', primaryT, {
           aboveOffset: 38,
-          fontSize: 62,
+          fontSize: 48,
           color: '#ffffff'
         });
 
-        ctx.font = `700 62px ${HANDWRITTEN_FONT}, cursive`;
+        ctx.font = `800 48px ${HASHTAG_FONT}, sans-serif`;
         const primaryTextWidth = ctx.measureText('#DontMissABeat').width;
 
         const secondaryTagDistance = primaryTagDistance + primaryTextWidth + 30;
@@ -957,7 +974,7 @@
 
         drawTextAlongCurve('#WorldHeartDay', secondaryT, {
           aboveOffset: 36,
-          fontSize: 62,
+          fontSize: 48,
           color: '#ffffff'
         });
 
