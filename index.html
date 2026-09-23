@@ -1042,7 +1042,6 @@
           return w + (letterSpacing || 0);
         });
         const totalWidth = charWidths.reduce((a, b) => a + b, 0);
-        // Approximate Ramanujan perimeter for vertical ellipse
         const perimeter = Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry)));
         const stringAngleSpan = (totalWidth / perimeter) * (2 * Math.PI);
         const stringCenterAngle = -Math.PI / 2;
@@ -1082,7 +1081,7 @@
       function drawMascot() {
         const activeMascot = loadedMascots[currentMascotIndex] || fallbackMascot;
         if (!activeMascot || activeMascot.complete === false) return;
-        const baseHeight = 240;
+        const baseHeight = 220;
         const aspect = (activeMascot.width && activeMascot.height)
           ? (activeMascot.width / activeMascot.height) : 1;
         const baseWidth = baseHeight * aspect;
@@ -1115,11 +1114,11 @@
         ctx.fillStyle = pattern;
         ctx.fillRect(0, 0, w, h);
 
-        // 2. Vertical Oval / Sphere Dimensions (Taller than wide: rx = 360, ry = 480)
-        const ovalRx = 360;
-        const ovalRy = 480;
+        // 2. Vertical Oval Dimensions (Shifted slightly upward to give ample space for bottom text & ECG)
+        const ovalRx = 380;
+        const ovalRy = 510;
         const ovalX = 540;
-        const ovalY = 780;
+        const ovalY = 730;
 
         // Clip to Vertical Oval
         ctx.save();
@@ -1173,7 +1172,7 @@
         traceVerticalOvalPath(ctx, ovalX, ovalY, ovalRx, ovalRy);
         ctx.stroke();
 
-        // 4. ECG
+        // 4. ECG (Positioned safely below the expanded oval base)
         drawContinuousNormalEcg(elapsedTime);
 
         // 5. Mascot
@@ -1231,33 +1230,39 @@
             const ox = state.offsetX, oy = state.offsetY;
             const sc = state.scale, rot = state.rotate, glow = state.glow;
             if (sc !== 1 || rot !== 0) {
-              ctx.translate(w / 2, 720);
+              ctx.translate(w / 2, 670);
               ctx.rotate(rot); ctx.scale(sc, sc);
-              ctx.translate(-w / 2, -720);
+              ctx.translate(-w / 2, -670);
             }
             ctx.textAlign = 'center';
             ctx.fillStyle = '#fff0f3';
             ctx.font = '900 36px -apple-system, sans-serif';
             ctx.shadowColor = 'rgba(0,0,0,0.6)';
             ctx.shadowBlur = 8 + glow;
-            ctx.fillText(nameText, w / 2 + ox, 720 + oy, 600);
+            ctx.fillText(nameText, w / 2 + ox, 670 + oy, 600);
             ctx.restore();
           });
         }
 
-        // 9. Random Slogan below the vertical oval
+        // --- BOTTOM ALIGNMENT SETUP ---
+        // Logo bottom edge is at roughly: 1865 px
+        // We anchor hashtags and the random slogan pair down at the bottom matching the logo's baseline.
+        const hashtagY = 1810;
+        const sloganY = 1750;
+
+        // 9. Random Slogan (shifted down above hashtags)
         withAnimation(textAnimations.rotatingSlogan, t, 1500, 900, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
           const ox = state.offsetX, oy = state.offsetY;
           const sc = state.scale, rot = state.rotate, glow = state.glow;
           if (sc !== 1 || rot !== 0) {
-            ctx.translate(w / 2, 1630);
+            ctx.translate(w / 2, sloganY);
             ctx.rotate(rot); ctx.scale(sc, sc);
-            ctx.translate(-w / 2, -1630);
+            ctx.translate(-w / 2, -sloganY);
           }
           ctx.fillStyle = '#ffffff';
-          ctx.font = '900 42px -apple-system, sans-serif';
+          ctx.font = '900 40px -apple-system, sans-serif';
           ctx.textAlign = 'center';
           ctx.shadowColor = 'rgba(0,0,0,0.9)';
           ctx.shadowBlur = 14 + glow;
@@ -1266,7 +1271,7 @@
             const fullText = currentRotatingSlogan;
             const totalW = ctx.measureText(fullText).width;
             let startX = w / 2 - totalW / 2 + ox;
-            const py = 1630 + oy;
+            const py = sloganY + oy;
             for (let i = 0; i < fullText.length; i++) {
               const ch = fullText[i];
               const chW = ctx.measureText(ch).width;
@@ -1275,28 +1280,28 @@
               startX += chW;
             }
           } else {
-            wrapText(ctx, currentRotatingSlogan, w / 2 + ox, 1630 + oy, 900, 50);
+            wrapText(ctx, currentRotatingSlogan, w / 2 + ox, sloganY + oy, 900, 48);
           }
           ctx.restore();
         });
 
-        // 10. Hashtags
+        // 10. Hashtags (anchored to match logo bottom level)
         withAnimation(textAnimations.hashtags, t, 2000, 800, (state) => {
           ctx.save();
           ctx.globalAlpha = state.alpha;
           const ox = state.offsetX, oy = state.offsetY;
           const sc = state.scale, rot = state.rotate, glow = state.glow;
           if (sc !== 1 || rot !== 0) {
-            ctx.translate(w / 2, 1720);
+            ctx.translate(w / 2, hashtagY);
             ctx.rotate(rot); ctx.scale(sc, sc);
-            ctx.translate(-w / 2, -1720);
+            ctx.translate(-w / 2, -hashtagY);
           }
           ctx.fillStyle = '#ffe3e3';
-          ctx.font = '900 32px -apple-system, sans-serif';
+          ctx.font = '900 30px -apple-system, sans-serif';
           ctx.textAlign = 'center';
           ctx.shadowColor = 'rgba(0,0,0,0.8)';
           ctx.shadowBlur = 10 + glow;
-          ctx.fillText('#DontMissABeat    #UseHeart', w / 2 + ox, 1720 + oy);
+          ctx.fillText('#DontMissABeat    #UseHeart', w / 2 + ox, hashtagY + oy);
           ctx.restore();
         });
 
@@ -1337,7 +1342,7 @@
         ctx.shadowBlur = 14;
         ctx.beginPath();
 
-        const ecgY = 1325;
+        const ecgY = 1360; // Cleanly separates bottom of vertical oval and upper slogans
         const totalDuration = 10000;
         const progress = (currentMode === 'video') ? Math.min(1, elapsedTime / totalDuration) : 1.0;
         const maxVisibleX = canvas.width * progress;
