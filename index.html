@@ -1238,17 +1238,28 @@
           ctx.restore();
         });
 
-        // 11. Hospital Logo at Bottom Left (Below hashtags)
+        // 11. Hospital Logo at Bottom Left (Below hashtags) with a clean white backing pill for transparent PNG blending
         if (hospitalLogo.complete && hospitalLogo.naturalHeight !== 0) {
           const targetLogoHeight = 55;
           const logoWidth = (hospitalLogo.width / hospitalLogo.height) * targetLogoHeight;
+          const paddingX = 12;
+          const paddingY = 8;
+          const pillWidth = logoWidth + (paddingX * 2);
+          const pillHeight = targetLogoHeight + (paddingY * 2);
           const logoX = 35;
-          const logoY = 965 - targetLogoHeight;
+          const logoY = 965 - targetLogoHeight - paddingY;
 
           ctx.save();
+          // Draw semi-translucent white pill for smooth transparent PNG badge blending over the red gradient background
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
           ctx.shadowColor = 'rgba(0,0,0,0.3)';
-          ctx.shadowBlur = 8;
-          ctx.drawImage(hospitalLogo, logoX, logoY, logoWidth, targetLogoHeight);
+          ctx.shadowBlur = 10;
+          ctx.beginPath();
+          ctx.roundRect(logoX, logoY, pillWidth, pillHeight, 12);
+          ctx.fill();
+
+          // Draw logo crisp inside the white backing pill
+          ctx.drawImage(hospitalLogo, logoX + paddingX, logoY + paddingY, logoWidth, targetLogoHeight);
           ctx.restore();
         }
 
