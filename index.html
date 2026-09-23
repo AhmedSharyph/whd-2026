@@ -74,9 +74,9 @@
     }
     .tab-btn:active { transform: scale(0.97); }
 
-    /* CANVAS FRAME */
+    /* CANVAS FRAME - 3:4 Aspect Ratio */
     .canvas-frame {
-      position: relative; width: 100%; aspect-ratio: 9 / 16;
+      position: relative; width: 100%; aspect-ratio: 3 / 4;
       border-radius: 26px; overflow: hidden; flex-shrink: 0;
       background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.06);
       box-shadow:
@@ -288,10 +288,10 @@
         </button>
       </div>
 
-      <!-- CANVAS FRAME -->
+      <!-- CANVAS FRAME (3:4 Ratio) -->
       <div class="canvas-frame" id="canvasFrame">
         <div class="hearts-layer" id="heartsLayer" aria-hidden="true"></div>
-        <canvas id="creatorCanvas" width="1080" height="1920"></canvas>
+        <canvas id="creatorCanvas" width="1080" height="1440"></canvas>
       </div>
 
       <!-- UPLOAD -->
@@ -417,6 +417,10 @@
       let startX = 0, startY = 0;
       let lastDrawTime = 0;
 
+      // Pinch zoom state
+      let initialPinchDist = null;
+      let initialScale = 1;
+
       // ============ SLOGANS ============
       const whdSlogans = [
         "USE HEART FOR ACTION.",
@@ -494,12 +498,12 @@
       mascotTrImg.crossOrigin = 'anonymous';
       mascotTrImg.onload = () => { if (currentMode === 'image') scheduleDraw(); };
 
-      // ============ CURVE CONSTANTS ============
+      // ============ CURVE CONSTANTS (Adapted for 3:4 Aspect Ratio) ============
       const CURVE = {
-        P0: { x: 0,    y: 850 },
-        P1: { x: 360,  y: 480 },
-        P2: { x: 720,  y: 320 },
-        P3: { x: 1080, y: 520 }
+        P0: { x: 0,    y: 620 },
+        P1: { x: 360,  y: 380 },
+        P2: { x: 720,  y: 260 },
+        P3: { x: 1080, y: 400 }
       };
 
       function bezierPoint(t) {
@@ -625,7 +629,7 @@
         ctx.globalAlpha = 0.06;
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 2;
-        const patternY = 260;
+        const patternY = 220;
         const patternStep = 90;
         for (let row = 0; row < 3; row++) {
           const yBase = patternY + row * patternStep;
@@ -646,19 +650,19 @@
         }
         ctx.restore();
 
-        const bottomGrad = ctx.createLinearGradient(0, h - 160, 0, h);
+        const bottomGrad = ctx.createLinearGradient(0, h - 140, 0, h);
         bottomGrad.addColorStop(0, '#b3001b');
         bottomGrad.addColorStop(0.5, '#8a0018');
         bottomGrad.addColorStop(1, '#5a0010');
         ctx.fillStyle = bottomGrad;
-        ctx.fillRect(0, h - 160, w, 160);
+        ctx.fillRect(0, h - 140, w, 140);
 
         ctx.save();
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(0, h - 160);
-        ctx.lineTo(w, h - 160);
+        ctx.moveTo(0, h - 140);
+        ctx.lineTo(w, h - 140);
         ctx.stroke();
         ctx.restore();
       }
@@ -696,13 +700,13 @@
         // 1. Background
         drawBackground(w, h);
 
-        // 2. Media clip path
+        // 2. Media clip path (3:4 ratio boundaries)
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(CURVE.P0.x, CURVE.P0.y);
         ctx.bezierCurveTo(CURVE.P1.x, CURVE.P1.y, CURVE.P2.x, CURVE.P2.y, CURVE.P3.x, CURVE.P3.y);
-        ctx.lineTo(CURVE.P3.x, h - 160);
-        ctx.lineTo(CURVE.P0.x, h - 160);
+        ctx.lineTo(CURVE.P3.x, h - 140);
+        ctx.lineTo(CURVE.P0.x, h - 140);
         ctx.closePath();
         ctx.clip();
 
@@ -711,10 +715,16 @@
           const vh = userVideo.videoHeight;
           if (vw && vh) {
             const sourceAspect = vw / vh;
-            let drawWidth = w * photoScale;
-            let drawHeight = h * photoScale;
-            if (sourceAspect > (w / h)) { drawHeight = drawWidth / sourceAspect; }
-            else { drawWidth = drawHeight * sourceAspect; }
+            let drawWidth = w;
+            let drawHeight = h;
+            if (sourceAspect > (w / h)) {
+              drawWidth = h * sourceAspect;
+            } else {
+              drawHeight = w / sourceAspect;
+            }
+            drawWidth *= photoScale;
+            drawHeight *= photoScale;
+
             const vx = (w / 2) - (drawWidth / 2) + photoOffsetX;
             const vy = (h / 2) - (drawHeight / 2) + photoOffsetY;
             ctx.drawImage(userVideo, vx, vy, drawWidth, drawHeight);
@@ -723,10 +733,16 @@
           const iw = userImage.naturalWidth || userImage.width;
           const ih = userImage.naturalHeight || userImage.height;
           const sourceAspect = iw / ih;
-          let drawWidth = w * photoScale;
-          let drawHeight = h * photoScale;
-          if (sourceAspect > (w / h)) { drawHeight = drawWidth / sourceAspect; }
-          else { drawWidth = drawHeight * sourceAspect; }
+          let drawWidth = w;
+          let drawHeight = h;
+          if (sourceAspect > (w / h)) {
+            drawWidth = h * sourceAspect;
+          } else {
+            drawHeight = w / sourceAspect;
+          }
+          drawWidth *= photoScale;
+          drawHeight *= photoScale;
+
           const x = (w / 2) - (drawWidth / 2) + photoOffsetX;
           const y = (h / 2) - (drawHeight / 2) + photoOffsetY;
           ctx.drawImage(userImage, x, y, drawWidth, drawHeight);
@@ -734,7 +750,7 @@
           ctx.fillStyle = '#f5f5f7';
           ctx.fillRect(0, 0, w, h);
           ctx.fillStyle = '#d90429';
-          ctx.font = 'bold 48px -apple-system, sans-serif';
+          ctx.font = 'bold 42px -apple-system, sans-serif';
           ctx.textAlign = 'center';
           ctx.fillText('Tap below to add your photo or video', w / 2, h / 2);
         }
@@ -752,35 +768,35 @@
           ctx.save();
           ctx.globalAlpha = state.alpha;
           const ox = state.offsetX, oy = state.offsetY;
-          const logoX = 70 + ox;
-          const logoY = 65 + oy;
-          const logoTargetHeight = 140;
+          const logoX = 50 + ox;
+          const logoY = 45 + oy;
+          const logoTargetHeight = 110;
 
           if (newLogoImg.complete && newLogoImg.naturalHeight !== 0) {
             const lAspect = newLogoImg.width / newLogoImg.height;
             const logoWidth = logoTargetHeight * lAspect;
             ctx.drawImage(newLogoImg, logoX, logoY, logoWidth, logoTargetHeight);
 
-            const textStartX = logoX + logoWidth + 25;
+            const textStartX = logoX + logoWidth + 20;
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'alphabetic';
 
-            ctx.font = '900 38px -apple-system, sans-serif';
-            ctx.fillText('WORLD', textStartX, 105 + oy);
-            ctx.fillText('HEART', textStartX, 150 + oy);
+            ctx.font = '900 32px -apple-system, sans-serif';
+            ctx.fillText('WORLD', textStartX, 80 + oy);
+            ctx.fillText('HEART', textStartX, 115 + oy);
 
-            ctx.font = '800 22px -apple-system, sans-serif';
-            ctx.fillText('DAY 29 SEP', textStartX, 182 + oy);
+            ctx.font = '800 18px -apple-system, sans-serif';
+            ctx.fillText('DAY 29 SEP', textStartX, 142 + oy);
           } else {
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'alphabetic';
-            ctx.font = '900 38px -apple-system, sans-serif';
-            ctx.fillText('WORLD', 80 + ox, 105 + oy);
-            ctx.fillText('HEART', 80 + ox, 150 + oy);
-            ctx.font = '800 22px -apple-system, sans-serif';
-            ctx.fillText('DAY 29 SEP', 80 + ox, 182 + oy);
+            ctx.font = '900 32px -apple-system, sans-serif';
+            ctx.fillText('WORLD', 60 + ox, 80 + oy);
+            ctx.fillText('HEART', 60 + ox, 115 + oy);
+            ctx.font = '800 18px -apple-system, sans-serif';
+            ctx.fillText('DAY 29 SEP', 60 + ox, 142 + oy);
           }
           ctx.restore();
         });
@@ -791,13 +807,13 @@
           ctx.globalAlpha = state.alpha;
           const ox = state.offsetX, oy = state.offsetY;
           ctx.fillStyle = '#ffffff';
-          ctx.font = '900 64px -apple-system, sans-serif';
+          ctx.font = '900 48px -apple-system, sans-serif';
           ctx.textAlign = 'left';
-          wrapText(ctx, whdSlogans[currentSloganIndex], 570 + ox, 105 + oy, 470, 72);
+          wrapText(ctx, whdSlogans[currentSloganIndex], 500 + ox, 85 + oy, 540, 56);
           ctx.restore();
         });
 
-        // 5. Hashtags — moved #DontMissABeat further down along the left curve
+        // 5. Hashtags
         const progress = (currentMode === 'video') ? Math.min(1, elapsedTime / 10000) : 1;
         const ease = 1 - Math.pow(1 - progress, 3);
 
@@ -807,8 +823,8 @@
           : baseCenterT;
         const centerT = startCenterT + (baseCenterT - startCenterT) * ease;
 
-        const MIN_PIXEL_GAP  = 110;
-        const LEFT_EXTRA_PX  = 180; // 👈 Pushed further down along the left curve
+        const MIN_PIXEL_GAP  = 100;
+        const LEFT_EXTRA_PX  = 160;
 
         const leftDistance  = -(MIN_PIXEL_GAP / 2 + LEFT_EXTRA_PX);
         const rightDistance =  (MIN_PIXEL_GAP / 2);
@@ -817,18 +833,18 @@
         const rightT = findTAtDistance(centerT, rightDistance);
 
         drawHashtagOnCurve('#DontMissABeat', leftT, {
-          aboveOffset: 28,
-          maxWidth: 300,
-          minSize: 22,
-          maxSize: 40,
+          aboveOffset: 26,
+          maxWidth: 280,
+          minSize: 20,
+          maxSize: 36,
           angleOffset: -0.06
         });
 
         drawHashtagOnCurve('#WorldHeartDay', rightT, {
-          aboveOffset: 34,
-          maxWidth: 300,
-          minSize: 22,
-          maxSize: 40,
+          aboveOffset: 30,
+          maxWidth: 280,
+          minSize: 20,
+          maxSize: 36,
           angleOffset: -0.06
         });
 
@@ -837,11 +853,11 @@
 
         // 7. Mascot
         if (mascotTrImg.complete && mascotTrImg.naturalHeight !== 0) {
-          const targetHeight = 220;
+          const targetHeight = 170;
           const aspect = mascotTrImg.width / mascotTrImg.height;
           const targetWidth = targetHeight * aspect;
-          const mascotX = w - targetWidth - 30;
-          const mascotY = h - targetHeight - 20;
+          const mascotX = w - targetWidth - 25;
+          const mascotY = h - targetHeight - 15;
           ctx.save();
           ctx.drawImage(mascotTrImg, mascotX, mascotY, targetWidth, targetHeight);
           ctx.restore();
@@ -855,11 +871,11 @@
             ctx.globalAlpha = state.alpha;
             const ox = state.offsetX, oy = state.offsetY;
             ctx.fillStyle = '#fff0f3';
-            ctx.font = '900 36px -apple-system, sans-serif';
+            ctx.font = '900 30px -apple-system, sans-serif';
             ctx.textAlign = 'center';
             ctx.shadowColor = 'rgba(0,0,0,0.6)';
             ctx.shadowBlur = 8;
-            ctx.fillText(nameText, w / 2 + ox, 1850 + oy, 800);
+            ctx.fillText(nameText, w / 2 + ox, 1380 + oy, 700);
             ctx.restore();
           });
         }
@@ -869,14 +885,14 @@
       function drawContinuousNormalEcg(elapsedTime) {
         ctx.save();
         ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 5;
+        ctx.lineWidth = 4;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.shadowColor = 'rgba(255,255,255,0.9)';
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = 10;
         ctx.beginPath();
 
-        const ecgY = 1840;
+        const ecgY = 1370;
         const progress = (currentMode === 'video') ? Math.min(1, elapsedTime / 10000) : 1.0;
         const maxVisibleX = canvas.width * progress;
 
@@ -885,14 +901,14 @@
           const localT = t % cycleTime;
           let val = 0;
           if (localT > 100 && localT < 220) {
-            val -= 10 * Math.sin(((localT - 100) / 120) * Math.PI);
-          } else if (localT >= 260 && localT < 290) { val += 15; }
+            val -= 8 * Math.sin(((localT - 100) / 120) * Math.PI);
+          } else if (localT >= 260 && localT < 290) { val += 12; }
           else if (localT >= 290 && localT < 340) {
-            val -= 160 * Math.sin(((localT - 290) / 50) * Math.PI);
+            val -= 130 * Math.sin(((localT - 290) / 50) * Math.PI);
           } else if (localT >= 340 && localT < 380) {
-            val += 35 * Math.sin(((localT - 340) / 40) * Math.PI);
+            val += 28 * Math.sin(((localT - 340) / 40) * Math.PI);
           } else if (localT >= 460 && localT < 640) {
-            val -= 22 * Math.sin(((localT - 460) / 180) * Math.PI);
+            val -= 18 * Math.sin(((localT - 460) / 180) * Math.PI);
           }
           return val;
         }
@@ -972,14 +988,22 @@
       cameraBtn.addEventListener('click', () => cameraInput.click());
       galleryBtn.addEventListener('click', () => galleryInput.click());
 
-      // ============ TOUCH DRAG ============
+      // ============ TOUCH / MOUSE DRAG & PINCH ZOOM ============
       canvas.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
           isDragging = true;
           startX = e.touches[0].clientX - photoOffsetX;
           startY = e.touches[0].clientY - photoOffsetY;
-          e.preventDefault();
+          initialPinchDist = null;
+        } else if (e.touches.length === 2) {
+          isDragging = false;
+          initialPinchDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          initialScale = photoScale;
         }
+        e.preventDefault();
       }, { passive: false });
 
       canvas.addEventListener('touchmove', (e) => {
@@ -987,12 +1011,28 @@
           photoOffsetX = e.touches[0].clientX - startX;
           photoOffsetY = e.touches[0].clientY - startY;
           if (currentMode === 'image') scheduleDraw();
-          e.preventDefault();
+        } else if (e.touches.length === 2 && initialPinchDist !== null) {
+          const currentDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          let newScale = initialScale * (currentDist / initialPinchDist);
+          newScale = Math.max(0.5, Math.min(3.0, newScale));
+          photoScale = newScale;
+          zoomRange.value = photoScale;
+          zoomValue.textContent = photoScale.toFixed(1) + '×';
+          if (currentMode === 'image') scheduleDraw();
         }
+        e.preventDefault();
       }, { passive: false });
 
-      canvas.addEventListener('touchend', (e) => { isDragging = false; e.preventDefault(); }, { passive: false });
-      canvas.addEventListener('touchcancel', () => { isDragging = false; });
+      canvas.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) initialPinchDist = null;
+        if (e.touches.length === 0) isDragging = false;
+        e.preventDefault();
+      }, { passive: false });
+
+      canvas.addEventListener('touchcancel', () => { isDragging = false; initialPinchDist = null; });
 
       canvas.addEventListener('mousedown', (e) => {
         isDragging = true;
@@ -1078,7 +1118,7 @@
       actionDownloadBtn.addEventListener('click', async () => {
         if (currentMode === 'image') {
           const link = document.createElement('a');
-          link.download = 'world-heart-day-2026-story.png';
+          link.download = 'world-heart-day-2026-story-3-4.png';
           link.href = canvas.toDataURL('image/png');
           link.click();
         } else {
@@ -1093,7 +1133,7 @@
 
           randomizeTextAnimations();
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 Recording 10s vertical video... Please wait.';
+          videoStatus.textContent = '🎥 Recording 10s 3:4 video... Please wait.';
 
           recordingStartTime = performance.now();
           const canvasStream = canvas.captureStream(30);
@@ -1149,7 +1189,7 @@
 
           } catch (err) {
             console.error(err);
-            alert('Video export error: ' + err.message + '\n\nNote: Audio capture works best when a video with sound is uploaded.');
+            alert('Video export error: ' + err.message);
             videoStatus.classList.remove('visible');
           }
         }
@@ -1159,7 +1199,7 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'world-heart-day-2026-story.mp4';
+        a.download = 'world-heart-day-2026-story-3-4.mp4';
         a.click();
         setTimeout(() => URL.revokeObjectURL(url), 4000);
       }
@@ -1169,7 +1209,7 @@
         if (currentMode === 'image') {
           const dataUrl = canvas.toDataURL('image/png');
           const blob = await (await fetch(dataUrl)).blob();
-          const file = new File([blob], 'world-heart-day-2026-story.png', { type: 'image/png' });
+          const file = new File([blob], 'world-heart-day-2026-story-3-4.png', { type: 'image/png' });
 
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             try {
@@ -1189,7 +1229,7 @@
             alert('Please click "Export MP4" first to record the 10s clip before sharing.');
             return;
           }
-          const videoFile = new File([lastRecordedVideoBlob], 'world-heart-day-2026-story.mp4', { type: 'video/mp4' });
+          const videoFile = new File([lastRecordedVideoBlob], 'world-heart-day-2026-story-3-4.mp4', { type: 'video/mp4' });
 
           if (navigator.canShare && navigator.canShare({ files: [videoFile] })) {
             try {
