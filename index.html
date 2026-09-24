@@ -799,7 +799,6 @@
             ctx.fillText('Tap below to add your photo', w / 2, h / 2);
           }
         } else {
-          // Video Mode live drawing canvas backup placeholder
           if (userVideo && userVideo.readyState >= 2) {
             const vw = userVideo.videoWidth;
             const vh = userVideo.videoHeight;
@@ -889,26 +888,18 @@
         wrapText(ctx, whdSlogans[currentSloganIndex], 500, 85, 540, 56);
         ctx.restore();
 
-        // 5. Hashtags
-        const baseCenterT = 0.08;
-        const primaryTagDistance = -20;
-        const primaryT = findTAtDistance(baseCenterT, primaryTagDistance);
-
-        drawTextAlongCurve('#DontMissABeat', primaryT, {
+        // 5. FIXED SEPARATE HASHTAG LAYOUT (Spaced out cleanly along the curve)
+        const leftStartT = 0.04;
+        drawTextAlongCurve('#DontMissABeat', leftStartT, {
           aboveOffset: 34,
-          fontSize: 76,
+          fontSize: 58,
           color: '#ffffff'
         });
 
-        ctx.font = `700 76px ${HASHTAG_FONT}, cursive, sans-serif`;
-        const primaryTextWidth = ctx.measureText('#DontMissABeat').width;
-
-        const secondaryTagDistance = primaryTagDistance + primaryTextWidth + 35;
-        const secondaryT = findTAtDistance(baseCenterT, secondaryTagDistance);
-
-        drawTextAlongCurve('#WorldHeartDay', secondaryT, {
+        const rightStartT = 0.52;
+        drawTextAlongCurve('#WorldHeartDay', rightStartT, {
           aboveOffset: 34,
-          fontSize: 76,
+          fontSize: 58,
           color: '#ffffff'
         });
 
@@ -1025,7 +1016,6 @@
           userVideo.crossOrigin = 'anonymous';
           userVideo.preload = 'auto';
 
-          // Set preview video player source instantly for reliable playback preview
           previewVideoPlayer.src = videoUrl;
           previewVideoPlayer.muted = false;
           previewVideoPlayer.style.display = 'block';
@@ -1188,7 +1178,7 @@
         galleryInput.value = '';
       };
 
-      // ============ EXPORT / RECORD MP4 (STABLE, NON-BLOCKING) ============
+      // ============ EXPORT / RECORD MP4 ============
       actionDownloadBtn.addEventListener('click', async () => {
         if (currentMode === 'image') {
           const link = document.createElement('a');
@@ -1208,7 +1198,6 @@
           videoStatus.classList.add('visible');
           videoStatus.textContent = '🎥 Generating 10s MP4... Please hold on.';
 
-          // Switch back temporarily to canvas rendering to capture visual layout stream
           const wasVideoVisible = previewVideoPlayer.style.display !== 'none';
           previewVideoPlayer.style.display = 'none';
           canvas.style.display = 'block';
@@ -1238,7 +1227,6 @@
               combinedStream = new MediaStream([...canvasStream.getVideoTracks()]);
             }
 
-            // Safe fallback mime types for iOS & Android Safari / Chrome
             let mime = 'video/webm;codecs=h264,opus';
             if (MediaRecorder.isTypeSupported('video/mp4')) {
               mime = 'video/mp4';
@@ -1259,7 +1247,6 @@
               downloadVideoBlob(lastRecordedVideoBlob, ext);
               videoStatus.textContent = '✅ 10s story video saved successfully!';
 
-              // Restore preview player view
               if (wasVideoVisible && userVideo) {
                 canvas.style.display = 'none';
                 previewVideoPlayer.style.display = 'block';
@@ -1268,7 +1255,6 @@
 
             recorder.start();
 
-            // Run lightweight render loop during recording
             function recordLoop(timestamp) {
               const elapsed = timestamp - recordingStartTime;
               drawCanvas(elapsed);
