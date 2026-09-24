@@ -754,12 +754,13 @@
         const logoY = 24;
         const logoTargetHeight = 195;
 
+        let textStartX = 50;
         if (newLogoImg.complete && newLogoImg.naturalHeight !== 0) {
           const lAspect = newLogoImg.width / newLogoImg.height;
           const logoWidth = logoTargetHeight * lAspect;
           ctx.drawImage(newLogoImg, logoX, logoY, logoWidth, logoTargetHeight);
 
-          const textStartX = logoX + logoWidth + 20;
+          textStartX = logoX + logoWidth + 20;
           ctx.fillStyle = '#ffffff';
           ctx.textAlign = 'left';
           ctx.textBaseline = 'alphabetic';
@@ -803,7 +804,7 @@
         }
         ctx.restore();
 
-        // 4. Slogan
+        // 4. Slogan (Right side)
         ctx.save();
         ctx.fillStyle = '#ffffff';
         ctx.font = `900 48px "${SLOGAN_FONT}", sans-serif`;
@@ -811,17 +812,19 @@
         wrapText(ctx, whdSlogans[currentSloganIndex], 500, 85, 540, 56);
         ctx.restore();
 
-        // 5. CLEAN, FLAWLESSLY CENTERED STRAIGHT HASHTAG BADGES ON RED BANNER
+        // 5. TWO HASHTAGS STACKED DIRECTLY BELOW THE LOGO ON THE TOP LEFT
         ctx.save();
-        ctx.font = `700 50px "${HASHTAG_FONT}", cursive, sans-serif`;
+        ctx.font = `700 48px "${HASHTAG_FONT}", cursive, sans-serif`;
         ctx.fillStyle = '#ffffff';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
         ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
         ctx.shadowBlur = 6;
         ctx.shadowOffsetY = 2;
 
-        ctx.fillText('#DontMissABeat   #WorldHeartDay', w / 2, 540);
+        const hashtagX = 45;
+        ctx.fillText('#DontMissABeat', hashtagX, 238);
+        ctx.fillText('#WorldHeartDay', hashtagX, 292);
         ctx.restore();
 
         // 6. ECG
@@ -1265,7 +1268,7 @@
         lastTouchEnd = now;
       }, { passive: false });
 
-      document.fonts.load('700 50px "CustomHandwritten"').then(() => {
+      document.fonts.load('700 48px "CustomHandwritten"').then(() => {
         scheduleDraw();
       }).catch(() => {
         scheduleDraw();
