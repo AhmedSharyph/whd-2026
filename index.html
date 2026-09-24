@@ -13,7 +13,7 @@
   <meta name="x5-orientation" content="portrait">
   <title>WHD 2026 · Creator Studio</title>
 
-  <!-- UNIVERSAL @FONT-FACE EMBEDDING (OUTFIT, MONTSERRAT & CAVEAT VIA FONTSOURCE CDN) -->
+  <!-- UNIVERSAL @FONT-FACE EMBEDDING -->
   <style>
     @font-face {
       font-family: 'AppSans';
@@ -643,13 +643,13 @@
       function drawTextAlongCurve(text, startT, opts = {}) {
         const {
           aboveOffset = 36,
-          fontSize = 76,
+          fontSize = 62,
           color = '#ffffff',
           glow = 'rgba(0, 0, 0, 0.5)'
         } = opts;
 
         ctx.save();
-        ctx.font = `700 ${fontSize}px ${HASHTAG_FONT}, cursive, sans-serif`;
+        ctx.font = `700 ${fontSize}px "${HASHTAG_FONT}", cursive, sans-serif`;
         ctx.fillStyle = color;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -675,7 +675,7 @@
           ctx.fillText(char, 0, 0);
           ctx.restore();
 
-          currentT = findTAtDistance(currentT, charWidth * 0.92);
+          currentT = findTAtDistance(currentT, charWidth * 0.95);
         }
         ctx.restore();
       }
@@ -794,7 +794,7 @@
             ctx.fillStyle = '#f5f5f7';
             ctx.fillRect(0, 0, w, h);
             ctx.fillStyle = '#d90429';
-            ctx.font = `bold 42px ${PRIMARY_FONT}, sans-serif`;
+            ctx.font = `bold 42px "${PRIMARY_FONT}", sans-serif`;
             ctx.textAlign = 'center';
             ctx.fillText('Tap below to add your photo', w / 2, h / 2);
           }
@@ -817,7 +817,7 @@
             ctx.fillStyle = '#f5f5f7';
             ctx.fillRect(0, 0, w, h);
             ctx.fillStyle = '#b3001b';
-            ctx.font = `bold 42px ${PRIMARY_FONT}, sans-serif`;
+            ctx.font = `bold 42px "${PRIMARY_FONT}", sans-serif`;
             ctx.textAlign = 'center';
             ctx.fillText('Tap below to add your video clip', w / 2, h / 2);
           }
@@ -841,13 +841,13 @@
           ctx.textAlign = 'left';
           ctx.textBaseline = 'alphabetic';
 
-          ctx.font = `900 36px ${PRIMARY_FONT}, sans-serif`;
+          ctx.font = `900 36px "${PRIMARY_FONT}", sans-serif`;
           ctx.fillText('WORLD', textStartX, 68);
           ctx.fillText('HEART', textStartX, 110);
           ctx.fillText('DAY 26', textStartX, 152);
 
           ctx.save();
-          ctx.font = `900 22px ${PRIMARY_FONT}, sans-serif`;
+          ctx.font = `900 22px "${PRIMARY_FONT}", sans-serif`;
           const dateStr = "29 SEP";
           const targetWidth = ctx.measureText("HEART").width;
           const naturalW = ctx.measureText(dateStr).width;
@@ -861,13 +861,13 @@
           ctx.fillStyle = '#ffffff';
           ctx.textAlign = 'left';
           ctx.textBaseline = 'alphabetic';
-          ctx.font = `900 36px ${PRIMARY_FONT}, sans-serif`;
+          ctx.font = `900 36px "${PRIMARY_FONT}", sans-serif`;
           ctx.fillText('WORLD', 50, 68);
           ctx.fillText('HEART', 50, 110);
           ctx.fillText('DAY 26', 50, 152);
 
           ctx.save();
-          ctx.font = `900 22px ${PRIMARY_FONT}, sans-serif`;
+          ctx.font = `900 22px "${PRIMARY_FONT}", sans-serif`;
           const dateStr = "29 SEP";
           const targetWidth = ctx.measureText("HEART").width;
           const naturalW = ctx.measureText(dateStr).width;
@@ -883,23 +883,21 @@
         // 4. Slogan
         ctx.save();
         ctx.fillStyle = '#ffffff';
-        ctx.font = `900 48px ${SLOGAN_FONT}, sans-serif`;
+        ctx.font = `900 48px "${SLOGAN_FONT}", sans-serif`;
         ctx.textAlign = 'left';
         wrapText(ctx, whdSlogans[currentSloganIndex], 500, 85, 540, 56);
         ctx.restore();
 
-        // 5. FIXED SEPARATE HASHTAG LAYOUT (Spaced out cleanly along the curve)
-        const leftStartT = 0.04;
-        drawTextAlongCurve('#DontMissABeat', leftStartT, {
+        // 5. CLEAN HASHTAG LAYOUT (Optimized spacing for smooth finish)
+        drawTextAlongCurve('#DontMissABeat', 0.06, {
           aboveOffset: 34,
-          fontSize: 58,
+          fontSize: 56,
           color: '#ffffff'
         });
 
-        const rightStartT = 0.52;
-        drawTextAlongCurve('#WorldHeartDay', rightStartT, {
+        drawTextAlongCurve('#WorldHeartDay', 0.54, {
           aboveOffset: 34,
-          fontSize: 58,
+          fontSize: 56,
           color: '#ffffff'
         });
 
@@ -1344,7 +1342,10 @@
         lastTouchEnd = now;
       }, { passive: false });
 
-      document.fonts.ready.then(() => {
+      // Force-load custom handwritten font before initial draw
+      document.fonts.load('700 56px "CustomHandwritten"').then(() => {
+        scheduleDraw();
+      }).catch(() => {
         scheduleDraw();
       });
       
