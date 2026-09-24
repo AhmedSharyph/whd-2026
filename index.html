@@ -273,7 +273,7 @@
       opacity: 0.75; cursor: not-allowed; filter: grayscale(0.2);
     }
 
-    /* LOADING SPINNER STATUS BOX */
+    /* DYNAMIC LOADING SPINNER STATUS BOX */
     .video-status {
       font-size: 0.92rem; font-weight: 800; color: #b3001b; text-align: center;
       background: #fff5f7; padding: 12px 14px; border-radius: 12px;
@@ -414,10 +414,10 @@
         </div>
       </div>
 
-      <!-- VIDEO STATUS & SPINNER -->
+      <!-- DYNAMIC STATUS & SPINNER (HIDDEN BY DEFAULT) -->
       <div class="video-status" id="videoStatus">
         <span class="spinner" id="statusSpinner"></span>
-        <span id="statusText">🎥 10s Story Video mode ready</span>
+        <span id="statusText"></span>
       </div>
 
       <!-- SINGLE SHARE BUTTON -->
@@ -1051,10 +1051,6 @@
           muteToggleBtn.textContent = 'Mute Video';
           muteToggleBtn.classList.remove('muted');
           muteInfoText.textContent = '🔊 Video Audio: Active';
-
-          videoStatus.classList.add('visible');
-          statusSpinner.classList.remove('active');
-          statusText.textContent = '🎥 Video loaded! Adjust zoom/drag & tap "Share Story" when ready.';
         } else {
           if (userVideo) { userVideo.pause(); userVideo.src = ''; userVideo = null; }
           if (animationId) cancelAnimationFrame(animationId);
@@ -1152,9 +1148,11 @@
         modeImageBtn.classList.toggle('active', mode === 'image');
         modeVideoBtn.classList.toggle('active', mode === 'video');
 
+        // Hide status box when switching modes
+        videoStatus.classList.remove('visible');
+        statusSpinner.classList.remove('active');
+
         if (mode === 'image') {
-          videoStatus.classList.remove('visible');
-          statusSpinner.classList.remove('active');
           cameraBtnText.textContent = 'Take Photo';
           galleryBtnText.textContent = 'Choose Photo';
           mediaTypeBadge.textContent = 'Photo';
@@ -1165,9 +1163,6 @@
           if (userVideo) { userVideo.pause(); }
           scheduleDraw();
         } else {
-          videoStatus.classList.add('visible');
-          statusSpinner.classList.remove('active');
-          statusText.textContent = '🎥 10s Story Video mode ready';
           cameraBtnText.textContent = 'Record Video';
           galleryBtnText.textContent = 'Choose Video';
           mediaTypeBadge.textContent = 'Video';
@@ -1228,7 +1223,7 @@
           // Show Spinner & Disable Button During Background Rendering
           videoStatus.classList.add('visible');
           statusSpinner.classList.add('active');
-          statusText.textContent = '🎥 Processing 10s video in background... Please wait.';
+          statusText.textContent = 'Processing 10s video... Please wait.';
           actionShareBtn.disabled = true;
 
           recordingStartTime = performance.now();
@@ -1276,7 +1271,7 @@
               
               // Hide Spinner & Enable Button
               statusSpinner.classList.remove('active');
-              statusText.textContent = '✅ Video ready! Opening share dialog...';
+              statusText.textContent = 'Ready! Opening share dialog...';
               actionShareBtn.disabled = false;
 
               executeVideoShare(lastRecordedVideoBlob, shareText, ext);
@@ -1317,7 +1312,8 @@
               text: shareText,
               files: [videoFile]
             });
-            statusText.textContent = '🎉 Story shared successfully!';
+            statusText.textContent = 'Shared successfully!';
+            setTimeout(() => videoStatus.classList.remove('visible'), 3000);
           } catch (err) {
             if (err.name !== 'AbortError') console.warn('Share failed', err);
             videoStatus.classList.remove('visible');
@@ -1329,7 +1325,8 @@
           a.download = `world-heart-day-2026-story-3-4.${ext}`;
           a.click();
           setTimeout(() => URL.revokeObjectURL(url), 4000);
-          statusText.textContent = '💾 Direct sharing not supported; video saved to device!';
+          statusText.textContent = 'Direct sharing not supported; video saved to device!';
+          setTimeout(() => videoStatus.classList.remove('visible'), 4000);
         }
       }
 
