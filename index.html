@@ -273,7 +273,7 @@
       opacity: 0.75; cursor: not-allowed; filter: grayscale(0.2);
     }
 
-    /* DYNAMIC LOADING SPINNER STATUS BOX */
+    /* DYNAMIC LOADING SPINNER STATUS BOX (HIDDEN BY DEFAULT) */
     .video-status {
       font-size: 0.92rem; font-weight: 800; color: #b3001b; text-align: center;
       background: #fff5f7; padding: 12px 14px; border-radius: 12px;
@@ -414,7 +414,7 @@
         </div>
       </div>
 
-      <!-- DYNAMIC STATUS & SPINNER (HIDDEN BY DEFAULT) -->
+      <!-- DYNAMIC STATUS & SPINNER (REMAINS HIDDEN UNTIL SHARE IS CLICKED) -->
       <div class="video-status" id="videoStatus">
         <span class="spinner" id="statusSpinner"></span>
         <span id="statusText"></span>
@@ -1148,7 +1148,7 @@
         modeImageBtn.classList.toggle('active', mode === 'image');
         modeVideoBtn.classList.toggle('active', mode === 'video');
 
-        // Hide status box when switching modes
+        // Always hide the status notification box when switching modes
         videoStatus.classList.remove('visible');
         statusSpinner.classList.remove('active');
 
