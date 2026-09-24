@@ -599,86 +599,9 @@
         P3: { x: 1080, y: 400 }
       };
 
-      function bezierPoint(t) {
-        const mt = 1 - t;
-        const { P0, P1, P2, P3 } = CURVE;
-        return {
-          x: mt*mt*mt*P0.x + 3*mt*mt*t*P1.x + 3*mt*t*t*P2.x + t*t*t*P3.x,
-          y: mt*mt*mt*P0.y + 3*mt*mt*t*P1.y + 3*mt*t*t*P2.y + t*t*t*P3.y
-        };
-      }
-      function bezierTangentAngle(t) {
-        const mt = 1 - t;
-        const { P0, P1, P2, P3 } = CURVE;
-        const dx = 3*mt*mt*(P1.x-P0.x) + 6*mt*t*(P2.x-P1.x) + 3*t*t*(P3.x-P2.x);
-        const dy = 3*mt*mt*(P1.y-P0.y) + 6*mt*t*(P2.y-P1.y) + 3*t*t*(P3.y-P2.y);
-        return Math.atan2(dy, dx);
-      }
-
-      function findTAtDistance(centerT, distancePx) {
-        const centerPt = bezierPoint(centerT);
-        const forward = distancePx >= 0;
-        const absDist = Math.abs(distancePx);
-        const step = 0.002;
-
-        let t = centerT;
-        let accumulated = 0;
-        let prevPt = centerPt;
-
-        for (let i = 0; i < 600; i++) {
-          t += forward ? step : -step;
-          if (t < 0.001 || t > 0.999) break;
-          const pt = bezierPoint(t);
-          accumulated += Math.hypot(pt.x - prevPt.x, pt.y - prevPt.y);
-          prevPt = pt;
-          if (accumulated >= absDist) break;
-        }
-        return Math.max(0.01, Math.min(0.99, t));
-      }
-
       const PRIMARY_FONT = 'AppSans';
       const SLOGAN_FONT = 'SloganFont';
       const HASHTAG_FONT = 'CustomHandwritten';
-
-      function drawTextAlongCurve(text, startT, opts = {}) {
-        const {
-          aboveOffset = 36,
-          fontSize = 62,
-          color = '#ffffff',
-          glow = 'rgba(0, 0, 0, 0.5)'
-        } = opts;
-
-        ctx.save();
-        ctx.font = `700 ${fontSize}px "${HASHTAG_FONT}", cursive, sans-serif`;
-        ctx.fillStyle = color;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.shadowColor = glow;
-        ctx.shadowBlur = 8;
-        ctx.shadowOffsetY = 2;
-
-        let currentT = startT;
-        
-        for (let i = 0; i < text.length; i++) {
-          const char = text[i];
-          const charWidth = ctx.measureText(char).width;
-
-          const pt = bezierPoint(currentT);
-          const angle = bezierTangentAngle(currentT);
-
-          const nx = Math.sin(angle);
-          const ny = -Math.cos(angle);
-
-          ctx.save();
-          ctx.translate(pt.x + nx * aboveOffset, pt.y + ny * aboveOffset);
-          ctx.rotate(angle);
-          ctx.fillText(char, 0, 0);
-          ctx.restore();
-
-          currentT = findTAtDistance(currentT, charWidth * 0.95);
-        }
-        ctx.restore();
-      }
 
       function drawBackground(w, h) {
         const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
@@ -888,18 +811,18 @@
         wrapText(ctx, whdSlogans[currentSloganIndex], 500, 85, 540, 56);
         ctx.restore();
 
-        // 5. CLEAN HASHTAG LAYOUT (Optimized spacing for smooth finish)
-        drawTextAlongCurve('#DontMissABeat', 0.06, {
-          aboveOffset: 34,
-          fontSize: 56,
-          color: '#ffffff'
-        });
+        // 5. CLEAN, FLAWLESSLY CENTERED STRAIGHT HASHTAG BADGES ON RED BANNER
+        ctx.save();
+        ctx.font = `700 50px "${HASHTAG_FONT}", cursive, sans-serif`;
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetY = 2;
 
-        drawTextAlongCurve('#WorldHeartDay', 0.54, {
-          aboveOffset: 34,
-          fontSize: 56,
-          color: '#ffffff'
-        });
+        ctx.fillText('#DontMissABeat   #WorldHeartDay', w / 2, 540);
+        ctx.restore();
 
         // 6. ECG
         drawContinuousNormalEcg(elapsedTime);
@@ -1342,8 +1265,7 @@
         lastTouchEnd = now;
       }, { passive: false });
 
-      // Force-load custom handwritten font before initial draw
-      document.fonts.load('700 56px "CustomHandwritten"').then(() => {
+      document.fonts.load('700 50px "CustomHandwritten"').then(() => {
         scheduleDraw();
       }).catch(() => {
         scheduleDraw();
