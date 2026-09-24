@@ -201,24 +201,11 @@
     .upload-action-btn:active .icon-circle { transform: scale(1.1); }
     .upload-action-btn input[type="file"] { display: none; }
 
-    /* MUTE CONTROL ROW */
-    .mute-control-row {
-      display: none; align-items: center; justify-content: space-between;
-      background: #fff0f3; padding: 10px 14px; border-radius: 12px;
-      border: 1.5px solid rgba(255, 45, 85, 0.25); flex-shrink: 0;
+    /* ZOOM FIELD & MUTE CONTROL INLINE ROW */
+    .zoom-mute-row {
+      display: flex; align-items: center; gap: 10px; flex-shrink: 0;
     }
-    .mute-control-row.visible { display: flex; animation: fadeIn 0.3s ease both; }
-    .mute-info { font-size: 0.9rem; font-weight: 800; color: #7a0010; }
-    .mute-toggle-btn {
-      background: #ffffff; border: 1.5px solid rgba(255, 45, 85, 0.3);
-      padding: 7px 14px; border-radius: 9px; font-size: 0.88rem; font-weight: 800;
-      color: #d90429; cursor: pointer; transition: all 0.2s; font-family: inherit;
-    }
-    .mute-toggle-btn.muted { background: #d90429; color: #ffffff; border-color: #d90429; }
-    .mute-toggle-btn:active { transform: scale(0.95); }
-
-    /* ZOOM FIELD */
-    .field-group { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; flex: 1; }
     .field-label {
       font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
       color: #7a0010; padding: 0 4px; -webkit-user-select: none; user-select: none;
@@ -245,6 +232,18 @@
       width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #ff2d55, #b3001b);
       cursor: pointer; border: 2px solid #ffffff; box-shadow: 0 3px 10px rgba(255, 45, 85, 0.35);
     }
+
+    /* MUTE CONTROL BUTTON (INLINE NEXT TO ZOOM) */
+    .mute-toggle-btn {
+      background: #ffffff; border: 1.5px solid rgba(255, 45, 85, 0.3);
+      padding: 0 14px; height: 42px; border-radius: 12px; font-size: 0.88rem; font-weight: 800;
+      color: #d90429; cursor: pointer; transition: all 0.2s; font-family: inherit; flex-shrink: 0;
+      display: none; align-items: center; justify-content: center; gap: 6px; margin-top: 18px;
+      box-shadow: 0 2px 6px rgba(217, 4, 41, 0.05);
+    }
+    .mute-toggle-btn.visible { display: flex; animation: fadeIn 0.3s ease both; }
+    .mute-toggle-btn.muted { background: #d90429; color: #ffffff; border-color: #d90429; }
+    .mute-toggle-btn:active { transform: scale(0.95); }
 
     /* BUTTONS */
     .btn {
@@ -399,21 +398,18 @@
         <input type="file" id="galleryInput" accept="image/*" style="display:none;">
       </div>
 
-      <!-- MUTE VIDEO ROW -->
-      <div class="mute-control-row" id="muteControlRow">
-        <span class="mute-info" id="muteInfoText">🔊 Video Audio: Active</span>
-        <button class="mute-toggle-btn" id="muteToggleBtn" type="button">Mute Video</button>
-      </div>
-
-      <!-- ZOOM (MOVED BELOW MEDIA UPLOAD) -->
-      <div class="field-group">
-        <div class="field-label">
-          <span>Zoom & drag inside media area</span>
-          <span class="value-badge" id="zoomValue">1.0×</span>
+      <!-- ZOOM SLIDER & MUTE BUTTON IN SAME LINE -->
+      <div class="zoom-mute-row">
+        <div class="field-group">
+          <div class="field-label">
+            <span>Zoom & drag inside media</span>
+            <span class="value-badge" id="zoomValue">1.0×</span>
+          </div>
+          <div class="range-wrapper">
+            <input type="range" id="zoomRange" min="0.5" max="3.0" step="0.05" value="1">
+          </div>
         </div>
-        <div class="range-wrapper">
-          <input type="range" id="zoomRange" min="0.5" max="3.0" step="0.05" value="1">
-        </div>
+        <button class="mute-toggle-btn" id="muteToggleBtn" type="button">🔊 Mute</button>
       </div>
 
       <!-- DYNAMIC STATUS & SPINNER (HIDDEN BY DEFAULT) -->
@@ -510,9 +506,7 @@
       const galleryInput = document.getElementById('galleryInput');
       const shuffleSloganBtn = document.getElementById('shuffleSloganBtn');
       const headerRefreshBtn = document.getElementById('headerRefreshBtn');
-      const muteControlRow = document.getElementById('muteControlRow');
       const muteToggleBtn = document.getElementById('muteToggleBtn');
-      const muteInfoText = document.getElementById('muteInfoText');
 
       headerRefreshBtn.addEventListener('click', () => {
         window.location.reload();
@@ -1011,13 +1005,11 @@
         if (!userVideo) return;
         userVideo.muted = !userVideo.muted;
         if (userVideo.muted) {
-          muteToggleBtn.textContent = 'Unmute Video';
+          muteToggleBtn.textContent = '🔇 Unmute';
           muteToggleBtn.classList.add('muted');
-          muteInfoText.textContent = '🔇 Video Audio: Muted';
         } else {
-          muteToggleBtn.textContent = 'Mute Video';
+          muteToggleBtn.textContent = '🔊 Mute';
           muteToggleBtn.classList.remove('muted');
-          muteInfoText.textContent = '🔊 Video Audio: Active';
         }
       });
 
@@ -1052,14 +1044,13 @@
           };
 
           userImage = null;
-          muteControlRow.classList.add('visible');
-          muteToggleBtn.textContent = 'Mute Video';
+          muteToggleBtn.classList.add('visible');
+          muteToggleBtn.textContent = '🔊 Mute';
           muteToggleBtn.classList.remove('muted');
-          muteInfoText.textContent = '🔊 Video Audio: Active';
         } else {
           if (userVideo) { userVideo.pause(); userVideo.src = ''; userVideo = null; }
           if (animationId) cancelAnimationFrame(animationId);
-          muteControlRow.classList.remove('visible');
+          muteToggleBtn.classList.remove('visible');
           videoStatus.classList.remove('visible');
 
           const reader = new FileReader();
@@ -1164,7 +1155,7 @@
           cameraInput.setAttribute('accept', 'image/*');
           cameraInput.setAttribute('capture', 'environment');
           galleryInput.setAttribute('accept', 'image/*');
-          muteControlRow.classList.remove('visible');
+          muteToggleBtn.classList.remove('visible');
           if (userVideo) { userVideo.pause(); }
           scheduleDraw();
         } else {
@@ -1176,7 +1167,7 @@
           galleryInput.setAttribute('accept', 'video/*');
           userImage = null;
           if (userVideo) {
-            muteControlRow.classList.add('visible');
+            muteToggleBtn.classList.add('visible');
             userVideo.play().catch(() => {});
             startAnimationLoop();
           } else {
