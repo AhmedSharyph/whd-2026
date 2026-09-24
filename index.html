@@ -269,14 +269,27 @@
       background: linear-gradient(135deg, #ff2d55, #b3001b);
       box-shadow: 0 6px 16px rgba(255, 45, 85, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     }
+    .btn-share:disabled {
+      opacity: 0.75; cursor: not-allowed; filter: grayscale(0.2);
+    }
 
+    /* LOADING SPINNER STATUS BOX */
     .video-status {
       font-size: 0.92rem; font-weight: 800; color: #b3001b; text-align: center;
       background: #fff5f7; padding: 12px 14px; border-radius: 12px;
       display: none; border: 1.5px solid rgba(255, 45, 85, 0.25); flex-shrink: 0;
       line-height: 1.4; letter-spacing: 0.01em; box-shadow: 0 3px 8px rgba(255, 45, 85, 0.06);
+      align-items: center; justify-content: center; gap: 10px;
     }
-    .video-status.visible { display: block; animation: fadeIn 0.3s ease both; }
+    .video-status.visible { display: flex; animation: fadeIn 0.3s ease both; }
+
+    .spinner {
+      width: 20px; height: 20px; border: 3px solid rgba(255, 45, 85, 0.2);
+      border-top-color: #d90429; border-radius: 50%;
+      animation: spin 0.8s linear infinite; flex-shrink: 0; display: none;
+    }
+    .spinner.active { display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     .app-footer {
       text-align: center; font-size: 0.72rem; color: #8a6a70;
@@ -401,8 +414,11 @@
         </div>
       </div>
 
-      <!-- VIDEO STATUS -->
-      <div class="video-status" id="videoStatus"></div>
+      <!-- VIDEO STATUS & SPINNER -->
+      <div class="video-status" id="videoStatus">
+        <span class="spinner" id="statusSpinner"></span>
+        <span id="statusText">🎥 10s Story Video mode ready</span>
+      </div>
 
       <!-- SINGLE SHARE BUTTON -->
       <button class="btn btn-share" id="actionShareBtn">📤 Share Story</button>
@@ -476,6 +492,8 @@
       const zoomValue = document.getElementById('zoomValue');
       const actionShareBtn = document.getElementById('actionShareBtn');
       const videoStatus = document.getElementById('videoStatus');
+      const statusSpinner = document.getElementById('statusSpinner');
+      const statusText = document.getElementById('statusText');
       const modeImageBtn = document.getElementById('modeImageBtn');
       const modeVideoBtn = document.getElementById('modeVideoBtn');
       const mediaTypeBadge = document.getElementById('mediaTypeBadge');
@@ -1035,7 +1053,8 @@
           muteInfoText.textContent = '🔊 Video Audio: Active';
 
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 Video loaded! Real-time canvas preview active above. Adjust zoom/drag & tap "Share Story" when ready.';
+          statusSpinner.classList.remove('active');
+          statusText.textContent = '🎥 Video loaded! Adjust zoom/drag & tap "Share Story" when ready.';
         } else {
           if (userVideo) { userVideo.pause(); userVideo.src = ''; userVideo = null; }
           if (animationId) cancelAnimationFrame(animationId);
@@ -1135,6 +1154,7 @@
 
         if (mode === 'image') {
           videoStatus.classList.remove('visible');
+          statusSpinner.classList.remove('active');
           cameraBtnText.textContent = 'Take Photo';
           galleryBtnText.textContent = 'Choose Photo';
           mediaTypeBadge.textContent = 'Photo';
@@ -1146,7 +1166,8 @@
           scheduleDraw();
         } else {
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 10s Story Video mode ready';
+          statusSpinner.classList.remove('active');
+          statusText.textContent = '🎥 10s Story Video mode ready';
           cameraBtnText.textContent = 'Record Video';
           galleryBtnText.textContent = 'Choose Video';
           mediaTypeBadge.textContent = 'Video';
@@ -1204,8 +1225,11 @@
             return;
           }
 
+          // Show Spinner & Disable Button During Background Rendering
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 Processing 10s video in background... Please wait.';
+          statusSpinner.classList.add('active');
+          statusText.textContent = '🎥 Processing 10s video in background... Please wait.';
+          actionShareBtn.disabled = true;
 
           recordingStartTime = performance.now();
           const canvasStream = canvas.captureStream(30);
@@ -1249,7 +1273,12 @@
               if (audioCtx) audioCtx.close().catch(() => {});
               const ext = mime.includes('mp4') ? 'mp4' : 'webm';
               lastRecordedVideoBlob = new Blob(chunks, { type: mime });
-              videoStatus.textContent = '✅ Video ready! Opening share dialog...';
+              
+              // Hide Spinner & Enable Button
+              statusSpinner.classList.remove('active');
+              statusText.textContent = '✅ Video ready! Opening share dialog...';
+              actionShareBtn.disabled = false;
+
               executeVideoShare(lastRecordedVideoBlob, shareText, ext);
             };
 
@@ -1271,7 +1300,9 @@
           } catch (err) {
             console.error(err);
             alert('Video processing error: ' + err.message);
+            statusSpinner.classList.remove('active');
             videoStatus.classList.remove('visible');
+            actionShareBtn.disabled = false;
           }
         }
       });
@@ -1286,7 +1317,7 @@
               text: shareText,
               files: [videoFile]
             });
-            videoStatus.textContent = '🎉 Story shared successfully!';
+            statusText.textContent = '🎉 Story shared successfully!';
           } catch (err) {
             if (err.name !== 'AbortError') console.warn('Share failed', err);
             videoStatus.classList.remove('visible');
@@ -1298,7 +1329,7 @@
           a.download = `world-heart-day-2026-story-3-4.${ext}`;
           a.click();
           setTimeout(() => URL.revokeObjectURL(url), 4000);
-          videoStatus.textContent = '💾 Direct sharing not supported; video saved to your device!';
+          statusText.textContent = '💾 Direct sharing not supported; video saved to device!';
         }
       }
 
