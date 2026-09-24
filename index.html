@@ -644,7 +644,6 @@
       function drawSlantedTextAlongCurve(text, centerT, opts = {}) {
         const {
           aboveOffset = 34,
-          
           fontSize = 54,
           color = '#ffffff',
           glow = 'rgba(0, 0, 0, 0.5)'
@@ -906,7 +905,7 @@
           color: '#ffffff'
         });
 
-        // - Second: Straight right-to-left across the top of the curved edge
+        // - Second: Straight right-to-left positioned below the first one
         ctx.save();
         ctx.font = `700 70px "${HASHTAG_FONT}", cursive, sans-serif`;
         ctx.fillStyle = '#ffffff';
@@ -916,7 +915,7 @@
         ctx.shadowBlur = 8;
         ctx.shadowOffsetY = 2;
 
-        ctx.fillText('#WorldHeartDay',840, 300);
+        ctx.fillText('#WorldHeartDay', 840, 300);
         ctx.restore();
 
         // 6. ECG
