@@ -79,24 +79,12 @@
 
     /* WHITISH BADGE ICON CONTAINER */
     .blocker-icon-badge {
-      width: 82px;
-      height: 82px;
-      background: #ffffff;
-      border: 1.5px solid rgba(217, 4, 41, 0.2);
-      border-radius: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 18px;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
-      padding: 12px;
+      width: 82px; height: 82px; background: #ffffff;
+      border: 1.5px solid rgba(217, 4, 41, 0.2); border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 18px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25); padding: 12px;
     }
-    .blocker-icon-badge img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-    }
+    .blocker-icon-badge img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)); }
 
     .app {
       position: fixed; inset: 0; width: 100%; height: 100%;
@@ -115,18 +103,15 @@
     .app-header { display: flex; align-items: center; justify-content: space-between; padding: 4px 6px; flex-shrink: 0; min-height: 44px; }
     .brand { display: flex; align-items: center; gap: 10px; }
     .brand-mark {
-      width: 38px; height: 38px; border-radius: 10px;
-      background: transparent;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; padding: 0; flex-shrink: 0;
+      width: 38px; height: 38px; border-radius: 10px; background: transparent;
+      display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 0; flex-shrink: 0;
     }
     .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
     .brand-text h1 { font-size: 1.05rem; font-weight: 900; letter-spacing: -0.02em; color: #7a0010; line-height: 1.1; }
     .brand-text .sub { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #d90429; margin-top: 1px; }
 
     .header-refresh-btn {
-      background: #fff0f3;
-      border: 1.5px solid rgba(255, 45, 85, 0.25);
+      background: #fff0f3; border: 1.5px solid rgba(255, 45, 85, 0.25);
       width: 38px; height: 38px; border-radius: 11px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; font-size: 16px; color: #d90429;
@@ -136,7 +121,7 @@
     }
     .header-refresh-btn:active { transform: scale(0.92); background: #ffe3e8; }
 
-    /* MODE TABS (LARGER TEXT) */
+    /* MODE TABS */
     .mode-tabs {
       display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
       background: #f0e6e8; padding: 5px; border-radius: 15px;
@@ -149,13 +134,11 @@
       cursor: pointer; transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1);
       display: flex; align-items: center; justify-content: center; gap: 7px;
       -webkit-user-select: none; user-select: none; touch-action: manipulation;
-      font-family: inherit; letter-spacing: 0.02em;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+      font-family: inherit; letter-spacing: 0.02em; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
     }
     .tab-btn#modeVideoBtn {
       background: linear-gradient(135deg, #fff0f3, #ffe3e8);
-      border-color: rgba(255, 45, 85, 0.35);
-      color: #b3001b;
+      border-color: rgba(255, 45, 85, 0.35); color: #b3001b;
     }
     .tab-btn.active {
       background: linear-gradient(135deg, #ff2d55, #d90429) !important; color: #ffffff !important;
@@ -165,20 +148,16 @@
     }
     .tab-btn:active { transform: scale(0.97); }
 
-    /* CANVAS FRAME */
+    /* CANVAS FRAME & VIDEO PREVIEW PLAYER */
     .canvas-frame {
       position: relative; width: 100%; aspect-ratio: 3 / 4;
       border-radius: 20px; overflow: hidden; flex-shrink: 0;
       background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.06);
-      box-shadow:
-        0 10px 28px rgba(217, 4, 41, 0.1),
-        0 2px 5px rgba(0, 0, 0, 0.03),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      box-shadow: 0 10px 28px rgba(217, 4, 41, 0.1), 0 2px 5px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.9);
       padding: 5px; box-sizing: border-box; max-height: 54vh; margin: 0 auto;
     }
     .canvas-frame .hearts-layer {
-      position: absolute; inset: 5px; border-radius: 15px;
-      overflow: hidden; pointer-events: none; z-index: 1;
+      position: absolute; inset: 5px; border-radius: 15px; overflow: hidden; pointer-events: none; z-index: 1;
     }
     .canvas-frame .hearts-layer .heart {
       position: absolute; top: -30px; font-size: 14px; opacity: 0;
@@ -194,14 +173,15 @@
       position: relative; z-index: 2; width: 100%; height: 100%;
       display: block; border-radius: 15px; touch-action: none;
     }
+    .canvas-frame video.preview-video-player {
+      position: absolute; inset: 5px; width: calc(100% - 10px); height: calc(100% - 10px);
+      z-index: 3; border-radius: 15px; object-fit: contain; background: #000000; display: none;
+    }
 
     /* UPLOAD */
     .upload-section { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
     .upload-label-row { display: flex; align-items: center; justify-content: space-between; padding: 0 4px; }
-    .upload-label-row .label-text {
-      font-size: 0.8rem; font-weight: 800; text-transform: uppercase;
-      letter-spacing: 0.08em; color: #7a0010;
-    }
+    .upload-label-row .label-text { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #7a0010; }
     .upload-label-row .media-type-badge {
       font-size: 0.76rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
       color: #d90429; background: rgba(255, 45, 85, 0.08); border: 1px solid rgba(255, 45, 85, 0.2);
@@ -209,21 +189,16 @@
     }
     .upload-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .upload-action-btn {
-      display: flex; align-items: center; justify-content: center;
-      gap: 8px; padding: 14px 14px; border-radius: 14px;
-      border: 1.5px solid rgba(255, 45, 85, 0.25);
-      background: #ffffff; color: #7a0010; font-weight: 900; font-size: 0.95rem;
-      cursor: pointer; transition: all 0.2s;
-      -webkit-user-select: none; user-select: none; touch-action: manipulation;
-      font-family: inherit; text-align: center; letter-spacing: 0.01em;
-      position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 14px; border-radius: 14px;
+      border: 1.5px solid rgba(255, 45, 85, 0.25); background: #ffffff; color: #7a0010; font-weight: 900; font-size: 0.95rem;
+      cursor: pointer; transition: all 0.2s; -webkit-user-select: none; user-select: none; touch-action: manipulation;
+      font-family: inherit; text-align: center; letter-spacing: 0.01em; position: relative; overflow: hidden;
       box-shadow: 0 3px 10px rgba(217, 4, 41, 0.06);
     }
     .upload-action-btn .icon-circle {
       width: 30px; height: 30px; border-radius: 50%;
       background: linear-gradient(135deg, rgba(255, 45, 85, 0.12), rgba(217, 4, 41, 0.08));
-      border: 1px solid rgba(255, 45, 85, 0.2);
-      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(255, 45, 85, 0.2); display: flex; align-items: center; justify-content: center;
       font-size: 15px; transition: transform 0.2s; flex-shrink: 0;
     }
     .upload-action-btn:active { transform: scale(0.97); background: #fff5f7; border-color: rgba(255, 45, 85, 0.4); }
@@ -249,9 +224,8 @@
     /* ZOOM FIELD */
     .field-group { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
     .field-label {
-      font-size: 0.8rem; font-weight: 800; text-transform: uppercase;
-      letter-spacing: 0.08em; color: #7a0010; padding: 0 4px;
-      -webkit-user-select: none; user-select: none;
+      font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+      color: #7a0010; padding: 0 4px; -webkit-user-select: none; user-select: none;
       display: flex; justify-content: space-between; align-items: center;
     }
     .field-label .value-badge {
@@ -262,21 +236,18 @@
     .range-wrapper { width: 100%; padding: 0 2px; }
     input[type="range"] {
       -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
-      background: #f0e0e5; border-radius: 5px; outline: none;
-      margin: 4px 0; touch-action: manipulation; cursor: pointer; border: none;
+      background: #f0e0e5; border-radius: 5px; outline: none; margin: 4px 0; touch-action: manipulation; cursor: pointer; border: none;
     }
     input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none; appearance: none; width: 24px; height: 24px;
-      border-radius: 50%; background: linear-gradient(135deg, #ff2d55, #b3001b);
-      cursor: pointer; box-shadow: 0 3px 10px rgba(255, 45, 85, 0.35), 0 0 0 2px rgba(255, 45, 85, 0.1);
+      -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%;
+      background: linear-gradient(135deg, #ff2d55, #b3001b); cursor: pointer;
+      box-shadow: 0 3px 10px rgba(255, 45, 85, 0.35), 0 0 0 2px rgba(255, 45, 85, 0.1);
       border: 2px solid #ffffff; transition: transform 0.12s; touch-action: manipulation;
     }
     input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.18); }
     input[type="range"]::-moz-range-thumb {
-      width: 24px; height: 24px; border-radius: 50%;
-      background: linear-gradient(135deg, #ff2d55, #b3001b);
-      cursor: pointer; border: 2px solid #ffffff;
-      box-shadow: 0 3px 10px rgba(255, 45, 85, 0.35);
+      width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #ff2d55, #b3001b);
+      cursor: pointer; border: 2px solid #ffffff; box-shadow: 0 3px 10px rgba(255, 45, 85, 0.35);
     }
 
     /* BUTTONS */
@@ -285,9 +256,8 @@
       font-weight: 900; font-size: 1.05rem; cursor: pointer; transition: all 0.2s;
       display: flex; align-items: center; justify-content: center; gap: 8px;
       -webkit-user-select: none; user-select: none; touch-action: manipulation;
-      -webkit-appearance: none; appearance: none; color: #ffffff;
-      flex-shrink: 0; font-family: inherit; letter-spacing: 0.02em;
-      position: relative; overflow: hidden;
+      -webkit-appearance: none; appearance: none; color: #ffffff; flex-shrink: 0; font-family: inherit;
+      letter-spacing: 0.02em; position: relative; overflow: hidden;
     }
     .btn::before {
       content: ''; position: absolute; inset: 0;
@@ -312,9 +282,8 @@
     .video-status {
       font-size: 0.92rem; font-weight: 800; color: #b3001b; text-align: center;
       background: #fff5f7; padding: 12px 14px; border-radius: 12px;
-      display: none; border: 1.5px solid rgba(255, 45, 85, 0.25);
-      flex-shrink: 0; line-height: 1.4; letter-spacing: 0.01em;
-      box-shadow: 0 3px 8px rgba(255, 45, 85, 0.06);
+      display: none; border: 1.5px solid rgba(255, 45, 85, 0.25); flex-shrink: 0;
+      line-height: 1.4; letter-spacing: 0.01em; box-shadow: 0 3px 8px rgba(255, 45, 85, 0.06);
     }
     .video-status.visible { display: block; animation: fadeIn 0.3s ease both; }
 
@@ -395,10 +364,11 @@
         </button>
       </div>
 
-      <!-- CANVAS FRAME (3:4 Ratio) -->
+      <!-- CANVAS FRAME (3:4 Ratio) WITH BUILT-IN PREVIEW PLAYER -->
       <div class="canvas-frame" id="canvasFrame">
         <div class="hearts-layer" id="heartsLayer" aria-hidden="true"></div>
         <canvas id="creatorCanvas" width="1080" height="1440"></canvas>
+        <video id="previewVideoPlayer" class="preview-video-player" playsinline webkit-playsinline controls></video>
       </div>
 
       <!-- UPLOAD -->
@@ -515,6 +485,7 @@
       // ============ DOM REFS ============
       const canvas = document.getElementById('creatorCanvas');
       const ctx = canvas.getContext('2d');
+      const previewVideoPlayer = document.getElementById('previewVideoPlayer');
       const zoomRange = document.getElementById('zoomRange');
       const zoomValue = document.getElementById('zoomValue');
       const actionDownloadBtn = document.getElementById('actionDownloadBtn');
@@ -535,7 +506,6 @@
       const muteToggleBtn = document.getElementById('muteToggleBtn');
       const muteInfoText = document.getElementById('muteInfoText');
 
-      // Refresh button handler
       headerRefreshBtn.addEventListener('click', () => {
         window.location.reload();
       });
@@ -554,7 +524,6 @@
       let startX = 0, startY = 0;
       let lastDrawTime = 0;
 
-      // Pinch zoom state
       let initialPinchDist = null;
       let initialScale = 1;
 
@@ -622,11 +591,11 @@
       mascotTrImg.crossOrigin = 'anonymous';
       mascotTrImg.onload = () => { if (currentMode === 'image') scheduleDraw(); };
 
-      // ============ CURVE CONSTANTS (Adapted for 3:4 Aspect Ratio) ============
+      // ============ CURVE CONSTANTS ============
       const CURVE = {
-        P0: { x: 0,    y: 620 },
-        P1: { x: 360,  y: 380 },
-        P2: { x: 720,  y: 260 },
+        P0: { x: 0,   y: 620 },
+        P1: { x: 360, y: 380 },
+        P2: { x: 720, y: 260 },
         P3: { x: 1080, y: 400 }
       };
 
@@ -797,7 +766,7 @@
         // 1. Background
         drawBackground(w, h);
 
-        // 2. Media clip path (3:4 ratio boundaries) - Natural colors preserved
+        // 2. Media clip path (3:4 ratio boundaries)
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(CURVE.P0.x, CURVE.P0.y);
@@ -807,40 +776,52 @@
         ctx.closePath();
         ctx.clip();
 
-        if (userVideo && userVideo.readyState >= 2) {
-          const vw = userVideo.videoWidth;
-          const vh = userVideo.videoHeight;
-          if (vw && vh) {
+        if (currentMode === 'image') {
+          if (userImage) {
+            const iw = userImage.naturalWidth || userImage.width;
+            const ih = userImage.naturalHeight || userImage.height;
+            
             let drawWidth = w * 0.75;
-            let drawHeight = drawWidth * (vh / vw);
+            let drawHeight = drawWidth * (ih / iw);
 
             drawWidth *= photoScale;
             drawHeight *= photoScale;
 
-            const vx = (w / 2) - (drawWidth / 2) + photoOffsetX;
-            const vy = (h / 2) - (drawHeight / 2) + photoOffsetY;
-            ctx.drawImage(userVideo, vx, vy, drawWidth, drawHeight);
+            const x = (w / 2) - (drawWidth / 2) + photoOffsetX;
+            const y = (h / 2) - (drawHeight / 2) + photoOffsetY;
+            ctx.drawImage(userImage, x, y, drawWidth, drawHeight);
+          } else {
+            ctx.fillStyle = '#f5f5f7';
+            ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = '#d90429';
+            ctx.font = `bold 42px ${PRIMARY_FONT}, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.fillText('Tap below to add your photo', w / 2, h / 2);
           }
-        } else if (userImage) {
-          const iw = userImage.naturalWidth || userImage.width;
-          const ih = userImage.naturalHeight || userImage.height;
-          
-          let drawWidth = w * 0.75;
-          let drawHeight = drawWidth * (ih / iw);
-
-          drawWidth *= photoScale;
-          drawHeight *= photoScale;
-
-          const x = (w / 2) - (drawWidth / 2) + photoOffsetX;
-          const y = (h / 2) - (drawHeight / 2) + photoOffsetY;
-          ctx.drawImage(userImage, x, y, drawWidth, drawHeight);
         } else {
-          ctx.fillStyle = '#f5f5f7';
-          ctx.fillRect(0, 0, w, h);
-          ctx.fillStyle = '#d90429';
-          ctx.font = `bold 42px ${PRIMARY_FONT}, sans-serif`;
-          ctx.textAlign = 'center';
-          ctx.fillText('Tap below to add your photo or video', w / 2, h / 2);
+          // Video Mode live drawing canvas backup placeholder
+          if (userVideo && userVideo.readyState >= 2) {
+            const vw = userVideo.videoWidth;
+            const vh = userVideo.videoHeight;
+            if (vw && vh) {
+              let drawWidth = w * 0.75;
+              let drawHeight = drawWidth * (vh / vw);
+
+              drawWidth *= photoScale;
+              drawHeight *= photoScale;
+
+              const vx = (w / 2) - (drawWidth / 2) + photoOffsetX;
+              const vy = (h / 2) - (drawHeight / 2) + photoOffsetY;
+              ctx.drawImage(userVideo, vx, vy, drawWidth, drawHeight);
+            }
+          } else {
+            ctx.fillStyle = '#f5f5f7';
+            ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = '#b3001b';
+            ctx.font = `bold 42px ${PRIMARY_FONT}, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.fillText('Tap below to add your video clip', w / 2, h / 2);
+          }
         }
 
         ctx.restore();
@@ -908,7 +889,7 @@
         wrapText(ctx, whdSlogans[currentSloganIndex], 500, 85, 540, 56);
         ctx.restore();
 
-        // 5. Hashtags Side-by-Side on Left Arch (Larger Handwritten Font)
+        // 5. Hashtags
         const baseCenterT = 0.08;
         const primaryTagDistance = -20;
         const primaryT = findTAtDistance(baseCenterT, primaryTagDistance);
@@ -1007,6 +988,7 @@
       muteToggleBtn.addEventListener('click', () => {
         if (!userVideo) return;
         userVideo.muted = !userVideo.muted;
+        previewVideoPlayer.muted = userVideo.muted;
         if (userVideo.muted) {
           muteToggleBtn.textContent = 'Unmute Video';
           muteToggleBtn.classList.add('muted');
@@ -1027,12 +1009,14 @@
         zoomRange.value = 1;
         photoScale = 1;
         zoomValue.textContent = '1.0×';
+        lastRecordedVideoBlob = null;
 
         if (file.type.startsWith('video/')) {
           if (userVideo) { userVideo.pause(); userVideo.src = ''; }
           
+          const videoUrl = URL.createObjectURL(file);
           userVideo = document.createElement('video');
-          userVideo.src = URL.createObjectURL(file);
+          userVideo.src = videoUrl;
           userVideo.loop = true;
           userVideo.muted = false;
           userVideo.playsInline = true;
@@ -1040,15 +1024,16 @@
           userVideo.setAttribute('webkit-playsinline', '');
           userVideo.crossOrigin = 'anonymous';
           userVideo.preload = 'auto';
-          userVideo.volume = 1.0;
+
+          // Set preview video player source instantly for reliable playback preview
+          previewVideoPlayer.src = videoUrl;
+          previewVideoPlayer.muted = false;
+          previewVideoPlayer.style.display = 'block';
+          canvas.style.display = 'none';
 
           userVideo.onloadeddata = () => {
-            userVideo.play().then(() => {
-              if (currentMode === 'video') {
-                recordingStartTime = performance.now();
-                startVideoPreviewLoop();
-              }
-            }).catch(() => {});
+            userVideo.play().catch(() => {});
+            previewVideoPlayer.play().catch(() => {});
           };
 
           userImage = null;
@@ -1056,9 +1041,17 @@
           muteToggleBtn.textContent = 'Mute Video';
           muteToggleBtn.classList.remove('muted');
           muteInfoText.textContent = '🔊 Video Audio: Active';
+
+          videoStatus.classList.add('visible');
+          videoStatus.textContent = '🎥 Video loaded! Preview active above. Click "Export MP4" when ready.';
         } else {
           if (userVideo) { userVideo.pause(); userVideo.src = ''; userVideo = null; }
+          previewVideoPlayer.pause();
+          previewVideoPlayer.src = '';
+          previewVideoPlayer.style.display = 'none';
+          canvas.style.display = 'block';
           muteControlRow.classList.remove('visible');
+          videoStatus.classList.remove('visible');
 
           const reader = new FileReader();
           reader.onload = (ev) => {
@@ -1147,7 +1140,6 @@
       window.switchMode = function(mode) {
         currentMode = mode;
         if (animationId) cancelAnimationFrame(animationId);
-        lastRecordedVideoBlob = null;
 
         modeImageBtn.classList.toggle('active', mode === 'image');
         modeVideoBtn.classList.toggle('active', mode === 'video');
@@ -1163,11 +1155,14 @@
           cameraInput.setAttribute('capture', 'environment');
           galleryInput.setAttribute('accept', 'image/*');
           muteControlRow.classList.remove('visible');
-          if (userVideo) { userVideo.pause(); userVideo = null; }
+          previewVideoPlayer.pause();
+          previewVideoPlayer.style.display = 'none';
+          canvas.style.display = 'block';
+          if (userVideo) { userVideo.pause(); }
           scheduleDraw();
         } else {
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 10s Story Video ready with complete design thumbnail';
+          videoStatus.textContent = '🎥 10s Story Video mode ready';
           actionDownloadBtn.textContent = '📥 Export MP4';
           actionShareBtn.textContent = '📤 Share MP4';
           cameraBtnText.textContent = 'Record Video';
@@ -1179,29 +1174,21 @@
           userImage = null;
           if (userVideo) {
             muteControlRow.classList.add('visible');
+            previewVideoPlayer.style.display = 'block';
+            canvas.style.display = 'none';
             userVideo.play().catch(() => {});
+            previewVideoPlayer.play().catch(() => {});
+          } else {
+            canvas.style.display = 'block';
+            previewVideoPlayer.style.display = 'none';
+            scheduleDraw();
           }
-          recordingStartTime = performance.now();
-          startVideoPreviewLoop();
         }
         cameraInput.value = '';
         galleryInput.value = '';
       };
 
-      function startVideoPreviewLoop() {
-        function loop(timestamp) {
-          if (currentMode !== 'video') return;
-          const elapsed = timestamp - recordingStartTime;
-          drawCanvas(elapsed);
-          if (elapsed < 10000) {
-            animationId = requestAnimationFrame(loop);
-          } else {
-            videoStatus.textContent = '✅ 10s preview finished — tap Export MP4';
-          }
-        }
-        animationId = requestAnimationFrame(loop);
-      }
-
+      // ============ EXPORT / RECORD MP4 (STABLE, NON-BLOCKING) ============
       actionDownloadBtn.addEventListener('click', async () => {
         if (currentMode === 'image') {
           const link = document.createElement('a');
@@ -1219,7 +1206,12 @@
           }
 
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 Recording 10s 3:4 video... Please wait.';
+          videoStatus.textContent = '🎥 Generating 10s MP4... Please hold on.';
+
+          // Switch back temporarily to canvas rendering to capture visual layout stream
+          const wasVideoVisible = previewVideoPlayer.style.display !== 'none';
+          previewVideoPlayer.style.display = 'none';
+          canvas.style.display = 'block';
 
           recordingStartTime = performance.now();
           const canvasStream = canvas.captureStream(30);
@@ -1229,12 +1221,7 @@
             let audioCtx = null;
 
             if (userVideo && !userVideo.muted) {
-              if (userVideo.srcObject instanceof MediaStream) {
-                combinedStream = new MediaStream([
-                  ...canvasStream.getVideoTracks(),
-                  ...userVideo.srcObject.getAudioTracks()
-                ]);
-              } else {
+              try {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const source = audioCtx.createMediaElementSource(userVideo);
                 const dest = audioCtx.createMediaStreamDestination();
@@ -1244,17 +1231,21 @@
                   ...canvasStream.getVideoTracks(),
                   ...dest.stream.getAudioTracks()
                 ]);
+              } catch (e) {
+                combinedStream = new MediaStream([...canvasStream.getVideoTracks()]);
               }
             } else {
               combinedStream = new MediaStream([...canvasStream.getVideoTracks()]);
             }
 
-            let mime = 'video/mp4;codecs=avc1.42E01E,mp4a.40.2';
-            if (!MediaRecorder.isTypeSupported(mime)) {
+            // Safe fallback mime types for iOS & Android Safari / Chrome
+            let mime = 'video/webm;codecs=h264,opus';
+            if (MediaRecorder.isTypeSupported('video/mp4')) {
               mime = 'video/mp4';
-              if (!MediaRecorder.isTypeSupported(mime)) {
-                mime = 'video/webm;codecs=h264,opus';
-              }
+            } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) {
+              mime = 'video/webm;codecs=vp8,opus';
+            } else if (MediaRecorder.isTypeSupported('video/webm')) {
+              mime = 'video/webm';
             }
 
             const recorder = new MediaRecorder(combinedStream, { mimeType: mime });
@@ -1263,31 +1254,51 @@
             recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
             recorder.onstop = () => {
               if (audioCtx) audioCtx.close().catch(() => {});
-              lastRecordedVideoBlob = new Blob(chunks, { type: 'video/mp4' });
-              downloadVideoBlob(lastRecordedVideoBlob);
+              const ext = mime.includes('mp4') ? 'mp4' : 'webm';
+              lastRecordedVideoBlob = new Blob(chunks, { type: mime });
+              downloadVideoBlob(lastRecordedVideoBlob, ext);
               videoStatus.textContent = '✅ 10s story video saved successfully!';
+
+              // Restore preview player view
+              if (wasVideoVisible && userVideo) {
+                canvas.style.display = 'none';
+                previewVideoPlayer.style.display = 'block';
+              }
             };
 
             recorder.start();
-            startVideoPreviewLoop();
+
+            // Run lightweight render loop during recording
+            function recordLoop(timestamp) {
+              const elapsed = timestamp - recordingStartTime;
+              drawCanvas(elapsed);
+              if (elapsed < 10000 && recorder.state === 'recording') {
+                requestAnimationFrame(recordLoop);
+              }
+            }
+            requestAnimationFrame(recordLoop);
 
             setTimeout(() => {
-              if (recorder.state !== 'inactive') recorder.stop();
+              if (recorder.state === 'recording') recorder.stop();
             }, 10000);
 
           } catch (err) {
             console.error(err);
             alert('Video export error: ' + err.message);
             videoStatus.classList.remove('visible');
+            if (wasVideoVisible && userVideo) {
+              canvas.style.display = 'none';
+              previewVideoPlayer.style.display = 'block';
+            }
           }
         }
       });
 
-      function downloadVideoBlob(blob) {
+      function downloadVideoBlob(blob, ext = 'mp4') {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'world-heart-day-2026-story-3-4.mp4';
+        a.download = `world-heart-day-2026-story-3-4.${ext}`;
         a.click();
         setTimeout(() => URL.revokeObjectURL(url), 4000);
       }
@@ -1315,7 +1326,7 @@
           }
         } else {
           if (!lastRecordedVideoBlob) {
-            alert('Please click "Export MP4" first to record the 10s clip before sharing.');
+            alert('Please click "Export MP4" first to generate and preview the 10s clip before sharing.');
             return;
           }
           const videoFile = new File([lastRecordedVideoBlob], 'world-heart-day-2026-story-3-4.mp4', { type: 'video/mp4' });
@@ -1331,7 +1342,7 @@
               if (err.name !== 'AbortError') console.warn('Share failed', err);
             }
           } else {
-            alert('Direct video sharing is not supported. Your MP4 was saved to downloads.');
+            alert('Direct video sharing is not supported. Your video file was downloaded successfully.');
           }
         }
       });
@@ -1358,6 +1369,7 @@
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
           if (userVideo) userVideo.pause();
+          if (previewVideoPlayer) previewVideoPlayer.pause();
           if (animationId) cancelAnimationFrame(animationId);
         } else {
           if (userVideo && currentMode === 'image') userVideo.play().catch(() => {});
