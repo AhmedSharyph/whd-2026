@@ -148,7 +148,7 @@
     }
     .tab-btn:active { transform: scale(0.97); }
 
-    /* CANVAS FRAME & VIDEO PREVIEW PLAYER */
+    /* CANVAS FRAME & VIDEO PREVIEW CONTAINER */
     .canvas-frame {
       position: relative; width: 100%; aspect-ratio: 3 / 4;
       border-radius: 20px; overflow: hidden; flex-shrink: 0;
@@ -172,10 +172,6 @@
     .canvas-frame canvas {
       position: relative; z-index: 2; width: 100%; height: 100%;
       display: block; border-radius: 15px; touch-action: none;
-    }
-    .canvas-frame video.preview-video-player {
-      position: absolute; inset: 5px; width: calc(100% - 10px); height: calc(100% - 10px);
-      z-index: 3; border-radius: 15px; object-fit: contain; background: #000000; display: none;
     }
 
     /* UPLOAD */
@@ -269,15 +265,10 @@
       background: linear-gradient(135deg, #ff758c, #ff416c);
       box-shadow: 0 6px 16px rgba(255, 65, 108, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     }
-    .btn-download {
-      background: linear-gradient(135deg, #3a3a40, #111115);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    }
     .btn-share {
       background: linear-gradient(135deg, #ff2d55, #b3001b);
       box-shadow: 0 6px 16px rgba(255, 45, 85, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     }
-    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-shrink: 0; }
 
     .video-status {
       font-size: 0.92rem; font-weight: 800; color: #b3001b; text-align: center;
@@ -364,11 +355,10 @@
         </button>
       </div>
 
-      <!-- CANVAS FRAME (3:4 Ratio) WITH BUILT-IN PREVIEW PLAYER -->
+      <!-- CANVAS FRAME (3:4 Ratio) WITH LIVE RENDER -->
       <div class="canvas-frame" id="canvasFrame">
         <div class="hearts-layer" id="heartsLayer" aria-hidden="true"></div>
         <canvas id="creatorCanvas" width="1080" height="1440"></canvas>
-        <video id="previewVideoPlayer" class="preview-video-player" playsinline webkit-playsinline controls></video>
       </div>
 
       <!-- UPLOAD -->
@@ -414,11 +404,8 @@
       <!-- VIDEO STATUS -->
       <div class="video-status" id="videoStatus"></div>
 
-      <!-- ACTIONS -->
-      <div class="btn-group">
-        <button class="btn btn-download" id="actionDownloadBtn">💾 Save Story</button>
-        <button class="btn btn-share" id="actionShareBtn">📤 Share Story</button>
-      </div>
+      <!-- SINGLE SHARE BUTTON -->
+      <button class="btn btn-share" id="actionShareBtn">📤 Share Story</button>
 
       <!-- FOOTER -->
       <div class="app-footer"><small>Developed by: <a href="https://www.ahmedshareef.mv/" target="_blank" rel="noopener noreferrer">Ahmed Shareef</a> · Shaviyani Atoll Hospital</small></div>
@@ -485,10 +472,8 @@
       // ============ DOM REFS ============
       const canvas = document.getElementById('creatorCanvas');
       const ctx = canvas.getContext('2d');
-      const previewVideoPlayer = document.getElementById('previewVideoPlayer');
       const zoomRange = document.getElementById('zoomRange');
       const zoomValue = document.getElementById('zoomValue');
-      const actionDownloadBtn = document.getElementById('actionDownloadBtn');
       const actionShareBtn = document.getElementById('actionShareBtn');
       const videoStatus = document.getElementById('videoStatus');
       const modeImageBtn = document.getElementById('modeImageBtn');
@@ -584,12 +569,12 @@
       const newLogoImg = new Image();
       newLogoImg.src = 'https://raw.githubusercontent.com/AhmedSharyph/whd-2026/main/new_logo.png';
       newLogoImg.crossOrigin = 'anonymous';
-      newLogoImg.onload = () => { if (currentMode === 'image') scheduleDraw(); };
+      newLogoImg.onload = () => { scheduleDraw(); };
 
       const mascotTrImg = new Image();
       mascotTrImg.src = 'https://raw.githubusercontent.com/AhmedSharyph/whd-2026/main/mascot_tr.png';
       mascotTrImg.crossOrigin = 'anonymous';
-      mascotTrImg.onload = () => { if (currentMode === 'image') scheduleDraw(); };
+      mascotTrImg.onload = () => { scheduleDraw(); };
 
       // ============ CURVE CONSTANTS ============
       const CURVE = {
@@ -640,7 +625,6 @@
       const SLOGAN_FONT = 'SloganFont';
       const HASHTAG_FONT = 'CustomHandwritten';
 
-      // 1. Slanted hashtag along the left side of the curve
       function drawSlantedTextAlongCurve(text, centerT, opts = {}) {
         const {
           aboveOffset = 34,
@@ -897,15 +881,13 @@
         wrapText(ctx, whdSlogans[currentSloganIndex], 500, 85, 540, 56);
         ctx.restore();
 
-        // 5. HASHTAG LAYOUT:
-        // - First: Slanted along the left side curve
+        // 5. Hashtags
         drawSlantedTextAlongCurve('#DontMissABeat', 0.20, {
           aboveOffset: 34,
           fontSize: 70,
           color: '#ffffff'
         });
 
-        // - Second: Straight right-to-left positioned below the first one
         ctx.save();
         ctx.font = `700 70px "${HASHTAG_FONT}", cursive, sans-serif`;
         ctx.fillStyle = '#ffffff';
@@ -914,7 +896,6 @@
         ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
         ctx.shadowBlur = 8;
         ctx.shadowOffsetY = 2;
-
         ctx.fillText('#WorldHeartDay', 840, 300);
         ctx.restore();
 
@@ -932,6 +913,18 @@
           ctx.drawImage(mascotTrImg, mascotX, mascotY, targetWidth, targetHeight);
           ctx.restore();
         }
+      }
+
+      // ============ CONTINUOUS ANIMATION LOOP FOR VIDEO/ECG ============
+      function startAnimationLoop() {
+        if (animationId) cancelAnimationFrame(animationId);
+        function loop(timestamp) {
+          drawCanvas(timestamp);
+          if (currentMode === 'video' && userVideo && !userVideo.paused) {
+            animationId = requestAnimationFrame(loop);
+          }
+        }
+        animationId = requestAnimationFrame(loop);
       }
 
       // ============ ECG ============
@@ -994,7 +987,6 @@
       muteToggleBtn.addEventListener('click', () => {
         if (!userVideo) return;
         userVideo.muted = !userVideo.muted;
-        previewVideoPlayer.muted = userVideo.muted;
         if (userVideo.muted) {
           muteToggleBtn.textContent = 'Unmute Video';
           muteToggleBtn.classList.add('muted');
@@ -1031,14 +1023,9 @@
           userVideo.crossOrigin = 'anonymous';
           userVideo.preload = 'auto';
 
-          previewVideoPlayer.src = videoUrl;
-          previewVideoPlayer.muted = false;
-          previewVideoPlayer.style.display = 'block';
-          canvas.style.display = 'none';
-
           userVideo.onloadeddata = () => {
             userVideo.play().catch(() => {});
-            previewVideoPlayer.play().catch(() => {});
+            startAnimationLoop();
           };
 
           userImage = null;
@@ -1048,13 +1035,10 @@
           muteInfoText.textContent = '🔊 Video Audio: Active';
 
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 Video loaded! Preview active above. Click "Export MP4" when ready.';
+          videoStatus.textContent = '🎥 Video loaded! Real-time canvas preview active above. Adjust zoom/drag & tap "Share Story" when ready.';
         } else {
           if (userVideo) { userVideo.pause(); userVideo.src = ''; userVideo = null; }
-          previewVideoPlayer.pause();
-          previewVideoPlayer.src = '';
-          previewVideoPlayer.style.display = 'none';
-          canvas.style.display = 'block';
+          if (animationId) cancelAnimationFrame(animationId);
           muteControlRow.classList.remove('visible');
           videoStatus.classList.remove('visible');
 
@@ -1098,7 +1082,7 @@
         if (isDragging && e.touches.length === 1) {
           photoOffsetX = e.touches[0].clientX - startX;
           photoOffsetY = e.touches[0].clientY - startY;
-          if (currentMode === 'image') scheduleDraw();
+          scheduleDraw();
         } else if (e.touches.length === 2 && initialPinchDist !== null) {
           const currentDist = Math.hypot(
             e.touches[0].clientX - e.touches[1].clientX,
@@ -1109,7 +1093,7 @@
           photoScale = newScale;
           zoomRange.value = photoScale;
           zoomValue.textContent = photoScale.toFixed(1) + '×';
-          if (currentMode === 'image') scheduleDraw();
+          scheduleDraw();
         }
         e.preventDefault();
       }, { passive: false });
@@ -1132,14 +1116,14 @@
         if (!isDragging) return;
         photoOffsetX = e.clientX - startX;
         photoOffsetY = e.clientY - startY;
-        if (currentMode === 'image') scheduleDraw();
+        scheduleDraw();
       });
       window.addEventListener('mouseup', () => { isDragging = false; });
 
       zoomRange.addEventListener('input', (e) => {
         photoScale = parseFloat(e.target.value);
         zoomValue.textContent = photoScale.toFixed(1) + '×';
-        if (currentMode === 'image') scheduleDraw();
+        scheduleDraw();
       });
 
       window.switchMode = function(mode) {
@@ -1151,8 +1135,6 @@
 
         if (mode === 'image') {
           videoStatus.classList.remove('visible');
-          actionDownloadBtn.textContent = '💾 Save Story';
-          actionShareBtn.textContent = '📤 Share Story';
           cameraBtnText.textContent = 'Take Photo';
           galleryBtnText.textContent = 'Choose Photo';
           mediaTypeBadge.textContent = 'Photo';
@@ -1160,16 +1142,11 @@
           cameraInput.setAttribute('capture', 'environment');
           galleryInput.setAttribute('accept', 'image/*');
           muteControlRow.classList.remove('visible');
-          previewVideoPlayer.pause();
-          previewVideoPlayer.style.display = 'none';
-          canvas.style.display = 'block';
           if (userVideo) { userVideo.pause(); }
           scheduleDraw();
         } else {
           videoStatus.classList.add('visible');
           videoStatus.textContent = '🎥 10s Story Video mode ready';
-          actionDownloadBtn.textContent = '📥 Export MP4';
-          actionShareBtn.textContent = '📤 Share MP4';
           cameraBtnText.textContent = 'Record Video';
           galleryBtnText.textContent = 'Choose Video';
           mediaTypeBadge.textContent = 'Video';
@@ -1179,13 +1156,9 @@
           userImage = null;
           if (userVideo) {
             muteControlRow.classList.add('visible');
-            previewVideoPlayer.style.display = 'block';
-            canvas.style.display = 'none';
             userVideo.play().catch(() => {});
-            previewVideoPlayer.play().catch(() => {});
+            startAnimationLoop();
           } else {
-            canvas.style.display = 'block';
-            previewVideoPlayer.style.display = 'none';
             scheduleDraw();
           }
         }
@@ -1193,29 +1166,46 @@
         galleryInput.value = '';
       };
 
-      // ============ EXPORT / RECORD MP4 ============
-      actionDownloadBtn.addEventListener('click', async () => {
+      // ============ AUTOMATED BACKGROUND PROCESSING & SHARE ============
+      actionShareBtn.addEventListener('click', async () => {
+        const shareText = `World Heart Day 2026 · ${whdSlogans[currentSloganIndex]} #DontMissABeat #WorldHeartDay`;
+
         if (currentMode === 'image') {
-          const link = document.createElement('a');
-          link.download = 'world-heart-day-2026-story-3-4.png';
-          link.href = canvas.toDataURL('image/png');
-          link.click();
+          const dataUrl = canvas.toDataURL('image/png');
+          const blob = await (await fetch(dataUrl)).blob();
+          const file = new File([blob], 'world-heart-day-2026-story-3-4.png', { type: 'image/png' });
+
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                title: 'World Heart Day 2026 Story',
+                text: shareText,
+                files: [file]
+              });
+            } catch (err) {
+              if (err.name !== 'AbortError') console.warn('Share failed', err);
+            }
+          } else {
+            const link = document.createElement('a');
+            link.download = 'world-heart-day-2026-story-3-4.png';
+            link.href = dataUrl;
+            link.click();
+            alert('Direct sharing is not supported on this browser. Your story image has been downloaded instead.');
+          }
         } else {
           if (!window.MediaRecorder) {
             alert('Video recording is not supported on this browser.');
             return;
           }
+
+          // If already recorded during session, share directly
           if (lastRecordedVideoBlob) {
-            downloadVideoBlob(lastRecordedVideoBlob);
+            executeVideoShare(lastRecordedVideoBlob, shareText);
             return;
           }
 
           videoStatus.classList.add('visible');
-          videoStatus.textContent = '🎥 Generating 10s MP4... Please hold on.';
-
-          const wasVideoVisible = previewVideoPlayer.style.display !== 'none';
-          previewVideoPlayer.style.display = 'none';
-          canvas.style.display = 'block';
+          videoStatus.textContent = '🎥 Processing 10s video in background... Please wait.';
 
           recordingStartTime = performance.now();
           const canvasStream = canvas.captureStream(30);
@@ -1255,17 +1245,12 @@
             const chunks = [];
 
             recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-            recorder.onstop = () => {
+            recorder.onstop = async () => {
               if (audioCtx) audioCtx.close().catch(() => {});
               const ext = mime.includes('mp4') ? 'mp4' : 'webm';
               lastRecordedVideoBlob = new Blob(chunks, { type: mime });
-              downloadVideoBlob(lastRecordedVideoBlob, ext);
-              videoStatus.textContent = '✅ 10s story video saved successfully!';
-
-              if (wasVideoVisible && userVideo) {
-                canvas.style.display = 'none';
-                previewVideoPlayer.style.display = 'block';
-              }
+              videoStatus.textContent = '✅ Video ready! Opening share dialog...';
+              executeVideoShare(lastRecordedVideoBlob, shareText, ext);
             };
 
             recorder.start();
@@ -1285,68 +1270,37 @@
 
           } catch (err) {
             console.error(err);
-            alert('Video export error: ' + err.message);
+            alert('Video processing error: ' + err.message);
             videoStatus.classList.remove('visible');
-            if (wasVideoVisible && userVideo) {
-              canvas.style.display = 'none';
-              previewVideoPlayer.style.display = 'block';
-            }
           }
         }
       });
 
-      function downloadVideoBlob(blob, ext = 'mp4') {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `world-heart-day-2026-story-3-4.${ext}`;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(url), 4000);
-      }
+      async function executeVideoShare(blob, shareText, ext = 'mp4') {
+        const videoFile = new File([blob], `world-heart-day-2026-story-3-4.${ext}`, { type: blob.type || 'video/mp4' });
 
-      actionShareBtn.addEventListener('click', async () => {
-        const shareText = `World Heart Day 2026 · ${whdSlogans[currentSloganIndex]} #DontMissABeat #WorldHeartDay`;
-
-        if (currentMode === 'image') {
-          const dataUrl = canvas.toDataURL('image/png');
-          const blob = await (await fetch(dataUrl)).blob();
-          const file = new File([blob], 'world-heart-day-2026-story-3-4.png', { type: 'image/png' });
-
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-              await navigator.share({
-                title: 'World Heart Day 2026 Story',
-                text: shareText,
-                files: [file]
-              });
-            } catch (err) {
-              if (err.name !== 'AbortError') console.warn('Share failed', err);
-            }
-          } else {
-            alert('Direct sharing is not supported here. Please use "Save Story" instead.');
+        if (navigator.canShare && navigator.canShare({ files: [videoFile] })) {
+          try {
+            await navigator.share({
+              title: 'World Heart Day 2026 Story Video',
+              text: shareText,
+              files: [videoFile]
+            });
+            videoStatus.textContent = '🎉 Story shared successfully!';
+          } catch (err) {
+            if (err.name !== 'AbortError') console.warn('Share failed', err);
+            videoStatus.classList.remove('visible');
           }
         } else {
-          if (!lastRecordedVideoBlob) {
-            alert('Please click "Export MP4" first to generate and preview the 10s clip before sharing.');
-            return;
-          }
-          const videoFile = new File([lastRecordedVideoBlob], 'world-heart-day-2026-story-3-4.mp4', { type: 'video/mp4' });
-
-          if (navigator.canShare && navigator.canShare({ files: [videoFile] })) {
-            try {
-              await navigator.share({
-                title: 'World Heart Day 2026 Story Video',
-                text: shareText,
-                files: [videoFile]
-              });
-            } catch (err) {
-              if (err.name !== 'AbortError') console.warn('Share failed', err);
-            }
-          } else {
-            alert('Direct video sharing is not supported. Your video file was downloaded successfully.');
-          }
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `world-heart-day-2026-story-3-4.${ext}`;
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 4000);
+          videoStatus.textContent = '💾 Direct sharing not supported; video saved to your device!';
         }
-      });
+      }
 
       document.getElementById('canvasFrame').addEventListener('touchmove', (e) => {
         if (e.target === canvas) e.preventDefault();
@@ -1366,17 +1320,20 @@
       });
       
       window.addEventListener('load', () => { 
-        if (currentMode === 'image') scheduleDraw(); 
+        scheduleDraw(); 
       });
 
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
           if (userVideo) userVideo.pause();
-          if (previewVideoPlayer) previewVideoPlayer.pause();
           if (animationId) cancelAnimationFrame(animationId);
         } else {
-          if (userVideo && currentMode === 'image') userVideo.play().catch(() => {});
-          if (currentMode === 'image') scheduleDraw();
+          if (userVideo && currentMode === 'video') {
+            userVideo.play().catch(() => {});
+            startAnimationLoop();
+          } else {
+            scheduleDraw();
+          }
         }
       });
 
