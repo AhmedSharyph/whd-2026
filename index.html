@@ -792,7 +792,6 @@
             const iw = userImage.naturalWidth || userImage.width;
             const ih = userImage.naturalHeight || userImage.height;
             
-            // Allow media to fit naturally without forced scaling/cropping locks
             const baseScale = Math.max((w * 0.8) / iw, (h * 0.6) / ih);
             let drawWidth = iw * baseScale * photoScale;
             let drawHeight = ih * baseScale * photoScale;
@@ -1011,7 +1010,7 @@
         }
       });
 
-      // ============ FIXED MEDIA SELECT HANDLER (iOS compatible) ============
+      // ============ FULLY OPTIMIZED iOS-COMPATIBLE MEDIA SELECT HANDLER ============
       function handleMediaSelect(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -1024,16 +1023,14 @@
         zoomValue.textContent = '1.0×';
         lastRecordedVideoBlob = null;
 
-        // Determine if file is a video
         const isVideo = file.type.startsWith('video/') || 
                        (file.name && file.name.match(/\.(mp4|mov|m4v|3gp|avi|mkv)$/i));
 
         if (isVideo) {
-          // Clean up previous video
-          if (userVideo) { 
-            userVideo.pause(); 
-            if (userVideo.src) URL.revokeObjectURL(userVideo.src); 
-            userVideo.src = ''; 
+          if (userVideo) {  
+            userVideo.pause();  
+            if (userVideo.src) URL.revokeObjectURL(userVideo.src);  
+            userVideo.src = '';  
             userVideo = null;
           }
           if (animationId) cancelAnimationFrame(animationId);
@@ -1042,40 +1039,45 @@
           userVideo = document.createElement('video');
           userVideo.src = videoUrl;
           userVideo.loop = true;
-          userVideo.muted = false;
+          userVideo.muted = true; // Essential for iOS automated inline decode/playback security policies
           userVideo.playsInline = true;
           userVideo.setAttribute('playsinline', '');
           userVideo.setAttribute('webkit-playsinline', '');
           userVideo.crossOrigin = 'anonymous';
           userVideo.preload = 'auto';
 
+          // Force iOS buffer loading stream pipeline
+          userVideo.load();
+
           userVideo.onloadeddata = () => {
-            userVideo.play().catch((err) => {
-              console.warn('Video autoplay prevented:', err);
-              // Show mute button in case autoplay with sound is blocked
-              muteToggleBtn.classList.add('visible');
-              muteToggleBtn.textContent = '🔇 Unmute';
-              muteToggleBtn.classList.add('muted');
-              userVideo.muted = true;
+            userVideo.play().then(() => {
+              startAnimationLoop();
+            }).catch((err) => {
+              console.warn('Video auto-play restricted:', err);
+              startAnimationLoop();
             });
+          };
+
+          userVideo.oncanplaythrough = () => {
             startAnimationLoop();
           };
 
-          userVideo.onerror = () => {
-            alert('Unable to load the selected video. Please try a different file.');
+          userVideo.onerror = (err) => {
+            console.error('Video load error:', err);
+            alert('Unable to load the selected video format on iOS Safari. Try recording or choosing a standard MP4/MOV clip.');
           };
 
           userImage = null;
           muteToggleBtn.classList.add('visible');
-          muteToggleBtn.textContent = '🔊 Mute';
-          muteToggleBtn.classList.remove('muted');
+          muteToggleBtn.textContent = '🔇 Unmute';
+          muteToggleBtn.classList.add('muted');
         } else {
-          // Image handling
-          if (userVideo) { 
-            userVideo.pause(); 
-            if (userVideo.src) URL.revokeObjectURL(userVideo.src); 
-            userVideo.src = ''; 
-            userVideo = null; 
+          if (userVideo) {  
+            userVideo.pause();  
+            if (userVideo.src) URL.revokeObjectURL(userVideo.src);  
+            userVideo.src = '';  
+            userVideo.srcObject = null;
+            userVideo = null;  
           }
           if (animationId) cancelAnimationFrame(animationId);
           muteToggleBtn.classList.remove('visible');
@@ -1085,7 +1087,6 @@
           reader.onload = (ev) => {
             userImage = new Image();
             userImage.onload = () => {
-              // For iOS, sometimes the orientation is off, but we rely on the browser to handle it
               scheduleDraw();
             };
             userImage.onerror = () => {
@@ -1096,24 +1097,19 @@
           reader.readAsDataURL(file);
         }
         
-        // Reset input value to allow selecting the same file again
         setTimeout(() => {
           cameraInput.value = '';
           galleryInput.value = '';
         }, 500);
       }
 
-      // ============ MODIFIED CAMERA & GALLERY HANDLERS (iOS FIX) ============
-      // For iOS, we explicitly set the 'capture' attribute dynamically based on mode
       function updateInputAttributes() {
         if (currentMode === 'image') {
-          // Photo mode: camera uses environment capture, gallery accepts images
           cameraInput.setAttribute('accept', 'image/*');
           cameraInput.setAttribute('capture', 'environment');
           galleryInput.setAttribute('accept', 'image/*');
-          galleryInput.removeAttribute('capture'); // Gallery should not force camera
+          galleryInput.removeAttribute('capture');
         } else {
-          // Video mode: camera uses camcorder capture, gallery accepts video
           cameraInput.setAttribute('accept', 'video/*');
           cameraInput.setAttribute('capture', 'camcorder');
           galleryInput.setAttribute('accept', 'video/*');
@@ -1121,18 +1117,12 @@
         }
       }
 
-      // Initialize attributes based on current mode (image by default)
       updateInputAttributes();
-
-      // Re-apply attributes when mode switches (called from switchMode)
-      // (We'll also call from switchMode function)
 
       cameraInput.addEventListener('change', handleMediaSelect);
       galleryInput.addEventListener('change', handleMediaSelect);
       
       cameraBtn.addEventListener('click', () => {
-        // On iOS, if capture attribute is set, it opens camera directly
-        // If not set, it may show a choice, so we ensure it's set
         if (currentMode === 'image') {
           cameraInput.setAttribute('capture', 'environment');
         } else {
@@ -1142,7 +1132,6 @@
       });
       
       galleryBtn.addEventListener('click', () => {
-        // Ensure no capture attribute for gallery selection
         galleryInput.removeAttribute('capture');
         galleryInput.click();
       });
@@ -1213,7 +1202,7 @@
         scheduleDraw();
       });
 
-      // ============ MODE SWITCHING (UPDATED) ============
+      // ============ MODE SWITCHING ============
       window.switchMode = function(mode) {
         currentMode = mode;
         if (animationId) cancelAnimationFrame(animationId);
@@ -1244,10 +1233,8 @@
           }
         }
         
-        // Update input attributes for the new mode
         updateInputAttributes();
         
-        // Clear inputs
         cameraInput.value = '';
         galleryInput.value = '';
         
@@ -1321,7 +1308,6 @@
               combinedStream = new MediaStream([...canvasStream.getVideoTracks()]);
             }
 
-            // iOS Safari compatible mime type checking
             let mime = 'video/mp4';
             if (MediaRecorder.isTypeSupported('video/mp4')) {
               mime = 'video/mp4';
