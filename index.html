@@ -394,8 +394,8 @@
             <span id="galleryBtnText">Choose Photo</span>
           </button>
         </div>
-        <!-- iOS-friendly file inputs -->
-        <input type="file" id="cameraInput" accept="image/*" style="display:none;">
+        <!-- iOS-friendly file inputs with 'capture' attributes -->
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
         <input type="file" id="galleryInput" accept="image/*" style="display:none;">
       </div>
 
@@ -1011,10 +1011,12 @@
         }
       });
 
+      // ============ FIXED MEDIA SELECT HANDLER (iOS compatible) ============
       function handleMediaSelect(e) {
         const file = e.target.files[0];
         if (!file) return;
 
+        // Reset offsets and scale
         photoOffsetX = 0;
         photoOffsetY = 0;
         zoomRange.value = 1;
@@ -1022,8 +1024,19 @@
         zoomValue.textContent = '1.0×';
         lastRecordedVideoBlob = null;
 
-        if (file.type.startsWith('video/') || file.name.match(/\.(mp4|mov|m4v|3gp)$/i)) {
-          if (userVideo) { userVideo.pause(); userVideo.src = ''; }
+        // Determine if file is a video
+        const isVideo = file.type.startsWith('video/') || 
+                       (file.name && file.name.match(/\.(mp4|mov|m4v|3gp|avi|mkv)$/i));
+
+        if (isVideo) {
+          // Clean up previous video
+          if (userVideo) { 
+            userVideo.pause(); 
+            if (userVideo.src) URL.revokeObjectURL(userVideo.src); 
+            userVideo.src = ''; 
+            userVideo = null;
+          }
+          if (animationId) cancelAnimationFrame(animationId);
           
           const videoUrl = URL.createObjectURL(file);
           userVideo = document.createElement('video');
@@ -1037,8 +1050,19 @@
           userVideo.preload = 'auto';
 
           userVideo.onloadeddata = () => {
-            userVideo.play().catch(() => {});
+            userVideo.play().catch((err) => {
+              console.warn('Video autoplay prevented:', err);
+              // Show mute button in case autoplay with sound is blocked
+              muteToggleBtn.classList.add('visible');
+              muteToggleBtn.textContent = '🔇 Unmute';
+              muteToggleBtn.classList.add('muted');
+              userVideo.muted = true;
+            });
             startAnimationLoop();
+          };
+
+          userVideo.onerror = () => {
+            alert('Unable to load the selected video. Please try a different file.');
           };
 
           userImage = null;
@@ -1046,7 +1070,13 @@
           muteToggleBtn.textContent = '🔊 Mute';
           muteToggleBtn.classList.remove('muted');
         } else {
-          if (userVideo) { userVideo.pause(); userVideo.src = ''; userVideo = null; }
+          // Image handling
+          if (userVideo) { 
+            userVideo.pause(); 
+            if (userVideo.src) URL.revokeObjectURL(userVideo.src); 
+            userVideo.src = ''; 
+            userVideo = null; 
+          }
           if (animationId) cancelAnimationFrame(animationId);
           muteToggleBtn.classList.remove('visible');
           videoStatus.classList.remove('visible');
@@ -1054,20 +1084,68 @@
           const reader = new FileReader();
           reader.onload = (ev) => {
             userImage = new Image();
+            userImage.onload = () => {
+              // For iOS, sometimes the orientation is off, but we rely on the browser to handle it
+              scheduleDraw();
+            };
+            userImage.onerror = () => {
+              alert('Unable to load the selected image. Please try a different file.');
+            };
             userImage.src = ev.target.result;
-            userImage.onload = () => scheduleDraw();
           };
           reader.readAsDataURL(file);
         }
+        
+        // Reset input value to allow selecting the same file again
         setTimeout(() => {
           cameraInput.value = '';
           galleryInput.value = '';
         }, 500);
       }
+
+      // ============ MODIFIED CAMERA & GALLERY HANDLERS (iOS FIX) ============
+      // For iOS, we explicitly set the 'capture' attribute dynamically based on mode
+      function updateInputAttributes() {
+        if (currentMode === 'image') {
+          // Photo mode: camera uses environment capture, gallery accepts images
+          cameraInput.setAttribute('accept', 'image/*');
+          cameraInput.setAttribute('capture', 'environment');
+          galleryInput.setAttribute('accept', 'image/*');
+          galleryInput.removeAttribute('capture'); // Gallery should not force camera
+        } else {
+          // Video mode: camera uses camcorder capture, gallery accepts video
+          cameraInput.setAttribute('accept', 'video/*');
+          cameraInput.setAttribute('capture', 'camcorder');
+          galleryInput.setAttribute('accept', 'video/*');
+          galleryInput.removeAttribute('capture');
+        }
+      }
+
+      // Initialize attributes based on current mode (image by default)
+      updateInputAttributes();
+
+      // Re-apply attributes when mode switches (called from switchMode)
+      // (We'll also call from switchMode function)
+
       cameraInput.addEventListener('change', handleMediaSelect);
       galleryInput.addEventListener('change', handleMediaSelect);
-      cameraBtn.addEventListener('click', () => cameraInput.click());
-      galleryBtn.addEventListener('click', () => galleryInput.click());
+      
+      cameraBtn.addEventListener('click', () => {
+        // On iOS, if capture attribute is set, it opens camera directly
+        // If not set, it may show a choice, so we ensure it's set
+        if (currentMode === 'image') {
+          cameraInput.setAttribute('capture', 'environment');
+        } else {
+          cameraInput.setAttribute('capture', 'camcorder');
+        }
+        cameraInput.click();
+      });
+      
+      galleryBtn.addEventListener('click', () => {
+        // Ensure no capture attribute for gallery selection
+        galleryInput.removeAttribute('capture');
+        galleryInput.click();
+      });
 
       // ============ TOUCH / MOUSE DRAG & PINCH ZOOM ============
       canvas.addEventListener('touchstart', (e) => {
@@ -1135,6 +1213,7 @@
         scheduleDraw();
       });
 
+      // ============ MODE SWITCHING (UPDATED) ============
       window.switchMode = function(mode) {
         currentMode = mode;
         if (animationId) cancelAnimationFrame(animationId);
@@ -1149,18 +1228,12 @@
           cameraBtnText.textContent = 'Take Photo';
           galleryBtnText.textContent = 'Choose Photo';
           mediaTypeBadge.textContent = 'Photo';
-          cameraInput.setAttribute('accept', 'image/*');
-          galleryInput.setAttribute('accept', 'image/*');
           muteToggleBtn.classList.remove('visible');
           if (userVideo) { userVideo.pause(); }
-          scheduleDraw();
         } else {
           cameraBtnText.textContent = 'Record Video';
           galleryBtnText.textContent = 'Choose Video';
           mediaTypeBadge.textContent = 'Video';
-          // Broad accept filter so iOS allows picking videos from library
-          cameraInput.setAttribute('accept', 'video/*,image/*');
-          galleryInput.setAttribute('accept', 'video/*,image/*');
           userImage = null;
           if (userVideo) {
             muteToggleBtn.classList.add('visible');
@@ -1170,8 +1243,15 @@
             scheduleDraw();
           }
         }
+        
+        // Update input attributes for the new mode
+        updateInputAttributes();
+        
+        // Clear inputs
         cameraInput.value = '';
         galleryInput.value = '';
+        
+        scheduleDraw();
       };
 
       // ============ AUTOMATED BACKGROUND PROCESSING & SHARE ============
