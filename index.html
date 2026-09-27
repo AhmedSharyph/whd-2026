@@ -394,7 +394,8 @@
             <span id="galleryBtnText">Choose Photo</span>
           </button>
         </div>
-        <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
+        <!-- iOS-friendly file inputs -->
+        <input type="file" id="cameraInput" accept="image/*" style="display:none;">
         <input type="file" id="galleryInput" accept="image/*" style="display:none;">
       </div>
 
@@ -791,11 +792,10 @@
             const iw = userImage.naturalWidth || userImage.width;
             const ih = userImage.naturalHeight || userImage.height;
             
-            let drawWidth = w * 0.75;
-            let drawHeight = drawWidth * (ih / iw);
-
-            drawWidth *= photoScale;
-            drawHeight *= photoScale;
+            // Allow media to fit naturally without forced scaling/cropping locks
+            const baseScale = Math.max((w * 0.8) / iw, (h * 0.6) / ih);
+            let drawWidth = iw * baseScale * photoScale;
+            let drawHeight = ih * baseScale * photoScale;
 
             const x = (w / 2) - (drawWidth / 2) + photoOffsetX;
             const y = (h / 2) - (drawHeight / 2) + photoOffsetY;
@@ -813,11 +813,9 @@
             const vw = userVideo.videoWidth;
             const vh = userVideo.videoHeight;
             if (vw && vh) {
-              let drawWidth = w * 0.75;
-              let drawHeight = drawWidth * (vh / vw);
-
-              drawWidth *= photoScale;
-              drawHeight *= photoScale;
+              const baseScale = Math.max((w * 0.8) / vw, (h * 0.6) / vh);
+              let drawWidth = vw * baseScale * photoScale;
+              let drawHeight = vh * baseScale * photoScale;
 
               const vx = (w / 2) - (drawWidth / 2) + photoOffsetX;
               const vy = (h / 2) - (drawHeight / 2) + photoOffsetY;
@@ -1024,7 +1022,7 @@
         zoomValue.textContent = '1.0×';
         lastRecordedVideoBlob = null;
 
-        if (file.type.startsWith('video/')) {
+        if (file.type.startsWith('video/') || file.name.match(/\.(mp4|mov|m4v|3gp)$/i)) {
           if (userVideo) { userVideo.pause(); userVideo.src = ''; }
           
           const videoUrl = URL.createObjectURL(file);
@@ -1144,7 +1142,6 @@
         modeImageBtn.classList.toggle('active', mode === 'image');
         modeVideoBtn.classList.toggle('active', mode === 'video');
 
-        // Always hide the status notification box when switching modes
         videoStatus.classList.remove('visible');
         statusSpinner.classList.remove('active');
 
@@ -1153,7 +1150,6 @@
           galleryBtnText.textContent = 'Choose Photo';
           mediaTypeBadge.textContent = 'Photo';
           cameraInput.setAttribute('accept', 'image/*');
-          cameraInput.setAttribute('capture', 'environment');
           galleryInput.setAttribute('accept', 'image/*');
           muteToggleBtn.classList.remove('visible');
           if (userVideo) { userVideo.pause(); }
@@ -1162,9 +1158,9 @@
           cameraBtnText.textContent = 'Record Video';
           galleryBtnText.textContent = 'Choose Video';
           mediaTypeBadge.textContent = 'Video';
-          cameraInput.setAttribute('accept', 'video/*');
-          cameraInput.setAttribute('capture', 'environment');
-          galleryInput.setAttribute('accept', 'video/*');
+          // Broad accept filter so iOS allows picking videos from library
+          cameraInput.setAttribute('accept', 'video/*,image/*');
+          galleryInput.setAttribute('accept', 'video/*,image/*');
           userImage = null;
           if (userVideo) {
             muteToggleBtn.classList.add('visible');
@@ -1210,13 +1206,11 @@
             return;
           }
 
-          // If already recorded during session, share directly
           if (lastRecordedVideoBlob) {
             executeVideoShare(lastRecordedVideoBlob, shareText);
             return;
           }
 
-          // Show Spinner & Disable Button During Background Rendering
           videoStatus.classList.add('visible');
           statusSpinner.classList.add('active');
           statusText.textContent = 'Processing 10s video... Please wait.';
@@ -1247,7 +1241,8 @@
               combinedStream = new MediaStream([...canvasStream.getVideoTracks()]);
             }
 
-            let mime = 'video/webm;codecs=h264,opus';
+            // iOS Safari compatible mime type checking
+            let mime = 'video/mp4';
             if (MediaRecorder.isTypeSupported('video/mp4')) {
               mime = 'video/mp4';
             } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) {
@@ -1265,7 +1260,6 @@
               const ext = mime.includes('mp4') ? 'mp4' : 'webm';
               lastRecordedVideoBlob = new Blob(chunks, { type: mime });
               
-              // Hide Spinner & Enable Button
               statusSpinner.classList.remove('active');
               statusText.textContent = 'Ready! Opening share dialog...';
               actionShareBtn.disabled = false;
